@@ -13,6 +13,7 @@ import jakarta.persistence.UniqueConstraint;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
@@ -22,8 +23,10 @@ import java.time.LocalDateTime;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
+@Getter
 @Table(name = "users", uniqueConstraints = {
-        @UniqueConstraint(name = "UK_user_email", columnNames = "email")
+        @UniqueConstraint(name = "UK_user_email", columnNames = "email"),
+        @UniqueConstraint(name = "UK_user_login_id", columnNames = "id_for_login")
 })
 public class User {
     @Id
@@ -32,6 +35,9 @@ public class User {
 
     @Column(nullable = false, length = 50)
     private String email;
+
+    @Column(name = "id_for_login", nullable = false, length = 30)
+    private String idForLogin;
 
     @Column(nullable = false)
     private String password;

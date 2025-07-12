@@ -1,5 +1,8 @@
 package com.example.delivery.user.dto;
 
+import lombok.Getter;
+
+@Getter
 public class LoginResponse {
     private String token;
 
