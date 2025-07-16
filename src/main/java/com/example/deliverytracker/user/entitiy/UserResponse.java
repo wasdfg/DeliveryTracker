@@ -1,4 +1,4 @@
-package com.example.delivery.user.entitiy;
+package com.example.deliverytracker.user.entitiy;
 
 public class UserResponse {
     private String email;

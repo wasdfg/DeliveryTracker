@@ -1,4 +1,4 @@
-package com.example.delivery.global.jwt;
+package com.example.deliverytracker.global.jwt;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;

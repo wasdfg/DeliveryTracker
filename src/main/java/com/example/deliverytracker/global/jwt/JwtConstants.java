@@ -1,4 +1,4 @@
-package com.example.delivery.global.jwt;
+package com.example.deliverytracker.global.jwt;
 
 public class JwtConstants {
     public static final String HEADER = "Authorization";

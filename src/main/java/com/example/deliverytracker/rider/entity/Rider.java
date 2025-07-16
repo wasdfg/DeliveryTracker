@@ -1,4 +1,4 @@
-package com.example.delivery.rider.entity;
+package com.example.deliverytracker.rider.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

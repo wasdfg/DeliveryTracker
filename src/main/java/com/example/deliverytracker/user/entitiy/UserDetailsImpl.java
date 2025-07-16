@@ -1,4 +1,4 @@
-package com.example.delivery.user.entitiy;
+package com.example.deliverytracker.user.entitiy;
 
 import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;

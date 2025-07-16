@@ -1,7 +1,7 @@
-package com.example.delivery.order.entity;
+package com.example.deliverytracker.order.entity;
 
-import com.example.delivery.rider.entity.Rider;
-import com.example.delivery.user.entitiy.User;
+import com.example.deliverytracker.rider.entity.Rider;
+import com.example.deliverytracker.user.entitiy.User;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

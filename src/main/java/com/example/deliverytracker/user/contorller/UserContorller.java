@@ -1,12 +1,12 @@
-package com.example.delivery.user.contorller;
+package com.example.deliverytracker.user.contorller;
 
-import com.example.delivery.user.dto.LoginResponse;
-import com.example.delivery.user.dto.UserLoginRequest;
-import com.example.delivery.user.dto.UserSignupRequest;
-import com.example.delivery.user.entitiy.User;
-import com.example.delivery.user.entitiy.UserDetailsImpl;
-import com.example.delivery.user.entitiy.UserResponse;
-import com.example.delivery.user.service.UserService;
+import com.example.deliverytracker.user.dto.LoginResponse;
+import com.example.deliverytracker.user.dto.UserLoginRequest;
+import com.example.deliverytracker.user.dto.UserSignupRequest;
+import com.example.deliverytracker.user.entitiy.User;
+import com.example.deliverytracker.user.entitiy.UserDetailsImpl;
+import com.example.deliverytracker.user.entitiy.UserResponse;
+import com.example.deliverytracker.user.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RequiredArgsConstructor

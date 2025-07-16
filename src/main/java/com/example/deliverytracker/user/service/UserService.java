@@ -1,10 +1,10 @@
-package com.example.delivery.user.service;
+package com.example.deliverytracker.user.service;
 
-import com.example.delivery.global.jwt.JwtProvider;
-import com.example.delivery.user.UserRepository;
-import com.example.delivery.user.dto.UserLoginRequest;
-import com.example.delivery.user.dto.UserSignupRequest;
-import com.example.delivery.user.entitiy.User;
+import com.example.deliverytracker.global.jwt.JwtProvider;
+import com.example.deliverytracker.user.UserRepository;
+import com.example.deliverytracker.user.dto.UserLoginRequest;
+import com.example.deliverytracker.user.dto.UserSignupRequest;
+import com.example.deliverytracker.user.entitiy.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;

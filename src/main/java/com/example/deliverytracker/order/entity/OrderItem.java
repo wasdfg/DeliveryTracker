@@ -1,4 +1,4 @@
-package com.example.delivery.order.entity;
+package com.example.deliverytracker.order.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

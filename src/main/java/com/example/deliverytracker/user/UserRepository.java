@@ -1,6 +1,6 @@
-package com.example.delivery.user;
+package com.example.deliverytracker.user;
 
-import com.example.delivery.user.entitiy.User;
+import com.example.deliverytracker.user.entitiy.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

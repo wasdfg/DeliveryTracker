@@ -1,4 +1,4 @@
-package com.example.delivery.user.dto;
+package com.example.deliverytracker.user.dto;
 
 import lombok.Getter;
 
