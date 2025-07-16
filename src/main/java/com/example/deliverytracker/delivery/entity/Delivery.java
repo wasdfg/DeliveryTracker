@@ -1,0 +1,45 @@
+package com.example.deliverytracker.delivery.entity;
+
+import com.example.deliverytracker.user.entitiy.User;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+
+@Entity
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor
+@Builder
+public class Delivery {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    private String receiverName;
+    private String receiverAddress;
+    private String receiverPhone;
+
+    private String itemDescription;
+
+    @Enumerated(EnumType.STRING)
+    private DeliveryStatus status;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    private User requester;
+
+    public void updateStatus(DeliveryStatus status) {
+        this.status = status;
+    }
+}
