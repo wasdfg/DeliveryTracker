@@ -1,0 +1,81 @@
+package com.example.deliverytracker.delivery.controller;
+
+import com.example.deliverytracker.delivery.dto.DeliveryRequestDto;
+import com.example.deliverytracker.delivery.dto.DeliveryResponseDto;
+import com.example.deliverytracker.delivery.service.DeliveryService;
+import com.example.deliverytracker.user.entitiy.User;
+import com.example.deliverytracker.user.entitiy.UserDetailsImpl;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
+
+@RequiredArgsConstructor
+@RequestMapping("/api/delivery")
+@RestController
+public class DeliveryController {
+
+    private DeliveryService deliveryService;
+
+    @PostMapping("/request")
+    public ResponseEntity<String> requestDelivery(@RequestBody @Valid DeliveryRequestDto request,@AuthenticationPrincipal UserDetailsImpl userDetails){
+        if (userDetails == null) {
+            return ResponseEntity
+                    .status(HttpStatus.UNAUTHORIZED)
+                    .body("로그인이 필요합니다.");
+        }
+
+        deliveryService.requestDelivery(request, userDetails.getUser());
+
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body("주문이 완료되었습니다.");
+    }
+
+    @GetMapping("/my")
+    public ResponseEntity<List<DeliveryResponseDto>> getMyDeliveryInfo(@AuthenticationPrincipal UserDetailsImpl userDetails) {
+        if (userDetails == null) {
+            return ResponseEntity
+                    .status(HttpStatus.UNAUTHORIZED)
+                    .build();
+        }
+
+        List<DeliveryResponseDto> deliveries = deliveryService.getMyDeliveryInfo(userDetails.getUser());
+        
+        return ResponseEntity.ok(deliveries);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<DeliveryResponseDto> getDeliveryDetailInfo(@PathVariable Long id, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        if (userDetails == null) {
+            return ResponseEntity
+                    .status(HttpStatus.UNAUTHORIZED)
+                    .build();
+        }
+
+        DeliveryResponseDto deliveryDetail = deliveryService.getDeliveryDetail(id,userDetails.getUser());
+
+        return ResponseEntity.ok(deliveryDetail);
+    }
+
+    @PatchMapping("/{id}/assign")
+    public ResponseEntity<DeliveryResponseDto> assginDelivery(@PathVariable Long id,@AuthenticationPrincipal UserDetailsImpl userDetails){
+        if(!userDetails.getUser().getRole().equals(User.Role.RIDER)){ //비교하는게 이게 맞나?
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null);
+        }
+        User riderUser = userDetails.getUser();
+
+        DeliveryResponseDto response = deliveryService.assignDelivery(id, riderUser);
+        return ResponseEntity.ok(response);
+    }
+}
