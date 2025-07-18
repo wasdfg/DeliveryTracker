@@ -1,5 +1,6 @@
 package com.example.deliverytracker.delivery.entity;
 
+import com.example.deliverytracker.rider.entity.Rider;
 import com.example.deliverytracker.user.entitiy.User;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -39,7 +40,16 @@ public class Delivery {
     @JoinColumn(name = "user_id")
     private User requester;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "rider_id")
+    private Rider rider;
+
     public void updateStatus(DeliveryStatus status) {
         this.status = status;
+    }
+
+    public void assignRider(Rider rider) {
+        this.rider = rider;
+        this.status = DeliveryStatus.ACCEPTED;
     }
 }

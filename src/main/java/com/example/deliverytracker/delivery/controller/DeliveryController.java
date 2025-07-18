@@ -2,6 +2,7 @@ package com.example.deliverytracker.delivery.controller;
 
 import com.example.deliverytracker.delivery.dto.DeliveryRequestDto;
 import com.example.deliverytracker.delivery.dto.DeliveryResponseDto;
+import com.example.deliverytracker.delivery.entity.DeliveryStatus;
 import com.example.deliverytracker.delivery.service.DeliveryService;
 import com.example.deliverytracker.user.entitiy.User;
 import com.example.deliverytracker.user.entitiy.UserDetailsImpl;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -70,12 +72,23 @@ public class DeliveryController {
 
     @PatchMapping("/{id}/assign")
     public ResponseEntity<DeliveryResponseDto> assginDelivery(@PathVariable Long id,@AuthenticationPrincipal UserDetailsImpl userDetails){
-        if(!userDetails.getUser().getRole().equals(User.Role.RIDER)){ //비교하는게 이게 맞나?
+        if(!userDetails.getUser().getRole().equals(User.Role.RIDER)){
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null);
         }
         User riderUser = userDetails.getUser();
 
         DeliveryResponseDto response = deliveryService.assignDelivery(id, riderUser);
+        return ResponseEntity.ok(response);
+    }
+
+    @PatchMapping("/{id}/status")
+    public ResponseEntity<DeliveryResponseDto> changeStatus(@PathVariable Long id, @RequestParam  DeliveryStatus status, @AuthenticationPrincipal UserDetailsImpl userDetails){
+        if(!userDetails.getUser().getRole().equals(User.Role.RIDER)){
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+
+        DeliveryResponseDto response = deliveryService.changeStatus(id, userDetails.getUser(),status);
+
         return ResponseEntity.ok(response);
     }
 }
