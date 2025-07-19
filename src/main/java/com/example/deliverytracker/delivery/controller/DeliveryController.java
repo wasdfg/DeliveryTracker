@@ -4,10 +4,15 @@ import com.example.deliverytracker.delivery.dto.DeliveryRequestDto;
 import com.example.deliverytracker.delivery.dto.DeliveryResponseDto;
 import com.example.deliverytracker.delivery.entity.DeliveryStatus;
 import com.example.deliverytracker.delivery.service.DeliveryService;
+import com.example.deliverytracker.rider.entity.Rider;
 import com.example.deliverytracker.user.entitiy.User;
 import com.example.deliverytracker.user.entitiy.UserDetailsImpl;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -45,14 +50,14 @@ public class DeliveryController {
     }
 
     @GetMapping("/my")
-    public ResponseEntity<List<DeliveryResponseDto>> getMyDeliveryInfo(@AuthenticationPrincipal UserDetailsImpl userDetails) {
+    public ResponseEntity<Page<DeliveryResponseDto>> getMyDeliveryInfo(@AuthenticationPrincipal UserDetailsImpl userDetails,@PageableDefault(size = 10) Pageable pageable) {
         if (userDetails == null) {
             return ResponseEntity
                     .status(HttpStatus.UNAUTHORIZED)
                     .build();
         }
 
-        List<DeliveryResponseDto> deliveries = deliveryService.getMyDeliveryInfo(userDetails.getUser());
+        Page<DeliveryResponseDto> deliveries = deliveryService.getMyDeliveryInfo(userDetails.getUser(),pageable);
         
         return ResponseEntity.ok(deliveries);
     }
@@ -75,9 +80,13 @@ public class DeliveryController {
         if(!userDetails.getUser().getRole().equals(User.Role.RIDER)){
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null);
         }
+
         User riderUser = userDetails.getUser();
 
-        DeliveryResponseDto response = deliveryService.assignDelivery(id, riderUser);
+        Rider rider = riderRepository.findByEmail(riderUser.getEmail())
+                .orElseThrow(() -> new EntityNotFoundException("라이더를 찾을 수 없습니다."));
+
+        DeliveryResponseDto response = deliveryService.assignDelivery(id, rider);
         return ResponseEntity.ok(response);
     }
 
