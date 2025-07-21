@@ -77,7 +77,7 @@ public class DeliveryService {
     }
 
     @Transactional
-    public DeliveryResponseDto changeStatus(Long deliveryId, User riderUser,DeliveryStatus status) {
+    public DeliveryResponseDto changeStatus(Long deliveryId, Rider riderUser,DeliveryStatus status) {
         Delivery delivery = deliveryRepository.findById(deliveryId)
                 .orElseThrow(() -> new EntityNotFoundException("배송을 찾을 수 없습니다."));
 

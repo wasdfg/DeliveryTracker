@@ -5,6 +5,7 @@ import com.example.deliverytracker.delivery.dto.DeliveryResponseDto;
 import com.example.deliverytracker.delivery.entity.DeliveryStatus;
 import com.example.deliverytracker.delivery.service.DeliveryService;
 import com.example.deliverytracker.rider.entity.Rider;
+import com.example.deliverytracker.rider.repository.RiderRepository;
 import com.example.deliverytracker.user.entitiy.User;
 import com.example.deliverytracker.user.entitiy.UserDetailsImpl;
 import jakarta.persistence.EntityNotFoundException;
@@ -25,14 +26,16 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
+
 
 @RequiredArgsConstructor
 @RequestMapping("/api/delivery")
 @RestController
 public class DeliveryController {
 
-    private DeliveryService deliveryService;
+    private final DeliveryService deliveryService;
+
+    private final RiderRepository riderRepository;
 
     @PostMapping("/request")
     public ResponseEntity<String> requestDelivery(@RequestBody @Valid DeliveryRequestDto request,@AuthenticationPrincipal UserDetailsImpl userDetails){
@@ -83,7 +86,7 @@ public class DeliveryController {
 
         User riderUser = userDetails.getUser();
 
-        Rider rider = riderRepository.findByEmail(riderUser.getEmail())
+        Rider rider = riderRepository.findById(riderUser.getId())
                 .orElseThrow(() -> new EntityNotFoundException("라이더를 찾을 수 없습니다."));
 
         DeliveryResponseDto response = deliveryService.assignDelivery(id, rider);
@@ -96,7 +99,10 @@ public class DeliveryController {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 
-        DeliveryResponseDto response = deliveryService.changeStatus(id, userDetails.getUser(),status);
+        Rider rider = riderRepository.findById(userDetails.getUser().getId())
+                .orElseThrow(() -> new EntityNotFoundException("라이더를 찾을 수 없습니다."));
+
+        DeliveryResponseDto response = deliveryService.changeStatus(id,rider,status);
 
         return ResponseEntity.ok(response);
     }
