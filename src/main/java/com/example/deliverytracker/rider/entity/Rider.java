@@ -34,20 +34,7 @@ import java.time.LocalDateTime;
 public class Rider {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    @Column(nullable = false, length = 50)
-    private String email;
-
-    @Column(nullable = false)
-    private String password;
-
-    @Column(nullable = false, length = 30)
-    private String nickname;
-
-    @Column(length = 20)
-    private String phone;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

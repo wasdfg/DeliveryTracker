@@ -1,4 +1,4 @@
-package com.example.deliverytracker.user;
+package com.example.deliverytracker.user.repository;
 
 import com.example.deliverytracker.user.entitiy.User;
 import org.springframework.data.jpa.repository.JpaRepository;

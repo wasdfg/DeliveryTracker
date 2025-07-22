@@ -1,7 +1,7 @@
 package com.example.deliverytracker.user.service;
 
 import com.example.deliverytracker.global.jwt.JwtProvider;
-import com.example.deliverytracker.user.UserRepository;
+import com.example.deliverytracker.user.repository.UserRepository;
 import com.example.deliverytracker.user.dto.UserLoginRequest;
 import com.example.deliverytracker.user.dto.UserSignupRequest;
 import com.example.deliverytracker.user.entitiy.User;
