@@ -6,6 +6,6 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class RiderStatusRequestDto {
+public class RiderStatusRequest {
     private Rider.Status status;
 }

@@ -67,4 +67,8 @@ public class Rider {
         ACTIVE,     // 배달 중
         OFFLINE     // 오프라인 (로그아웃 또는 미접속)
     }
+
+    public void changeStatus(Status status) {
+        this.status = status;
+    }
 }
