@@ -1,7 +1,7 @@
 package com.example.deliverytracker.delivery.service;
 
-import com.example.deliverytracker.delivery.dto.DeliveryRequestDto;
-import com.example.deliverytracker.delivery.dto.DeliveryResponseDto;
+import com.example.deliverytracker.delivery.dto.DeliveryRequest;
+import com.example.deliverytracker.delivery.dto.DeliveryResponse;
 import com.example.deliverytracker.delivery.entity.Delivery;
 import com.example.deliverytracker.delivery.entity.DeliveryStatus;
 import com.example.deliverytracker.delivery.repository.DeliveryRepository;
@@ -27,7 +27,7 @@ public class DeliveryService {
     private final DeliveryRepository deliveryRepository;
 
     @Transactional
-    public void requestDelivery(DeliveryRequestDto requestDto, User user) {
+    public void requestDelivery(DeliveryRequest requestDto, User user) {
         Delivery delivery = Delivery.builder()
                 .receiverName(requestDto.getReceiverName())
                 .receiverAddress(requestDto.getReceiverAddress())
@@ -41,7 +41,7 @@ public class DeliveryService {
         log.info("New delivery request created: {}", delivery.getId());
     }
 
-    public Page<DeliveryResponseDto> getMyDeliveryInfo(User user, Pageable pageable){
+    public Page<DeliveryResponse> getMyDeliveryInfo(User user, Pageable pageable){
 
         if (user.getRole().equals(User.Role.ADMIN)) {
             return Page.empty();
@@ -49,10 +49,10 @@ public class DeliveryService {
 
         Page<Delivery> deliveries = this.deliveryRepository.findByRequesterId(user.getId(),pageable); //리포지토리는 delivery 엔티티를 사용하는데 dto로 리턴하려면 무슨 방식을 사용해야할지?
 
-        return deliveries.map(DeliveryResponseDto::from);
+        return deliveries.map(DeliveryResponse::from);
     }
 
-    public DeliveryResponseDto getDeliveryDetail(Long id,User user){
+    public DeliveryResponse getDeliveryDetail(Long id, User user){
 
         Optional<Delivery> optionalDelivery = deliveryRepository.findById(id);
 
@@ -62,22 +62,22 @@ public class DeliveryService {
 
         Delivery delivery = optionalDelivery.get();
 
-        return DeliveryResponseDto.from(delivery);
+        return DeliveryResponse.from(delivery);
     }
 
     @Transactional
-    public DeliveryResponseDto assignDelivery(Long deliveryId, Rider rider){
+    public DeliveryResponse assignDelivery(Long deliveryId, Rider rider){
 
         Delivery delivery = deliveryRepository.findById(deliveryId)
                 .orElseThrow(() -> new EntityNotFoundException("배송을 찾을 수 없습니다."));
 
         delivery.assignRider(rider);
 
-        return DeliveryResponseDto.from(delivery);
+        return DeliveryResponse.from(delivery);
     }
 
     @Transactional
-    public DeliveryResponseDto changeStatus(Long deliveryId, Rider riderUser,DeliveryStatus status) {
+    public DeliveryResponse changeStatus(Long deliveryId, Rider riderUser, DeliveryStatus status) {
         Delivery delivery = deliveryRepository.findById(deliveryId)
                 .orElseThrow(() -> new EntityNotFoundException("배송을 찾을 수 없습니다."));
 
@@ -92,6 +92,6 @@ public class DeliveryService {
 
         delivery.updateStatus(status);
 
-        return DeliveryResponseDto.from(delivery);
+        return DeliveryResponse.from(delivery);
     }
 }

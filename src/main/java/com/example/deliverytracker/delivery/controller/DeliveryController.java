@@ -1,7 +1,7 @@
 package com.example.deliverytracker.delivery.controller;
 
-import com.example.deliverytracker.delivery.dto.DeliveryRequestDto;
-import com.example.deliverytracker.delivery.dto.DeliveryResponseDto;
+import com.example.deliverytracker.delivery.dto.DeliveryRequest;
+import com.example.deliverytracker.delivery.dto.DeliveryResponse;
 import com.example.deliverytracker.delivery.entity.DeliveryStatus;
 import com.example.deliverytracker.delivery.service.DeliveryService;
 import com.example.deliverytracker.rider.entity.Rider;
@@ -38,7 +38,7 @@ public class DeliveryController {
     private final RiderRepository riderRepository;
 
     @PostMapping("/request")
-    public ResponseEntity<String> requestDelivery(@RequestBody @Valid DeliveryRequestDto request,@AuthenticationPrincipal UserDetailsImpl userDetails){
+    public ResponseEntity<String> requestDelivery(@RequestBody @Valid DeliveryRequest request, @AuthenticationPrincipal UserDetailsImpl userDetails){
         if (userDetails == null) {
             return ResponseEntity
                     .status(HttpStatus.UNAUTHORIZED)
@@ -53,33 +53,33 @@ public class DeliveryController {
     }
 
     @GetMapping("/my")
-    public ResponseEntity<Page<DeliveryResponseDto>> getMyDeliveryInfo(@AuthenticationPrincipal UserDetailsImpl userDetails,@PageableDefault(size = 10) Pageable pageable) {
+    public ResponseEntity<Page<DeliveryResponse>> getMyDeliveryInfo(@AuthenticationPrincipal UserDetailsImpl userDetails, @PageableDefault(size = 10) Pageable pageable) {
         if (userDetails == null) {
             return ResponseEntity
                     .status(HttpStatus.UNAUTHORIZED)
                     .build();
         }
 
-        Page<DeliveryResponseDto> deliveries = deliveryService.getMyDeliveryInfo(userDetails.getUser(),pageable);
+        Page<DeliveryResponse> deliveries = deliveryService.getMyDeliveryInfo(userDetails.getUser(),pageable);
         
         return ResponseEntity.ok(deliveries);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<DeliveryResponseDto> getDeliveryDetailInfo(@PathVariable Long id, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+    public ResponseEntity<DeliveryResponse> getDeliveryDetailInfo(@PathVariable Long id, @AuthenticationPrincipal UserDetailsImpl userDetails) {
         if (userDetails == null) {
             return ResponseEntity
                     .status(HttpStatus.UNAUTHORIZED)
                     .build();
         }
 
-        DeliveryResponseDto deliveryDetail = deliveryService.getDeliveryDetail(id,userDetails.getUser());
+        DeliveryResponse deliveryDetail = deliveryService.getDeliveryDetail(id,userDetails.getUser());
 
         return ResponseEntity.ok(deliveryDetail);
     }
 
     @PatchMapping("/{id}/assign")
-    public ResponseEntity<DeliveryResponseDto> assginDelivery(@PathVariable Long id,@AuthenticationPrincipal UserDetailsImpl userDetails){
+    public ResponseEntity<DeliveryResponse> assginDelivery(@PathVariable Long id, @AuthenticationPrincipal UserDetailsImpl userDetails){
         if(!userDetails.getUser().getRole().equals(User.Role.RIDER)){
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null);
         }
@@ -89,12 +89,12 @@ public class DeliveryController {
         Rider rider = riderRepository.findById(riderUser.getId())
                 .orElseThrow(() -> new EntityNotFoundException("라이더를 찾을 수 없습니다."));
 
-        DeliveryResponseDto response = deliveryService.assignDelivery(id, rider);
+        DeliveryResponse response = deliveryService.assignDelivery(id, rider);
         return ResponseEntity.ok(response);
     }
 
     @PatchMapping("/{id}/status")
-    public ResponseEntity<DeliveryResponseDto> changeStatus(@PathVariable Long id, @RequestParam  DeliveryStatus status, @AuthenticationPrincipal UserDetailsImpl userDetails){
+    public ResponseEntity<DeliveryResponse> changeStatus(@PathVariable Long id, @RequestParam  DeliveryStatus status, @AuthenticationPrincipal UserDetailsImpl userDetails){
         if(!userDetails.getUser().getRole().equals(User.Role.RIDER)){
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
@@ -102,7 +102,7 @@ public class DeliveryController {
         Rider rider = riderRepository.findById(userDetails.getUser().getId())
                 .orElseThrow(() -> new EntityNotFoundException("라이더를 찾을 수 없습니다."));
 
-        DeliveryResponseDto response = deliveryService.changeStatus(id,rider,status);
+        DeliveryResponse response = deliveryService.changeStatus(id,rider,status);
 
         return ResponseEntity.ok(response);
     }

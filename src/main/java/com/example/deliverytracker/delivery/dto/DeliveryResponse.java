@@ -7,7 +7,7 @@ import lombok.Getter;
 
 @Getter
 @Builder
-public class DeliveryResponseDto {
+public class DeliveryResponse {
     private Long id;
     private String receiverName;
     private String receiverAddress;
@@ -15,8 +15,8 @@ public class DeliveryResponseDto {
     private String itemDescription;
     private DeliveryStatus status;
 
-    public static DeliveryResponseDto from(Delivery delivery) {
-        return DeliveryResponseDto.builder()
+    public static DeliveryResponse from(Delivery delivery) {
+        return DeliveryResponse.builder()
                 .id(delivery.getId())
                 .receiverName(delivery.getReceiverName())
                 .receiverAddress(delivery.getReceiverAddress())
