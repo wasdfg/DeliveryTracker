@@ -6,20 +6,14 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor
-public class UserSignupRequest {
-    @NotBlank
-    private String email;
+public class UserPasswordRequest {
 
     @NotBlank
-    private String idForLogin;
+    private String currentPassword;
 
     @NotBlank
-    private String password;
+    private String toChangePassword1;
 
     @NotBlank
-    private String nickname;
-
-    private String phone;
-
-    private String address;
+    private String toChangePassword2;
 }

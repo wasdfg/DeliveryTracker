@@ -50,9 +50,17 @@ public class User {
     @Pattern(regexp = "^(010|011)-\\d{3,4}-\\d{4}$", message = "전화번호 형식이 올바르지 않습니다.")
     private String phone;
 
+    @Column(length = 1000)
+    private String address;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Role role;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Status status;
+
 
     private LocalDateTime createdAt;
 
@@ -62,7 +70,21 @@ public class User {
         if (this.role == null) this.role = Role.USER;
     }
 
+    public void changeInfo(String email, String nickname, String phone, String address) {
+        this.email = email;
+        this.nickname = nickname;
+        this.phone = phone;
+        this.address = address;
+    }
+
     public enum Role {
         USER, ADMIN , RIDER
+    }
+
+    public enum Status{
+        ACTIVE,       // 정상 활성 상태
+        INACTIVE,     // 이메일 미인증 또는 비활성화 계정
+        SUSPENDED,    // 관리자에 의해 정지됨
+        WITHDRAWN     // 회원 탈퇴한 사용자
     }
 }

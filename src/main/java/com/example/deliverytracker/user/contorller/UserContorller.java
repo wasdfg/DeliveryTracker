@@ -1,7 +1,10 @@
 package com.example.deliverytracker.user.contorller;
 
+import com.example.deliverytracker.user.dto.PasswordCheckRequest;
 import com.example.deliverytracker.user.dto.LoginResponse;
+import com.example.deliverytracker.user.dto.UserInfoRequest;
 import com.example.deliverytracker.user.dto.UserLoginRequest;
+import com.example.deliverytracker.user.dto.UserPasswordRequest;
 import com.example.deliverytracker.user.dto.UserSignupRequest;
 import com.example.deliverytracker.user.entitiy.User;
 import com.example.deliverytracker.user.entitiy.UserDetailsImpl;
@@ -49,4 +52,43 @@ public class UserContorller {
         return ResponseEntity.ok(new UserResponse(user));
     }
 
+    @PostMapping("/password/check")
+    public ResponseEntity<String> checkPassword(@AuthenticationPrincipal UserDetailsImpl userDetails, @RequestBody @Valid PasswordCheckRequest request){
+
+        User user = userDetails.getUser();
+
+        this.userService.checkPassword(user,request.getPassword());
+
+        return ResponseEntity.ok("비밀번호가 일치합니다.");
+    }
+
+    @PostMapping("/changeInfo")
+    public ResponseEntity<String> changeInfo(@AuthenticationPrincipal UserDetailsImpl userDetails, @RequestBody @Valid UserInfoRequest request){
+
+        User user = userDetails.getUser();
+
+        this.userService.changeInfo(user,request);
+
+        return ResponseEntity.ok("회원 정보가 성공적으로 수정되었습니다.");
+    }
+
+    @PostMapping("/changePassword")
+    public ResponseEntity<String> changePassword(@AuthenticationPrincipal UserDetailsImpl userDetails, @RequestBody @Valid UserPasswordRequest request){
+
+        User user = userDetails.getUser();
+
+        this.userService.changePassword(user,request);
+
+        return ResponseEntity.ok("비밀번호가 성공적으로 수정되었습니다. 다시 로그인 해주세요.");
+    }
+
+    @PostMapping("/deleteUser")
+    public ResponseEntity<String> deleteUser(
+            @AuthenticationPrincipal UserDetailsImpl userDetails,
+            @RequestBody @Valid PasswordCheckRequest request) {
+
+        this.userService.deleteUser(userDetails.getUser(), request);
+
+        return ResponseEntity.ok("회원 탈퇴가 완료되었습니다.");
+    }
 }
