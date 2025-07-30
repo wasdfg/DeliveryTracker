@@ -64,17 +64,12 @@ public class User {
 
     private LocalDateTime createdAt;
 
+    private LocalDateTime modifiedAt;
+
     @PrePersist
     public void prePersist() {
         this.createdAt = LocalDateTime.now();
         if (this.role == null) this.role = Role.USER;
-    }
-
-    public void changeInfo(String email, String nickname, String phone, String address) {
-        this.email = email;
-        this.nickname = nickname;
-        this.phone = phone;
-        this.address = address;
     }
 
     public enum Role {
@@ -86,5 +81,24 @@ public class User {
         INACTIVE,     // 이메일 미인증 또는 비활성화 계정
         SUSPENDED,    // 관리자에 의해 정지됨
         WITHDRAWN     // 회원 탈퇴한 사용자
+    }
+
+    public void changeInfo(String email, String nickname, String phone, String address) {
+        this.email = email;
+        this.nickname = nickname;
+        this.phone = phone;
+        this.address = address;
+    }
+
+    public void changePassword(String encryptedPassword) {
+        this.password = encryptedPassword;
+    }
+
+    public void changeStatus(Status status) {
+        this.status = status;
+    }
+
+    public void changeDate(LocalDateTime modifiedAt){
+        this.modifiedAt = modifiedAt;
     }
 }

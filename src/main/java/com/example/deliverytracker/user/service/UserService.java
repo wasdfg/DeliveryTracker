@@ -1,7 +1,9 @@
 package com.example.deliverytracker.user.service;
 
 import com.example.deliverytracker.global.jwt.JwtProvider;
+import com.example.deliverytracker.user.dto.PasswordCheckRequest;
 import com.example.deliverytracker.user.dto.UserInfoRequest;
+import com.example.deliverytracker.user.dto.UserPasswordRequest;
 import com.example.deliverytracker.user.repository.UserRepository;
 import com.example.deliverytracker.user.dto.UserLoginRequest;
 import com.example.deliverytracker.user.dto.UserSignupRequest;
@@ -11,6 +13,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 
 @RequiredArgsConstructor
@@ -30,10 +33,10 @@ public class UserService {
         String phone = request.getPhone();
         String address = request.getAddress();
 
-        if (userRepository.existsByEmail(request.getEmail())) {
+        if(userRepository.existsByEmail(request.getEmail())){
             throw new IllegalArgumentException("이미 사용 중인 이메일입니다.");
         }
-        if (userRepository.existsByIdForLogin(request.getIdForLogin())) {
+        if(userRepository.existsByIdForLogin(request.getIdForLogin())){
             throw new IllegalArgumentException("이미 사용 중인 아이디입니다.");
         }
         else{
@@ -48,6 +51,7 @@ public class UserService {
                     .createdAt(LocalDateTime.now())
                     .address(address)
                     .role(User.Role.USER)
+                    .status(User.Status.ACTIVE)
                     .build();
 
             userRepository.save(user);
@@ -59,12 +63,20 @@ public class UserService {
         User user = userRepository.findByIdForLogin(request.getIdForLogin())
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 계정입니다."));
 
-        if (user == null || !passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+        if(user == null || !passwordEncoder.matches(request.getPassword(), user.getPassword())){
             throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
         }
 
         if (user.getStatus() == User.Status.WITHDRAWN) {
-            throw new IllegalArgumentException("탈퇴한 계정입니다.");
+            long days = Duration.between(user.getModifiedAt(), LocalDateTime.now()).toDays();
+
+            if(days <= 30){
+                throw new IllegalArgumentException("탈퇴한 계정입니다. 복구하시겠습니까?");
+            }
+            else{
+                throw new IllegalArgumentException("계정이 삭제되었습니다.");
+            }
+
         }
 
         if (user.getStatus() == User.Status.SUSPENDED) {
@@ -100,6 +112,38 @@ public class UserService {
 
     private boolean isBlankOrNull(String value) {
         return value == null || value.trim().isEmpty();
+    }
+
+    @Transactional
+    public void changePassword(User user, UserPasswordRequest request){
+
+        if(!passwordEncoder.matches(request.getCurrentPassword(), user.getPassword())){
+            throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
+        }
+
+        if(!request.getToChangePassword1().equals(request.getToChangePassword2())){
+            throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
+        }
+
+        if (passwordEncoder.matches(request.getToChangePassword1(), user.getPassword())) {
+            throw new IllegalArgumentException("기존 비밀번호와 동일한 비밀번호로 변경할 수 없습니다.");
+        }
+
+        String encryptedPassword = passwordEncoder.encode(request.getToChangePassword1());
+
+
+        user.changePassword(encryptedPassword);
+
+    }
+
+    @Transactional
+    public void deleteUser(User user, PasswordCheckRequest request) {
+        if(!passwordEncoder.matches(request.getPassword(), user.getPassword())){
+            throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
+        }
+
+        user.changeStatus(User.Status.WITHDRAWN);
+        user.changeDate(LocalDateTime.now());
     }
 
 }
