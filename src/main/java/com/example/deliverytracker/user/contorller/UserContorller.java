@@ -2,6 +2,8 @@ package com.example.deliverytracker.user.contorller;
 
 import com.example.deliverytracker.user.dto.PasswordCheckRequest;
 import com.example.deliverytracker.user.dto.LoginResponse;
+import com.example.deliverytracker.user.dto.ResetPasswordRequest;
+import com.example.deliverytracker.user.dto.UserEmailRequest;
 import com.example.deliverytracker.user.dto.UserInfoRequest;
 import com.example.deliverytracker.user.dto.UserLoginRequest;
 import com.example.deliverytracker.user.dto.UserPasswordRequest;
@@ -90,5 +92,25 @@ public class UserContorller {
         this.userService.deleteUser(userDetails.getUser(), request);
 
         return ResponseEntity.ok("회원 탈퇴가 완료되었습니다.");
+    }
+
+    @PostMapping("/findIdForLogin")
+    public ResponseEntity<String> sendIdForLogin(@RequestBody @Valid UserEmailRequest request){
+        this.userService.sendIdForLogin(request);
+
+        return ResponseEntity.ok("가입된 이메일로 아이디를 전송했습니다.");
+    }
+
+    @PostMapping("/findPassword")
+    public ResponseEntity<String> sendPasswordMail(@RequestBody @Valid UserEmailRequest request) {
+        userService.sendPasswordEmail(request);
+
+        return ResponseEntity.ok("가입된 이메일로 비밀번호를 전송했습니다.");
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<Void> resetPassword(@RequestBody ResetPasswordRequest request) {
+        userService.resetPassword(request.getToken(), request.getNewPassword());
+        return ResponseEntity.ok().build();
     }
 }

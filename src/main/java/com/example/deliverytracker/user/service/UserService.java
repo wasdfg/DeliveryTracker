@@ -2,19 +2,23 @@ package com.example.deliverytracker.user.service;
 
 import com.example.deliverytracker.global.jwt.JwtProvider;
 import com.example.deliverytracker.user.dto.PasswordCheckRequest;
+import com.example.deliverytracker.user.dto.UserEmailRequest;
 import com.example.deliverytracker.user.dto.UserInfoRequest;
 import com.example.deliverytracker.user.dto.UserPasswordRequest;
+import com.example.deliverytracker.user.entitiy.EmailType;
 import com.example.deliverytracker.user.repository.UserRepository;
 import com.example.deliverytracker.user.dto.UserLoginRequest;
 import com.example.deliverytracker.user.dto.UserSignupRequest;
 import com.example.deliverytracker.user.entitiy.User;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @RequiredArgsConstructor
 @Service
@@ -25,6 +29,11 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
 
     private final JwtProvider jwtProvider;
+
+    private final StringRedisTemplate redisTemplate;
+
+    private static final Duration TOKEN_EXPIRATION = Duration.ofMinutes(30);
+
 
     public void signup(UserSignupRequest request){
         String email = request.getEmail();
@@ -146,4 +155,67 @@ public class UserService {
         user.changeDate(LocalDateTime.now());
     }
 
+    public void sendIdForLogin(UserEmailRequest request){
+        User user = userRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new IllegalArgumentException("가입된 이메일이 아닙니다."));
+
+        this.sendEmail(user, EmailType.FIND_ID);
+    }
+
+    public void sendPasswordEmail(UserEmailRequest request){
+        User user = userRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new IllegalArgumentException("가입된 이메일이 아닙니다."));
+
+        this.sendEmail(user, EmailType.FIND_PASSWORD);
+    }
+
+    public void sendEmail(User user,EmailType type){
+        String subject;
+        String body;
+
+
+        switch (type) {
+            case FIND_ID -> {
+                subject = "요청하신 로그인 아이디입니다.";
+                body = "회원님의 아이디는 " + user.getIdForLogin() + " 입니다.";
+            }
+            case FIND_PASSWORD -> {
+                subject = "비밀번호 재설정 링크입니다.";
+
+                String token = UUID.randomUUID().toString();
+
+                String redisKey = "reset-password:" + token;
+
+                redisTemplate.opsForValue().set(redisKey, user.getEmail(), TOKEN_EXPIRATION);
+
+                String resetUrl = "https://yourdomain.com/reset-password?token=" + token;
+
+                body = """
+                        비밀번호를 재설정하려면 아래 링크를 클릭해주세요:
+
+                        %s
+
+                        본 링크는 30분간 유효합니다.
+                        """.formatted(resetUrl);
+            }
+            default -> throw new IllegalArgumentException("잘못된 이메일 타입입니다.");
+        }
+
+        emailService.send(user.getEmail(), subject, body);
+    }
+
+    public void resetPassword(String token, String newPassword) {
+        String redisKey = "reset-password:" + token;
+        String email = redisTemplate.opsForValue().get(redisKey);
+
+        if (email == null) {
+            throw new IllegalArgumentException("토큰이 유효하지 않거나 만료되었습니다.");
+        }
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalStateException("사용자를 찾을 수 없습니다."));
+
+        user.changePassword(passwordEncoder.encode(newPassword));
+        redisTemplate.delete(redisKey);
+    }
 }
