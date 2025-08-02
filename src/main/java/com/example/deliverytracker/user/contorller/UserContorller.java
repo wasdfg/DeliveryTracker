@@ -1,5 +1,6 @@
 package com.example.deliverytracker.user.contorller;
 
+import com.example.deliverytracker.global.jwt.JwtProvider;
 import com.example.deliverytracker.user.dto.PasswordCheckRequest;
 import com.example.deliverytracker.user.dto.LoginResponse;
 import com.example.deliverytracker.user.dto.ResetPasswordRequest;
@@ -12,6 +13,7 @@ import com.example.deliverytracker.user.entitiy.User;
 import com.example.deliverytracker.user.entitiy.UserDetailsImpl;
 import com.example.deliverytracker.user.entitiy.UserResponse;
 import com.example.deliverytracker.user.service.UserService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -20,6 +22,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -29,6 +32,8 @@ import org.springframework.web.bind.annotation.RestController;
 public class UserContorller {
 
     private final UserService userService;
+
+    private final JwtProvider jwtProvider;
 
     @PostMapping("/signup")
     public ResponseEntity<String> signup(@RequestBody @Valid UserSignupRequest request){
@@ -45,6 +50,22 @@ public class UserContorller {
         LoginResponse response = new LoginResponse(token);
 
         return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<Void> logout(HttpServletRequest request) {
+
+        String token = jwtProvider.resolveToken(request);
+
+        if (token == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        long expirationMillis = jwtProvider.getRemainingTime(token);
+
+        userService.logout(token, expirationMillis);
+
+        return ResponseEntity.ok().build();
     }
 
     @GetMapping("/me")

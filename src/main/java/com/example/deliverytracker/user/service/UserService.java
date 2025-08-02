@@ -1,6 +1,7 @@
 package com.example.deliverytracker.user.service;
 
 import com.example.deliverytracker.global.jwt.JwtProvider;
+import com.example.deliverytracker.mail.service.EmailService;
 import com.example.deliverytracker.user.dto.PasswordCheckRequest;
 import com.example.deliverytracker.user.dto.UserEmailRequest;
 import com.example.deliverytracker.user.dto.UserInfoRequest;
@@ -19,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 @RequiredArgsConstructor
 @Service
@@ -31,6 +33,8 @@ public class UserService {
     private final JwtProvider jwtProvider;
 
     private final StringRedisTemplate redisTemplate;
+
+    private final EmailService emailService;
 
     private static final Duration TOKEN_EXPIRATION = Duration.ofMinutes(30);
 
@@ -92,7 +96,14 @@ public class UserService {
             throw new IllegalArgumentException("정지된 계정입니다. 관리자에게 문의하세요.");
         }
 
+        user.changeDate(LocalDateTime.now());
+
         return jwtProvider.createToken(user.getId(), user.getRole().name());
+    }
+
+    public void logout(String token, long expirationMillis) {
+        String redisKey = "blacklist:" + token;
+        redisTemplate.opsForValue().set(redisKey, "logout", expirationMillis, TimeUnit.MILLISECONDS);
     }
 
     public void checkPassword(User user,String inputPassword){
@@ -216,6 +227,7 @@ public class UserService {
                 .orElseThrow(() -> new IllegalStateException("사용자를 찾을 수 없습니다."));
 
         user.changePassword(passwordEncoder.encode(newPassword));
+        user.changeDate(LocalDateTime.now());
         redisTemplate.delete(redisKey);
     }
 }
