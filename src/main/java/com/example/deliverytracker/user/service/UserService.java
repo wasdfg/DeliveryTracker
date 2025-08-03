@@ -184,7 +184,6 @@ public class UserService {
         String subject;
         String body;
 
-
         switch (type) {
             case FIND_ID -> {
                 subject = "요청하신 로그인 아이디입니다.";
