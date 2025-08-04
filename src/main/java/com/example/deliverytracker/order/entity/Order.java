@@ -1,5 +1,6 @@
 package com.example.deliverytracker.order.entity;
 
+import com.example.deliverytracker.delivery.entity.Delivery;
 import com.example.deliverytracker.rider.entity.Rider;
 import com.example.deliverytracker.user.entitiy.User;
 import jakarta.persistence.CascadeType;
@@ -14,6 +15,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
@@ -43,10 +45,9 @@ public class Order {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    // 배달자
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "rider_id")
-    private Rider rider;
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinColumn(name = "delivery_id")
+    private Delivery delivery;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -62,19 +63,20 @@ public class Order {
     private int totalPrice;
 
     private LocalDateTime requestedAt;
-    private LocalDateTime deliveredAt;
+    private LocalDateTime canceledAt;
 
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private List<OrderItem> orderItems = new ArrayList<>();
 
+
+
     public enum Status {
         REQUESTED,     // 주문 요청됨
-        ASSIGNED,      // 라이더 배정됨
-        DELIVERING,    // 배달 중
-        DELIVERED,     // 배달 완료
-        CANCELED       // 주문 취소됨
+        PREPARING,          // 음식 조리 중
+        READY_FOR_PICKUP,   // 라이더 픽업 대기
+        CANCELED            // 주문 취소
     }
 
     @PrePersist
@@ -83,15 +85,14 @@ public class Order {
         this.requestedAt = LocalDateTime.now();
     }
 
-    public void assignRider(Rider rider) {
-        this.rider = rider;
-        this.status = Status.ASSIGNED;
-    }
-
     public void updateStatus(Status status) {
         this.status = status;
-        if (status == Status.DELIVERED) {
-            this.deliveredAt = LocalDateTime.now();
+        if (status == Status.CANCELED) {
+            this.canceledAt = LocalDateTime.now();
         }
+    }
+
+    public void registerDelivery(Delivery delivery) {
+        this.delivery = delivery;
     }
 }

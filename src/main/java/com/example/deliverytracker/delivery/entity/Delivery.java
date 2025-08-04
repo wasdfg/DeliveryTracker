@@ -48,12 +48,13 @@ public class Delivery {
     @JoinColumn(name = "rider_id")
     private Rider rider;
 
+
     public void updateStatus(DeliveryStatus status) {
         this.status = status;
     }
 
     public void assignRider(Rider rider) {
         this.rider = rider;
-        this.status = DeliveryStatus.ACCEPTED;
+        this.status = DeliveryStatus.ASSIGNED;
     }
 }

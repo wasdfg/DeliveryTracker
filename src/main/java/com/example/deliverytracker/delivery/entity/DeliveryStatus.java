@@ -3,15 +3,17 @@ package com.example.deliverytracker.delivery.entity;
 import java.util.EnumSet;
 
 public enum DeliveryStatus {
-    REQUESTED,     // 요청됨
-    ACCEPTED,      // 접수됨
-    IN_PROGRESS,   // 배송 중
-    DELIVERED,     // 배송 완료
-    CANCELLED      // 취소됨
+    WAITING,      // 배차 대기
+    ASSIGNED,     // 라이더 배정됨
+    PICKED_UP,    // 라이더가 픽업 완료
+    DELIVERING,   // 배달 중
+    DELIVERED,    // 배달 완료
+    FAILED        // 배달 실패    // 취소됨
     ;
 
     private static final EnumSet<DeliveryStatus> UPDATABLE_BY_RIDER =
-            EnumSet.of(IN_PROGRESS, DELIVERED, CANCELLED);
+            EnumSet.of(    PICKED_UP, DELIVERING   // 라이더가 픽업 완료
+                    , DELIVERED, FAILED);
 
     public static boolean canUpdateByRider(DeliveryStatus status) {
         return UPDATABLE_BY_RIDER.contains(status);

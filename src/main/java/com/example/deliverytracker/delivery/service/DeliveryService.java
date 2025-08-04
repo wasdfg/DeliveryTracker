@@ -33,7 +33,7 @@ public class DeliveryService {
                 .receiverAddress(requestDto.getReceiverAddress())
                 .receiverPhone(requestDto.getReceiverPhone())
                 .itemDescription(requestDto.getItemDescription())
-                .status(DeliveryStatus.REQUESTED)
+                .status(DeliveryStatus.WAITING)
                 .requester(user)
                 .build();
 
@@ -85,7 +85,7 @@ public class DeliveryService {
             throw new AccessDeniedException("해당 배송은 로그인한 라이더의 것이 아닙니다.");
         }
 
-        if (!EnumSet.of(DeliveryStatus.IN_PROGRESS, DeliveryStatus.DELIVERED, DeliveryStatus.CANCELLED)
+        if (!EnumSet.of(DeliveryStatus.PICKED_UP, DeliveryStatus.DELIVERING ,DeliveryStatus.DELIVERED, DeliveryStatus.FAILED)
                 .contains(status)) {
             throw new IllegalArgumentException("해당 상태로는 변경할 수 없습니다: " + status);
         }
