@@ -1,7 +1,7 @@
 package com.example.deliverytracker.order.entity;
 
 import com.example.deliverytracker.delivery.entity.Delivery;
-import com.example.deliverytracker.rider.entity.Rider;
+import com.example.deliverytracker.store.entity.Store;
 import com.example.deliverytracker.user.entitiy.User;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -49,6 +49,10 @@ public class Order {
     @JoinColumn(name = "delivery_id")
     private Delivery delivery;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "store_id")
+    private Store store;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Status status;
@@ -64,6 +68,8 @@ public class Order {
 
     private LocalDateTime requestedAt;
     private LocalDateTime canceledAt;
+
+    private boolean deleted;
 
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
