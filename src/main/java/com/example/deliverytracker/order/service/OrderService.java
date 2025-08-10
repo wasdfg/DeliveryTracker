@@ -1,11 +1,13 @@
 package com.example.deliverytracker.order.service;
 
 import com.example.deliverytracker.order.dto.OrderCreateRequest;
+import com.example.deliverytracker.order.dto.OrderResponse;
 import com.example.deliverytracker.order.entity.Order;
 import com.example.deliverytracker.order.entity.OrderItem;
 import com.example.deliverytracker.order.repository.OrderRepository;
 import com.example.deliverytracker.store.entity.Product;
 import com.example.deliverytracker.store.entity.Store;
+import com.example.deliverytracker.store.repository.ProductRepository;
 import com.example.deliverytracker.store.repository.StoreRepository;
 import com.example.deliverytracker.user.entitiy.User;
 import jakarta.persistence.EntityNotFoundException;
@@ -17,7 +19,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -27,6 +28,8 @@ public class OrderService {
     private final StoreRepository storeRepository;
 
     private final OrderRepository orderRepository;
+
+    private final ProductRepository productRepository;
 
     @Transactional
     public void createOrder(OrderCreateRequest request, User user){
@@ -77,5 +80,20 @@ public class OrderService {
         orderRepository.save(order);
 
         redisPublisher.publish("order-channel", new OrderCreatedEvent(order.getId(), user.getId()));
+    }
+
+    @Transactional(readOnly = true)
+    public OrderResponse findOrderInfo(Long id, User user){
+
+        Order order = orderRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("주문을 찾을 수 없습니다."));
+
+        if (!order.getUser().getId().equals(user.getId())) {
+
+            throw new EntityNotFoundException("주문을 조회할 권한이 없습니다.");
+        }
+
+        return OrderResponse.from(order);
+
     }
 }

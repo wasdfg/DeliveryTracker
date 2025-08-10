@@ -2,11 +2,13 @@ package com.example.deliverytracker.order.contorller;
 
 
 import com.example.deliverytracker.order.dto.OrderCreateRequest;
+import com.example.deliverytracker.order.dto.OrderResponse;
 import com.example.deliverytracker.order.dto.OrderStatusUpdateRequest;
 import com.example.deliverytracker.order.service.OrderService;
 import com.example.deliverytracker.user.entitiy.UserDetailsImpl;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,7 +24,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RequiredArgsConstructor
-@RequestMapping("/api/order")
+@RequestMapping("/api/orders")
 @RestController
 public class OrderContorller {
 
@@ -36,40 +38,40 @@ public class OrderContorller {
         return ResponseEntity.status(HttpStatus.CREATED).body("주문이 완료되었습니다.");
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<?> findOrderInfo(@PathVariable Long id,@AuthenticationPrincipal UserDetailsImpl userDetails){
+    @GetMapping("/{orderId}")
+    public ResponseEntity<?> findOrderInfo(@PathVariable Long orderId,@AuthenticationPrincipal UserDetailsImpl userDetails){
 
-        OrderResponse response = orderService.findOrderInfo(id,userDetails.getUser());
+        OrderResponse response = orderService.findOrderInfo(orderId,userDetails.getUser());
 
         return ResponseEntity.ok(response);
     }
 
     @GetMapping
-    public ResponseEntity<?> findAllOrders(@RequestParam(required = false) String status, Pageable pageable,@AuthenticationPrincipal UserDetailsImpl userDetails) {
+    public ResponseEntity<Page<OrderResponse>> findAllOrders(@RequestParam(required = false) String status, Pageable pageable,@AuthenticationPrincipal UserDetailsImpl userDetails) {
 
-        orderService.findAllOrders(status, pageable,userDetails.getUser());
+        Page<OrderResponse> response = orderService.findAllOrders(status, pageable,userDetails.getUser());
+
+        return ResponseEntity.ok(response);
+    }
+
+    @PatchMapping("/{orderId}/status")
+    public ResponseEntity<?> updateOrderStatus(@PathVariable Long orderId, @RequestBody OrderStatusUpdateRequest request,@AuthenticationPrincipal UserDetailsImpl userDetails) {
+        orderService.updateOrderStatus(orderId, request.getStatus(),userDetails.getUser());
+        return ResponseEntity.ok().build();
+    }
+
+    @PatchMapping("/{orderId}/cancel")
+    public ResponseEntity<?> cancelOrder(@PathVariable Long orderId,@AuthenticationPrincipal UserDetailsImpl userDetails) {
+
+        orderService.cancelOrder(orderId,userDetails.getUser());
 
         return ResponseEntity.ok().build();
     }
 
-    @PatchMapping("/{id}/status")
-    public ResponseEntity<?> updateOrderStatus(@PathVariable Long id, @RequestBody OrderStatusUpdateRequest request,@AuthenticationPrincipal UserDetailsImpl userDetails) {
-        orderService.updateOrderStatus(id, request.getStatus(),userDetails.getUser());
-        return ResponseEntity.ok().build();
-    }
+    @DeleteMapping("/{orderId}")
+    public ResponseEntity<?> deleteOrder(@PathVariable Long orderId, @AuthenticationPrincipal UserDetailsImpl userDetails) {
 
-    @PatchMapping("/{id}/cancel")
-    public ResponseEntity<?> cancelOrder(@PathVariable Long id,@AuthenticationPrincipal UserDetailsImpl userDetails) {
-
-        orderService.cancelOrder(id,userDetails.getUser());
-
-        return ResponseEntity.ok().build();
-    }
-
-    @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteOrder(@PathVariable Long id, @AuthenticationPrincipal UserDetailsImpl userDetails) {
-
-        orderService.deleteOrder(id, userDetails.getUser());
+        orderService.deleteOrder(orderId, userDetails.getUser());
 
         return ResponseEntity.noContent().build();
     }
