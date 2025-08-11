@@ -34,13 +34,13 @@ public class OrderResponse {
                 .map(OrderItemResponse::from)
                 .toList();
 
-        // StoreResponse도 Store 엔티티를 받아 생성하도록 static from 메서드를 만드는 것을 추천합니다.
+
         StoreResponse storeResponse = StoreResponse.from(order.getStore());
 
         return new OrderResponse(
                 order.getId(),
                 order.getStatus(),
-                order.getTotalPrice(), // 주문 생성 시 계산된 총 금액을 Order 엔티티에 저장하고 그 값을 사용
+                order.getTotalPrice(),
                 storeResponse,
                 itemResponses
         );

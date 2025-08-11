@@ -13,6 +13,8 @@ import com.example.deliverytracker.user.entitiy.User;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -85,7 +87,7 @@ public class OrderService {
     @Transactional(readOnly = true)
     public OrderResponse findOrderInfo(Long id, User user){
 
-        Order order = orderRepository.findById(id)
+        Order order = orderRepository.findOrderWithDetailsById(id)
                 .orElseThrow(() -> new EntityNotFoundException("주문을 찾을 수 없습니다."));
 
         if (!order.getUser().getId().equals(user.getId())) {
@@ -95,5 +97,50 @@ public class OrderService {
 
         return OrderResponse.from(order);
 
+    }
+
+    @Transactional(readOnly = true)
+    public Page<OrderResponse> findAllOrders(String statusStr, Pageable pageable, User user){
+
+        Page<Order> orderPage;
+
+        if(statusStr != null && !statusStr.isBlank()){
+            try{
+
+                Order.Status status = Order.Status.valueOf(statusStr.toUpperCase());
+                orderPage = orderRepository.findByUserAndStatus(user, status, pageable);
+            } catch (IllegalArgumentException e) {
+
+                throw new IllegalArgumentException("유효하지 않은 주문 상태입니다: " + statusStr);
+            }
+        }
+        else{
+
+            orderPage = orderRepository.findByUser(user, pageable);
+        }
+
+        return orderPage.map(OrderResponse::from);
+
+    }
+
+    @Transactional
+    public void updateOrderStatus(Long orderId, String statusStr, User user){
+
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new EntityNotFoundException("주문을 찾을 수 없습니다."));
+
+        if (!order.getStore().getOwner().getId().equals(user.getId())) {
+            throw new EntityNotFoundException("주문 상태를 변경할 권한이 없습니다.");
+        }
+
+        Order.Status newStatus;
+
+        try {
+            newStatus = Order.Status.valueOf(statusStr.toUpperCase());
+        }catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("유효하지 않은 주문 상태입니다: " + statusStr);
+        }
+
+        order.changeStatus(newStatus);
     }
 }

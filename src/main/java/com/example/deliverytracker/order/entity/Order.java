@@ -23,6 +23,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.BatchSize;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -51,6 +52,7 @@ public class Order {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "store_id")
+    @BatchSize(size = 100)
     private Store store;
 
     @Enumerated(EnumType.STRING)
@@ -73,6 +75,7 @@ public class Order {
 
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
+    @BatchSize(size = 100)
     @Builder.Default
     private List<OrderItem> orderItems = new ArrayList<>();
 
@@ -100,5 +103,9 @@ public class Order {
 
     public void registerDelivery(Delivery delivery) {
         this.delivery = delivery;
+    }
+
+    public void changeStatus(Status newStatus) {
+        this.status = newStatus;
     }
 }

@@ -47,7 +47,7 @@ public class OrderContorller {
     }
 
     @GetMapping
-    public ResponseEntity<Page<OrderResponse>> findAllOrders(@RequestParam(required = false) String status, Pageable pageable,@AuthenticationPrincipal UserDetailsImpl userDetails) {
+    public ResponseEntity<Page<OrderResponse>> findAllOrders(@RequestParam(required = false) String status, Pageable pageable, @AuthenticationPrincipal UserDetailsImpl userDetails) {
 
         Page<OrderResponse> response = orderService.findAllOrders(status, pageable,userDetails.getUser());
 
