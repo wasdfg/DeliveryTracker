@@ -29,7 +29,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 
 @RequiredArgsConstructor
-@RequestMapping("/api/delivery")
+@RequestMapping("/api")
 @RestController
 public class DeliveryController {
 
@@ -37,22 +37,22 @@ public class DeliveryController {
 
     private final RiderRepository riderRepository;
 
-    @PostMapping("/request")
-    public ResponseEntity<String> requestDelivery(@RequestBody @Valid DeliveryRequest request, @AuthenticationPrincipal UserDetailsImpl userDetails){
+    @PostMapping("/orders/{orderId}/deliveries")
+    public ResponseEntity<String> createDeliveryForOrder(@PathVariable Long orderId,@RequestBody @Valid DeliveryRequest request, @AuthenticationPrincipal UserDetailsImpl userDetails){
         if (userDetails == null) {
             return ResponseEntity
                     .status(HttpStatus.UNAUTHORIZED)
                     .body("로그인이 필요합니다.");
         }
 
-        deliveryService.requestDelivery(request, userDetails.getUser());
+        deliveryService.requestDelivery(orderId, request, userDetails.getUser());
 
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body("주문이 완료되었습니다.");
     }
 
-    @GetMapping("/my")
+    @GetMapping("/delivery/my")
     public ResponseEntity<Page<DeliveryResponse>> getMyDeliveryInfo(@AuthenticationPrincipal UserDetailsImpl userDetails, @PageableDefault(size = 10) Pageable pageable) {
         if (userDetails == null) {
             return ResponseEntity
@@ -65,7 +65,7 @@ public class DeliveryController {
         return ResponseEntity.ok(deliveries);
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/delivery/{id}")
     public ResponseEntity<DeliveryResponse> getDeliveryDetailInfo(@PathVariable Long id, @AuthenticationPrincipal UserDetailsImpl userDetails) {
         if (userDetails == null) {
             return ResponseEntity
@@ -78,7 +78,7 @@ public class DeliveryController {
         return ResponseEntity.ok(deliveryDetail);
     }
 
-    @PatchMapping("/{id}/assign")
+    @PatchMapping("/delivery/{id}/assign")
     public ResponseEntity<DeliveryResponse> assginDelivery(@PathVariable Long id, @AuthenticationPrincipal UserDetailsImpl userDetails){
         if(!userDetails.getUser().getRole().equals(User.Role.RIDER)){
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null);
@@ -93,7 +93,7 @@ public class DeliveryController {
         return ResponseEntity.ok(response);
     }
 
-    @PatchMapping("/{id}/status")
+    @PatchMapping("/delivery/{id}/status")
     public ResponseEntity<DeliveryResponse> changeStatus(@PathVariable Long id, @RequestParam  DeliveryStatus status, @AuthenticationPrincipal UserDetailsImpl userDetails){
         if(!userDetails.getUser().getRole().equals(User.Role.RIDER)){
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();

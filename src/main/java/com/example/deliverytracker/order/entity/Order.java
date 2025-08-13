@@ -79,22 +79,16 @@ public class Order {
     @Builder.Default
     private List<OrderItem> orderItems = new ArrayList<>();
 
-
-
     public enum Status {
         REQUESTED,     // 주문 요청됨
         PREPARING,          // 음식 조리 중
         READY_FOR_PICKUP,   // 라이더 픽업 대기
+        SHIPPING,           // 배달 중
+        COMPLETED,          // 배달완료
         CANCELED            // 주문 취소
     }
 
-    @PrePersist
-    public void prePersist() {
-        this.status = Status.REQUESTED;
-        this.requestedAt = LocalDateTime.now();
-    }
-
-    public void updateStatus(Status status) {
+    public void cancel(Status status) {
         this.status = status;
         if (status == Status.CANCELED) {
             this.canceledAt = LocalDateTime.now();
@@ -107,5 +101,9 @@ public class Order {
 
     public void changeStatus(Status newStatus) {
         this.status = newStatus;
+    }
+
+    public void delete(boolean deleted){
+        this.deleted = deleted;
     }
 }

@@ -15,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -64,6 +65,7 @@ public class OrderService {
             orderItems.add(orderItem);
         }
 
+
         Order order = Order.builder()
                 .user(user)
                 .store(store)
@@ -74,6 +76,8 @@ public class OrderService {
                 .totalPrice(totalPrice)
                 .orderItems(orderItems)
                 .build();
+
+
 
         for (OrderItem item : orderItems) {
             item.assignOrder(order);
@@ -142,5 +146,37 @@ public class OrderService {
         }
 
         order.changeStatus(newStatus);
+    }
+
+    @Transactional
+    public void cancelOrder(Long orderId, User user){
+
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new EntityNotFoundException("주문을 찾을 수 없습니다."));
+
+        if (!order.getUser().getId().equals(user.getId())) {
+            throw new AccessDeniedException("주문 상태를 변경할 권한이 없습니다.");
+        }
+
+        Order.Status currentStatus = order.getStatus();
+        if (currentStatus == Order.Status.COMPLETED || currentStatus == Order.Status.CANCELED) {
+            throw new IllegalStateException("이미 완료되었거나 취소된 주문은 취소할 수 없습니다.");
+        }
+
+        order.cancel(Order.Status.CANCELED);
+    }
+
+    @Transactional
+    public void deleteOrder(Long orderId, User user){
+
+        if (user.getRole() != User.Role.ADMIN) {
+            throw new AccessDeniedException("주문을 삭제할 권한이 없습니다.");
+        }
+
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new EntityNotFoundException("주문을 찾을 수 없습니다."));
+
+        order.delete(true);
+
     }
 }

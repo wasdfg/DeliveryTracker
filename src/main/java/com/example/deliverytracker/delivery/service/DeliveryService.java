@@ -5,6 +5,9 @@ import com.example.deliverytracker.delivery.dto.DeliveryResponse;
 import com.example.deliverytracker.delivery.entity.Delivery;
 import com.example.deliverytracker.delivery.entity.DeliveryStatus;
 import com.example.deliverytracker.delivery.repository.DeliveryRepository;
+import com.example.deliverytracker.order.entity.Order;
+import com.example.deliverytracker.order.repository.OrderRepository;
+import com.example.deliverytracker.order.service.OrderService;
 import com.example.deliverytracker.rider.entity.Rider;
 import com.example.deliverytracker.user.entitiy.User;
 import jakarta.persistence.EntityNotFoundException;
@@ -26,9 +29,18 @@ public class DeliveryService {
 
     private final DeliveryRepository deliveryRepository;
 
+    private final OrderRepository orderRepository;
+
+    private final OrderService orderService;
+
     @Transactional
-    public void requestDelivery(DeliveryRequest requestDto, User user) {
+    public void requestDelivery(Long orderId,DeliveryRequest requestDto, User user) {
+
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new EntityNotFoundException("배달을 요청할 주문이 없습니다."));
+
         Delivery delivery = Delivery.builder()
+                .order(order)
                 .receiverName(requestDto.getReceiverName())
                 .receiverAddress(requestDto.getReceiverAddress())
                 .receiverPhone(requestDto.getReceiverPhone())
@@ -38,7 +50,9 @@ public class DeliveryService {
                 .build();
 
         deliveryRepository.save(delivery);
-        log.info("New delivery request created: {}", delivery.getId());
+        log.info("New delivery request created for orderId {}: deliveryId {}", orderId, delivery.getId());
+
+        orderService.updateOrderStatus(orderId, "WAITING_DELIVERY", user);
     }
 
     public Page<DeliveryResponse> getMyDeliveryInfo(User user, Pageable pageable){

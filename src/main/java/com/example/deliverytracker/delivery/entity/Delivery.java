@@ -1,5 +1,6 @@
 package com.example.deliverytracker.delivery.entity;
 
+import com.example.deliverytracker.order.entity.Order;
 import com.example.deliverytracker.rider.entity.Rider;
 import com.example.deliverytracker.user.entitiy.User;
 import jakarta.persistence.Entity;
@@ -11,6 +12,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
 import jakarta.validation.constraints.Pattern;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -47,6 +49,10 @@ public class Delivery {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "rider_id")
     private Rider rider;
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "order_id", nullable = false)
+    private Order order;
 
 
     public void updateStatus(DeliveryStatus status) {
