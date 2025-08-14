@@ -73,7 +73,7 @@ public class User {
     }
 
     public enum Role {
-        USER, ADMIN , RIDER
+        USER, ADMIN , RIDER , STORE_OWNER
     }
 
     public enum Status{
