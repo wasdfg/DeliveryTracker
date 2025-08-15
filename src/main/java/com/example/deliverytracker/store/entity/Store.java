@@ -3,6 +3,8 @@ package com.example.deliverytracker.store.entity;
 import com.example.deliverytracker.user.entitiy.User;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -15,6 +17,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,6 +36,19 @@ public class Store {
     private String phone;
 
     private boolean active = true;
+
+    private String description;
+
+    @Enumerated(EnumType.STRING)
+    private StoreCategory category;
+
+    private String imageUrl;
+
+    private String operatingHours;
+
+    private BigDecimal minOrderAmount;
+
+    private int deliveryFee;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "owner_id")
