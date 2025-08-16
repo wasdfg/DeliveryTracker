@@ -18,6 +18,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -37,6 +38,8 @@ public class Store {
 
     private boolean active = true;
 
+    private boolean isDeleted = false;
+
     private String description;
 
     @Enumerated(EnumType.STRING)
@@ -49,6 +52,10 @@ public class Store {
     private BigDecimal minOrderAmount;
 
     private int deliveryFee;
+
+    private LocalDateTime createdAt;
+
+    private LocalDateTime updatedAt;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "owner_id")
@@ -64,6 +71,10 @@ public class Store {
         this.phone = phone;
         this.active = active;
         this.owner = owner;
+    }
+
+    public void delete(boolean isDeleted){
+        this.isDeleted = isDeleted;
     }
 
 }

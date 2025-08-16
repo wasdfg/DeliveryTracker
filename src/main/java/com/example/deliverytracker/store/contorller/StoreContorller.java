@@ -6,10 +6,14 @@ import com.example.deliverytracker.store.service.StoreService;
 import com.example.deliverytracker.user.entitiy.UserDetailsImpl;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -39,5 +43,29 @@ public class StoreContorller {
         StoreResponse storeDetail = storeService.getStoreInfo(storeId);
 
         return ResponseEntity.ok(storeDetail);
+    }
+
+    @GetMapping("/")
+    public ResponseEntity<Page<StoreResponse>> getStoreList(Pageable pageable){
+
+        Page<StoreResponse> storeDetail = storeService.getStoreList(pageable);
+
+        return ResponseEntity.ok(storeDetail);
+    }
+
+    @PatchMapping("/{storeId}")
+    public ResponseEntity<?> changeStoreInfo(@PathVariable Long storeId,@RequestBody StoreInfoRequest request){
+
+        this.storeService.changeStoreInfo(storeId,request);
+
+        return ResponseEntity.ok("가게 정보가 변경되었습니다.");
+    }
+
+    @DeleteMapping("/{storeId}")
+    public ResponseEntity<Void> deleteStore(@PathVariable Long storeId,@AuthenticationPrincipal UserDetailsImpl userDetails){
+
+        this.storeService.deleteStore(storeId,userDetails.getUser());
+
+        return ResponseEntity.noContent().build();
     }
 }
