@@ -16,6 +16,7 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.BatchSize;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -61,16 +62,22 @@ public class Store {
     @JoinColumn(name = "owner_id")
     private User owner;
 
+    @BatchSize(size = 100)
     @OneToMany(mappedBy = "store", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Product> products = new ArrayList<>();
 
     @Builder
-    public Store(String name, String address, String phone, boolean active, User owner) {
+    public Store(String name, String address, String phone, boolean active, User owner, String description, StoreCategory category, String operatingHours, BigDecimal minOrderAmount, int deliveryFee) {
         this.name = name;
         this.address = address;
         this.phone = phone;
         this.active = active;
         this.owner = owner;
+        this.description = description;
+        this.category = category;
+        this.operatingHours = operatingHours;
+        this.minOrderAmount = minOrderAmount;
+        this.deliveryFee = deliveryFee;
     }
 
     public void delete(boolean isDeleted){

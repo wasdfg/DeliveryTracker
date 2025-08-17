@@ -1,7 +1,7 @@
 package com.example.deliverytracker.store.contorller;
 
+import com.example.deliverytracker.store.dto.StoreDetailResponse;
 import com.example.deliverytracker.store.dto.StoreRequest;
-import com.example.deliverytracker.store.dto.StoreResponse;
 import com.example.deliverytracker.store.service.StoreService;
 import com.example.deliverytracker.user.entitiy.UserDetailsImpl;
 import jakarta.validation.Valid;
@@ -40,21 +40,21 @@ public class StoreContorller {
     @GetMapping("/{storeId}")
     public ResponseEntity<?> getStoreInfo(@PathVariable Long storeId){
 
-        StoreResponse storeDetail = storeService.getStoreInfo(storeId);
+        StoreDetailResponse storeDetail = storeService.getStoreInfo(storeId);
 
         return ResponseEntity.ok(storeDetail);
     }
 
     @GetMapping("/")
-    public ResponseEntity<Page<StoreResponse>> getStoreList(Pageable pageable){
+    public ResponseEntity<Page<StoreDetailResponse>> getStoreList(Pageable pageable){
 
-        Page<StoreResponse> storeDetail = storeService.getStoreList(pageable);
+        Page<StoreDetailResponse> storeDetail = storeService.getStoreList(pageable);
 
         return ResponseEntity.ok(storeDetail);
     }
 
     @PatchMapping("/{storeId}")
-    public ResponseEntity<?> changeStoreInfo(@PathVariable Long storeId,@RequestBody StoreInfoRequest request){
+    public ResponseEntity<?> changeStoreInfo(@PathVariable Long storeId,@RequestBody StoreRequest request){
 
         this.storeService.changeStoreInfo(storeId,request);
 
