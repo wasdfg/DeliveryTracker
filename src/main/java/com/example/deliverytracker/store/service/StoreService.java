@@ -55,8 +55,34 @@ public class StoreService {
 
     public Page<StoreDetailResponse> getStoreList(Pageable pageable){
 
-        Page<Store> page = this.storeRepository.findAll(pageable);
+        Page<Store> page = this.storeRepository.findStoreList(pageable);
 
         return page.map(StoreDetailResponse::from);
+    }
+
+    @Transactional
+    public void changeStoreInfo(Long storeId, StoreRequest request, User user){
+
+        Store store = this.storeRepository.findStoreWithProductsById(storeId)
+                .orElseThrow(() -> new EntityNotFoundException("가게 정보가 없습니다."));
+
+        if (!store.getOwner().getId().equals(user.getId())) {
+            throw new AccessDeniedException("수정 권한이 없습니다.");
+        }
+
+        store.changeInfo(request);
+
+    }
+
+    @Transactional
+    public void deleteStore(Long storeId,User user){
+        Store store = this.storeRepository.findById(storeId)
+                .orElseThrow(() -> new EntityNotFoundException("가게 정보가 없습니다."));
+
+        if (!store.getOwner().getId().equals(user.getId())) {
+            throw new AccessDeniedException("삭제 권한이 없습니다.");
+        }
+
+        store.delete(true);
     }
 }

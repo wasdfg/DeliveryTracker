@@ -17,5 +17,5 @@ public interface  StoreRepository extends JpaRepository<Store, Long> {
     @Query("SELECT s FROM Store s LEFT JOIN FETCH s.products WHERE s.id = :storeId")
     Optional<Store> findStoreWithProductsById(@Param("storeId") Long storeId);
 
-    Page<Store> findAll(Pageable pageable);
+    Page<Store> findStoreList(Pageable pageable);
 }

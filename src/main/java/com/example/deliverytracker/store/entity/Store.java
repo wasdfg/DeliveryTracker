@@ -1,5 +1,6 @@
 package com.example.deliverytracker.store.entity;
 
+import com.example.deliverytracker.store.dto.StoreRequest;
 import com.example.deliverytracker.user.entitiy.User;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
@@ -78,6 +79,31 @@ public class Store {
         this.operatingHours = operatingHours;
         this.minOrderAmount = minOrderAmount;
         this.deliveryFee = deliveryFee;
+    }
+
+    public void changeInfo(StoreRequest request) {
+        if (request.getName() != null) {
+            this.name = request.getName();
+        }
+        if (request.getAddress() != null) {
+            this.address = request.getAddress();
+        }
+        if (request.getPhone() != null) {
+            this.phone = request.getPhone();
+        }
+        if (request.getDescription() != null) {
+            this.description = request.getDescription();
+        }
+        if (request.getOperatingHours() != null) {
+            this.operatingHours = request.getOperatingHours();
+        }
+        if (request.getMinOrderAmount() != null) {
+            this.minOrderAmount = request.getMinOrderAmount();
+        }
+        this.deliveryFee = request.getDeliveryFee();
+        if (request.getCategory() != null) {
+            this.category = request.getCategory();
+        }
     }
 
     public void delete(boolean isDeleted){

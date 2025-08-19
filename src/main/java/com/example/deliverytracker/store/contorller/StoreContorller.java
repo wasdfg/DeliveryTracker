@@ -54,9 +54,9 @@ public class StoreContorller {
     }
 
     @PatchMapping("/{storeId}")
-    public ResponseEntity<?> changeStoreInfo(@PathVariable Long storeId,@RequestBody StoreRequest request){
+    public ResponseEntity<?> changeStoreInfo(@PathVariable Long storeId,@RequestBody StoreRequest request,@AuthenticationPrincipal UserDetailsImpl userDetails){
 
-        this.storeService.changeStoreInfo(storeId,request);
+        this.storeService.changeStoreInfo(storeId,request,userDetails.getUser());
 
         return ResponseEntity.ok("가게 정보가 변경되었습니다.");
     }
