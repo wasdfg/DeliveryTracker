@@ -1,4 +1,6 @@
-package com.example.deliverytracker.user.entitiy;
+package com.example.deliverytracker.user.dto;
+
+import com.example.deliverytracker.user.entitiy.User;
 
 public class UserResponse {
     private String email;

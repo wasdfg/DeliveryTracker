@@ -1,5 +1,6 @@
 package com.example.deliverytracker.rider.entity;
 
+import com.example.deliverytracker.common.BaseEntity;
 import com.example.deliverytracker.user.entitiy.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -31,7 +32,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
-public class Rider {
+public class Rider extends BaseEntity {
 
     @Id
     private Long id;

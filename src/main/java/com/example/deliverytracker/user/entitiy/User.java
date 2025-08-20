@@ -1,5 +1,6 @@
 package com.example.deliverytracker.user.entitiy;
 
+import com.example.deliverytracker.common.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -29,7 +30,7 @@ import java.time.LocalDateTime;
         @UniqueConstraint(name = "UK_user_email", columnNames = "email"),
         @UniqueConstraint(name = "UK_user_login_id", columnNames = "id_for_login")
 })
-public class User {
+public class User extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -61,17 +62,6 @@ public class User {
     @Column(nullable = false)
     private Status status;
 
-
-    private LocalDateTime createdAt;
-
-    private LocalDateTime modifiedAt;
-
-    @PrePersist
-    public void prePersist() {
-        this.createdAt = LocalDateTime.now();
-        if (this.role == null) this.role = Role.USER;
-    }
-
     public enum Role {
         USER, ADMIN , RIDER , STORE_OWNER
     }
@@ -96,9 +86,5 @@ public class User {
 
     public void changeStatus(Status status) {
         this.status = status;
-    }
-
-    public void changeDate(LocalDateTime modifiedAt){
-        this.modifiedAt = modifiedAt;
     }
 }

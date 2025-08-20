@@ -1,5 +1,6 @@
 package com.example.deliverytracker.order.entity;
 
+import com.example.deliverytracker.common.BaseEntity;
 import com.example.deliverytracker.store.entity.Product;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -22,7 +23,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
-public class OrderItem {
+public class OrderItem extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

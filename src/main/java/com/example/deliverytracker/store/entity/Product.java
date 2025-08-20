@@ -1,6 +1,7 @@
 package com.example.deliverytracker.store.entity;
 
 
+import com.example.deliverytracker.common.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -20,9 +21,7 @@ import lombok.NoArgsConstructor;
 @Table(name = "products")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@AllArgsConstructor
-@Builder
-public class Product {
+public class Product extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -38,9 +37,25 @@ public class Product {
     @Column(nullable = false)
     private int price;
 
+    private String description;
+    private String category;
+    private int stock;
+
     private String imageUrl;
 
     @Column(nullable = false)
-    private boolean isAvailable;
+    private boolean isAvailable = true;
+
+    @Builder
+    public Product(Store store, String name, int price, String description, String category, int stock, String imageUrl, boolean isAvailable) {
+        this.store = store;
+        this.name = name;
+        this.price = price;
+        this.description = description;
+        this.category = category;
+        this.stock = stock;
+        this.imageUrl = imageUrl;
+        this.isAvailable = isAvailable;
+    }
 }
 

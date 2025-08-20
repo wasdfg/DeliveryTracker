@@ -11,7 +11,7 @@ import com.example.deliverytracker.user.dto.UserPasswordRequest;
 import com.example.deliverytracker.user.dto.UserSignupRequest;
 import com.example.deliverytracker.user.entitiy.User;
 import com.example.deliverytracker.user.entitiy.UserDetailsImpl;
-import com.example.deliverytracker.user.entitiy.UserResponse;
+import com.example.deliverytracker.user.dto.UserResponse;
 import com.example.deliverytracker.user.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;

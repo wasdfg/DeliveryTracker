@@ -1,5 +1,6 @@
 package com.example.deliverytracker.order.entity;
 
+import com.example.deliverytracker.common.BaseEntity;
 import com.example.deliverytracker.delivery.entity.Delivery;
 import com.example.deliverytracker.store.entity.Store;
 import com.example.deliverytracker.user.entitiy.User;
@@ -35,7 +36,7 @@ import java.util.List;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
-public class Order {
+public class Order extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

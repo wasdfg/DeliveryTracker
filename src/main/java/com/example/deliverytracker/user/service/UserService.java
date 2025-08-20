@@ -61,7 +61,6 @@ public class UserService {
                     .password(encryptedPassword)
                     .nickname(nickname)
                     .phone(phone)
-                    .createdAt(LocalDateTime.now())
                     .address(address)
                     .role(User.Role.USER)
                     .status(User.Status.ACTIVE)
@@ -81,7 +80,7 @@ public class UserService {
         }
 
         if (user.getStatus() == User.Status.WITHDRAWN) {
-            long days = Duration.between(user.getModifiedAt(), LocalDateTime.now()).toDays();
+            long days = Duration.between(user.getUpdatedAt(), LocalDateTime.now()).toDays();
 
             if(days <= 30){
                 throw new IllegalArgumentException("탈퇴한 계정입니다. 복구하시겠습니까?");
@@ -95,8 +94,6 @@ public class UserService {
         if (user.getStatus() == User.Status.SUSPENDED) {
             throw new IllegalArgumentException("정지된 계정입니다. 관리자에게 문의하세요.");
         }
-
-        user.changeDate(LocalDateTime.now());
 
         return jwtProvider.createToken(user.getId(), user.getRole().name());
     }
@@ -163,7 +160,6 @@ public class UserService {
         }
 
         user.changeStatus(User.Status.WITHDRAWN);
-        user.changeDate(LocalDateTime.now());
     }
 
     public void sendIdForLogin(UserEmailRequest request){
@@ -226,7 +222,6 @@ public class UserService {
                 .orElseThrow(() -> new IllegalStateException("사용자를 찾을 수 없습니다."));
 
         user.changePassword(passwordEncoder.encode(newPassword));
-        user.changeDate(LocalDateTime.now());
         redisTemplate.delete(redisKey);
     }
 }
