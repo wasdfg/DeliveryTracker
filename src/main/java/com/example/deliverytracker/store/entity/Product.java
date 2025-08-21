@@ -4,6 +4,8 @@ package com.example.deliverytracker.store.entity;
 import com.example.deliverytracker.common.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -38,7 +40,10 @@ public class Product extends BaseEntity {
     private int price;
 
     private String description;
-    private String category;
+
+    @Enumerated(EnumType.STRING)
+    private ProductCategory category;
+
     private int stock;
 
     private String imageUrl;
@@ -47,7 +52,7 @@ public class Product extends BaseEntity {
     private boolean isAvailable = true;
 
     @Builder
-    public Product(Store store, String name, int price, String description, String category, int stock, String imageUrl, boolean isAvailable) {
+    public Product(Store store, String name, int price, String description, ProductCategory category, int stock, String imageUrl, boolean isAvailable) {
         this.store = store;
         this.name = name;
         this.price = price;
