@@ -52,8 +52,7 @@ public class Product extends BaseEntity {
     private boolean isAvailable = true;
 
     @Builder
-    public Product(Store store, String name, int price, String description, ProductCategory category, int stock, String imageUrl, boolean isAvailable) {
-        this.store = store;
+    public Product(String name, int price, String description, ProductCategory category, int stock, String imageUrl, boolean isAvailable) {
         this.name = name;
         this.price = price;
         this.description = description;
@@ -61,6 +60,10 @@ public class Product extends BaseEntity {
         this.stock = stock;
         this.imageUrl = imageUrl;
         this.isAvailable = isAvailable;
+    }
+
+    protected void setStore(Store store) {
+        this.store = store;
     }
 }
 

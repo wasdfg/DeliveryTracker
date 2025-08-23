@@ -2,15 +2,19 @@ package com.example.deliverytracker.store.contorller;
 
 import com.example.deliverytracker.store.dto.ProductRequest;
 import com.example.deliverytracker.store.dto.ProductResponse;
+import com.example.deliverytracker.store.dto.ProductUpdateRequest;
 import com.example.deliverytracker.store.service.ProductService;
 import com.example.deliverytracker.user.entitiy.UserDetailsImpl;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -32,10 +36,26 @@ public class ProductController {
     }
 
     @GetMapping("/stores/{storeId}/products")
-    public ResponseEntity<Page<ProductResponse>> getProdcutInfo(@PathVariable Long storeId){
+    public ResponseEntity<Page<ProductResponse>> getProdcutInfo(@PathVariable Long storeId, Pageable pageable){
 
-        Page<ProductResponse> productResponse = this.productService.getProductInfo(storeId);
+        Page<ProductResponse> productResponse = this.productService.getProductList(storeId,pageable);
 
-        return ResponseEntity.ok(productDetailResponse);
+        return ResponseEntity.ok(productResponse);
+    }
+
+    @PatchMapping("/products/{productId}")
+    public ResponseEntity<String> changeProductInfo(@PathVariable Long productId, @RequestBody @Valid ProductUpdateRequest productRequest){
+
+        this.productService.changeProductInfo(productId,productRequest);
+
+        return ResponseEntity.ok("상품 변경이 완료되었습니다.");
+    }
+
+    @DeleteMapping("/products/{productId}")
+    public ResponseEntity<Void> deleteProduct(@PathVariable Long productId, @AuthenticationPrincipal UserDetailsImpl userDetail){
+
+        this.productService.deleteProduct(productId,userDetail.getUser());
+
+        return ResponseEntity.noContent().build();
     }
 }
