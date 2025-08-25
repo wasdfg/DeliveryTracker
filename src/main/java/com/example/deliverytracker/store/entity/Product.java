@@ -2,6 +2,7 @@ package com.example.deliverytracker.store.entity;
 
 
 import com.example.deliverytracker.common.BaseEntity;
+import com.example.deliverytracker.store.dto.ProductUpdateRequest;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -64,6 +65,32 @@ public class Product extends BaseEntity {
 
     protected void setStore(Store store) {
         this.store = store;
+    }
+
+    public void updateInfo(ProductUpdateRequest request){
+        if(request.getCategory() != null){
+            this.category = request.getCategory();
+        }
+
+        if(request.getDescription() != null){
+            this.description = request.getDescription();
+        }
+
+        if(request.getName() != null){
+            this.name = request.getName();
+        }
+
+        if(request.getPrice() != null){
+            this.price = request.getPrice();
+        }
+
+        if(request.getStock() != null){
+            this.stock = request.getStock();
+        }
+    }
+
+    public void delete() {
+        this.isAvailable = false;
     }
 }
 

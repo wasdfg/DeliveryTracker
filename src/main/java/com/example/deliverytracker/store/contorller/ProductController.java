@@ -44,9 +44,9 @@ public class ProductController {
     }
 
     @PatchMapping("/products/{productId}")
-    public ResponseEntity<String> changeProductInfo(@PathVariable Long productId, @RequestBody @Valid ProductUpdateRequest productRequest){
+    public ResponseEntity<String> changeProductInfo(@PathVariable Long productId, @RequestBody @Valid ProductUpdateRequest productRequest, @AuthenticationPrincipal UserDetailsImpl userDetail){
 
-        this.productService.changeProductInfo(productId,productRequest);
+        this.productService.changeProductInfo(productId,productRequest,userDetail.getUser());
 
         return ResponseEntity.ok("상품 변경이 완료되었습니다.");
     }
