@@ -30,4 +30,6 @@ public class StoreRequest {
 
     @NotBlank
     private StoreCategory category;
+
+    private String imageUrl;
 }

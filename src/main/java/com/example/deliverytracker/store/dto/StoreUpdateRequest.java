@@ -23,4 +23,6 @@ public class StoreUpdateRequest {
     private int deliveryFee;
 
     private StoreCategory category;
+
+    private String imageUrl;
 }

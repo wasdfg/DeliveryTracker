@@ -22,4 +22,6 @@ public class ProductRequest {
 
     @Min(value = 0, message = "재고는 0 이상이어야 합니다.")
     private int stock;
+
+    private String imageUrl;
 }
