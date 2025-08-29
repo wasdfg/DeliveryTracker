@@ -50,6 +50,8 @@ public class Review extends BaseEntity {
 
     private String imageUrl;
 
+    private boolean deleted = false;
+
     @Builder
     public Review(User user, Store store, Order order, int rating, String content, String imageUrl) {
         this.user = user;

@@ -1,7 +1,8 @@
 package com.example.deliverytracker.review.controller;
 
+import com.example.deliverytracker.review.dto.ReviewCreateRequest;
 import com.example.deliverytracker.review.dto.ReviewResponse;
-import com.example.deliverytracker.review.entity.Review;
+import com.example.deliverytracker.review.dto.ReviewUpdateRequest;
 import com.example.deliverytracker.review.service.ReviewService;
 import com.example.deliverytracker.user.entitiy.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
@@ -10,7 +11,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -38,5 +41,21 @@ public class ReviewController {
         Page<ReviewResponse> page = this.reviewService.getReviewList(storeId,pageable);
 
         return ResponseEntity.ok(page);
+    }
+
+    @PatchMapping("/reviews/{reviewId}")
+    public ResponseEntity<String> updateReview(@PathVariable Long reviewId, @RequestBody ReviewUpdateRequest request, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+
+        this.reviewService.updateReview(reviewId, request, userDetails.getUser());
+
+        return ResponseEntity.ok("리뷰가 수정되었습니다.");
+    }
+
+    @DeleteMapping("/reviews/{reviewId}")
+    public ResponseEntity<String> delteReview(@PathVariable Long reviewId, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+
+        this.reviewService.deleteReview(reviewId, userDetails.getUser());
+
+        return ResponseEntity.ok("리뷰가 삭제되었습니다.");
     }
 }

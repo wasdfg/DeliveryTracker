@@ -2,6 +2,7 @@ package com.example.deliverytracker.order.entity;
 
 import com.example.deliverytracker.common.BaseEntity;
 import com.example.deliverytracker.delivery.entity.Delivery;
+import com.example.deliverytracker.review.entity.Review;
 import com.example.deliverytracker.store.entity.Store;
 import com.example.deliverytracker.user.entitiy.User;
 import jakarta.persistence.CascadeType;
@@ -55,6 +56,9 @@ public class Order extends BaseEntity {
     @JoinColumn(name = "store_id")
     @BatchSize(size = 100)
     private Store store;
+
+    @OneToOne(mappedBy = "order", fetch = FetchType.LAZY)
+    private Review review;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

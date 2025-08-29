@@ -1,5 +1,6 @@
 package com.example.deliverytracker.store.entity;
 
+import com.example.deliverytracker.review.entity.Review;
 import com.example.deliverytracker.store.dto.StoreRequest;
 import com.example.deliverytracker.user.entitiy.User;
 import jakarta.persistence.CascadeType;
@@ -66,6 +67,9 @@ public class Store {
     @BatchSize(size = 100)
     @OneToMany(mappedBy = "store", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Product> products = new ArrayList<>();
+
+    @OneToMany(mappedBy = "store")
+    private List<Review> reviews = new ArrayList<>();
 
     @Builder
     public Store(String name, String address, String phone, boolean active, User owner, String description, StoreCategory category, String operatingHours, BigDecimal minOrderAmount, int deliveryFee) {
