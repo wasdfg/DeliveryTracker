@@ -10,12 +10,12 @@ import java.util.List;
 public class ReviewResponse {
 
     private String userNickname;
-    private int rating;
+    private Integer rating;
     private String content;
     private LocalDateTime createdAt;
     private List<String> orderedProductNames;
 
-    public ReviewResponse(String userNickname, int rating, String content, LocalDateTime createdAt,List<String> orderedProductNames){
+    public ReviewResponse(String userNickname, Integer rating, String content, LocalDateTime createdAt,List<String> orderedProductNames){
         this.userNickname = userNickname;
         this.rating = rating;
         this.content = content;

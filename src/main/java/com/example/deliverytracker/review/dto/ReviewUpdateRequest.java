@@ -1,9 +1,12 @@
 package com.example.deliverytracker.review.dto;
 
+import lombok.Getter;
+
+@Getter
 public class ReviewUpdateRequest {
     private String content;
 
-    private int rating;
+    private Integer rating;
 
     private String imageUrl;
 }

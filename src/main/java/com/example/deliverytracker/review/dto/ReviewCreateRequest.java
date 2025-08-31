@@ -7,7 +7,7 @@ public class ReviewCreateRequest {
 
     private String content;
 
-    private int rating;
+    private Integer rating;
 
     private String imageUrl;
 }

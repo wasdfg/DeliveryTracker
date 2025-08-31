@@ -2,6 +2,8 @@ package com.example.deliverytracker.review.entity;
 
 import com.example.deliverytracker.common.BaseEntity;
 import com.example.deliverytracker.order.entity.Order;
+import com.example.deliverytracker.review.dto.ReviewUpdateRequest;
+import com.example.deliverytracker.store.dto.StoreRequest;
 import com.example.deliverytracker.store.entity.Store;
 import com.example.deliverytracker.user.entitiy.User;
 import jakarta.persistence.Column;
@@ -43,7 +45,7 @@ public class Review extends BaseEntity {
     private Order order;
 
     @Column(nullable = false)
-    private int rating;
+    private Integer rating;
 
     @Column(length = 1000)
     private String content;
@@ -60,5 +62,23 @@ public class Review extends BaseEntity {
         this.rating = rating;
         this.content = content;
         this.imageUrl = imageUrl;
+    }
+
+    public void changeInfo(ReviewUpdateRequest request) {
+        if(request.getContent() != null){
+            this.content = request.getContent();
+        }
+        
+        if(request.getRating() != null){
+            this.rating = request.getRating();
+        }
+        
+        if(request.getImageUrl() != null){
+            //이미지 처리
+        }
+    }
+
+    public void delete(){
+        this.deleted = true;
     }
 }
