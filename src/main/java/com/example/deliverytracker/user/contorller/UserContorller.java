@@ -69,9 +69,10 @@ public class UserContorller {
 
     @GetMapping("/me")
     public ResponseEntity<UserResponse> getMyInfo(@AuthenticationPrincipal UserDetailsImpl userDetails) {
-        User user = userDetails.getUser();
 
-        return ResponseEntity.ok(new UserResponse(user));
+        UserResponse response = userService.getMyInfo(userDetails.getUser());
+
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping("/password/check")
@@ -84,12 +85,10 @@ public class UserContorller {
         return ResponseEntity.ok("비밀번호가 일치합니다.");
     }
 
-    @PostMapping("/changeInfo")
-    public ResponseEntity<String> changeInfo(@AuthenticationPrincipal UserDetailsImpl userDetails, @RequestBody @Valid UserInfoRequest request){
+    @PatchMapping("/me")
+    public ResponseEntity<String> updateMyInfo(@AuthenticationPrincipal UserDetailsImpl userDetails, @RequestBody @Valid UserInfoRequest request){
 
-        User user = userDetails.getUser();
-
-        this.userService.changeInfo(user,request);
+        this.userService.updateMyInfo(userDetails.getUser(),request);
 
         return ResponseEntity.ok("회원 정보가 성공적으로 수정되었습니다.");
     }

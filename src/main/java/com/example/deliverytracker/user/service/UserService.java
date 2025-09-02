@@ -6,6 +6,7 @@ import com.example.deliverytracker.user.dto.PasswordCheckRequest;
 import com.example.deliverytracker.user.dto.UserEmailRequest;
 import com.example.deliverytracker.user.dto.UserInfoRequest;
 import com.example.deliverytracker.user.dto.UserPasswordRequest;
+import com.example.deliverytracker.user.dto.UserResponse;
 import com.example.deliverytracker.user.entitiy.EmailType;
 import com.example.deliverytracker.user.repository.UserRepository;
 import com.example.deliverytracker.user.dto.UserLoginRequest;
@@ -70,6 +71,13 @@ public class UserService {
         }
     }
 
+    public UserResponse getMyInfo(User user) {
+        User finduser = userRepository.findById(user.getId())
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 계정입니다."));
+
+        return new UserResponse(user);
+    }
+
     public String login(UserLoginRequest request){
 
         User user = userRepository.findByIdForLogin(request.getIdForLogin())
@@ -113,11 +121,7 @@ public class UserService {
     }
 
     @Transactional
-    public void changeInfo(User user, UserInfoRequest request){
-
-        if (isBlankOrNull(request.getNickname())) {
-            throw new IllegalArgumentException("닉네임은 필수입니다.");
-        }
+    public void updateMyInfo(User user, UserInfoRequest request){
 
         user.changeInfo(
                 request.getEmail(),

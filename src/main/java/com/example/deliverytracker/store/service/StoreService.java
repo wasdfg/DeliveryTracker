@@ -2,7 +2,10 @@ package com.example.deliverytracker.store.service;
 
 import com.example.deliverytracker.store.dto.StoreDetailResponse;
 import com.example.deliverytracker.store.dto.StoreRequest;
+import com.example.deliverytracker.store.dto.StoreResponse;
+import com.example.deliverytracker.store.dto.StoreSearchCondition;
 import com.example.deliverytracker.store.entity.Store;
+import com.example.deliverytracker.store.entity.StoreCategory;
 import com.example.deliverytracker.store.repository.StoreRepository;
 import com.example.deliverytracker.user.entitiy.User;
 import jakarta.persistence.EntityNotFoundException;
@@ -13,6 +16,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 
 @Slf4j
@@ -84,5 +88,29 @@ public class StoreService {
         }
 
         store.delete(true);
+    }
+
+    public Page<StoreResponse> searchStores(StoreSearchCondition condition,Pageable pageable){
+
+        String keyword = condition.getKeyword();
+        StoreCategory category = condition.getCategory();
+
+        Page<Store> storePage;
+
+        if (StringUtils.hasText(keyword) && category != null) {
+            // 조건 : 이름 + 카테고리
+            storePage = storeRepository.findByNameContainingAndCategory(keyword, category, pageable);
+        } else if (StringUtils.hasText(keyword)) {
+            // 조건 : 이름
+            storePage = storeRepository.findByNameContaining(keyword, pageable);
+        } else if (category != null) {
+            // 조건 : 카테고리
+            storePage = storeRepository.findByCategory(category, pageable);
+        } else {
+
+            storePage = storeRepository.findAll(pageable);
+        }
+
+        return storePage.map(StoreResponse::from);
     }
 }

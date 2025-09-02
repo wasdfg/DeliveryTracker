@@ -2,6 +2,8 @@ package com.example.deliverytracker.store.contorller;
 
 import com.example.deliverytracker.store.dto.StoreDetailResponse;
 import com.example.deliverytracker.store.dto.StoreRequest;
+import com.example.deliverytracker.store.dto.StoreResponse;
+import com.example.deliverytracker.store.dto.StoreSearchCondition;
 import com.example.deliverytracker.store.service.StoreService;
 import com.example.deliverytracker.user.entitiy.UserDetailsImpl;
 import jakarta.validation.Valid;
@@ -13,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -67,5 +70,13 @@ public class StoreContorller {
         this.storeService.deleteStore(storeId,userDetails.getUser());
 
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<Page<StoreResponse>> searchStore(@ModelAttribute StoreSearchCondition condition, Pageable pageable){
+
+        Page<StoreResponse> results = storeService.searchStores(condition, pageable);
+
+        return ResponseEntity.ok(results);
     }
 }
