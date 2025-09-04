@@ -1,6 +1,7 @@
 package com.example.deliverytracker.order.repository;
 
 import com.example.deliverytracker.order.entity.Order;
+import com.example.deliverytracker.store.entity.Store;
 import com.example.deliverytracker.user.entitiy.User;
 import io.lettuce.core.dynamic.annotation.Param;
 import org.springframework.data.domain.Page;
@@ -22,4 +23,6 @@ public interface OrderRepository extends JpaRepository<Order,Long> {
     Page<Order> findByUserAndStatus(User user, Order.Status status, Pageable pageable);
 
     Page<Order> findByUser(User user, Pageable pageable);
+
+    Page<Order> findByStore(Store store, Pageable pageable);
 }

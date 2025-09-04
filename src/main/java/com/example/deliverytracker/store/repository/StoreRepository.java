@@ -2,6 +2,7 @@ package com.example.deliverytracker.store.repository;
 
 import com.example.deliverytracker.store.entity.Store;
 import com.example.deliverytracker.store.entity.StoreCategory;
+import com.example.deliverytracker.user.entitiy.User;
 import io.lettuce.core.dynamic.annotation.Param;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -25,4 +26,6 @@ public interface  StoreRepository extends JpaRepository<Store, Long>{
     Page<Store> findByCategory(StoreCategory category, Pageable pageable);
 
     Page<Store> findByNameContainingAndCategory(String keyword, StoreCategory category, Pageable pageable);
+
+    Optional<Store> findByOwner(User owner);
 }

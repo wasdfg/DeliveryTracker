@@ -1,5 +1,9 @@
 package com.example.deliverytracker.store.service;
 
+import com.example.deliverytracker.order.dto.OrderForOwnerResponse;
+import com.example.deliverytracker.order.dto.OrderResponse;
+import com.example.deliverytracker.order.entity.Order;
+import com.example.deliverytracker.order.repository.OrderRepository;
 import com.example.deliverytracker.store.dto.StoreDetailResponse;
 import com.example.deliverytracker.store.dto.StoreRequest;
 import com.example.deliverytracker.store.dto.StoreResponse;
@@ -25,6 +29,8 @@ import org.springframework.util.StringUtils;
 public class StoreService {
 
     private final StoreRepository storeRepository;
+
+    private final OrderRepository orderRepository;
 
     @Transactional
     public void registStore(StoreRequest request, User user){
@@ -112,5 +118,15 @@ public class StoreService {
         }
 
         return storePage.map(StoreResponse::from);
+    }
+
+    public Page<OrderForOwnerResponse> getOrdersForMyStore(User user, Pageable pageable){
+
+        Store store = this.storeRepository.findByOwner(user)
+                .orElseThrow(() -> new EntityNotFoundException("소유한 가게 정보가 없습니다.")); //user의 id로 store정보를 가져오려면 어떻게해야할까?
+
+        Page<Order> orderPage = orderRepository.findByStore(store, pageable);
+
+        return orderPage.map(OrderForOwnerResponse::from);
     }
 }

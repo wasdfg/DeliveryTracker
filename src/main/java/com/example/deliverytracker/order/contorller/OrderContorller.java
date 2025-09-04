@@ -76,5 +76,4 @@ public class OrderContorller {
         return ResponseEntity.noContent().build();
     }
 
-    //배달상태로의 전환을 구현해야함?
 }

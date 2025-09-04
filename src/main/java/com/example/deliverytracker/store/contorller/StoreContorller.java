@@ -1,5 +1,7 @@
 package com.example.deliverytracker.store.contorller;
 
+import com.example.deliverytracker.order.dto.OrderForOwnerResponse;
+import com.example.deliverytracker.order.dto.OrderResponse;
 import com.example.deliverytracker.store.dto.StoreDetailResponse;
 import com.example.deliverytracker.store.dto.StoreRequest;
 import com.example.deliverytracker.store.dto.StoreResponse;
@@ -24,13 +26,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RequiredArgsConstructor
-@RequestMapping("/api/stores")
+@RequestMapping("/api")
 @RestController
 public class StoreContorller {
 
     private final StoreService storeService;
 
-    @PostMapping("/")
+    @PostMapping("/stores")
     public ResponseEntity<String> registStore(@Valid @RequestBody StoreRequest request, @AuthenticationPrincipal UserDetailsImpl userDetails){
 
         storeService.registStore(request, userDetails.getUser());
@@ -40,7 +42,7 @@ public class StoreContorller {
                 .body("가게 등록이 완료되었습니다.");
     }
 
-    @GetMapping("/{storeId}")
+    @GetMapping("/stores/{storeId}")
     public ResponseEntity<?> getStoreInfo(@PathVariable Long storeId){
 
         StoreDetailResponse storeDetail = storeService.getStoreInfo(storeId);
@@ -48,7 +50,7 @@ public class StoreContorller {
         return ResponseEntity.ok(storeDetail);
     }
 
-    @GetMapping("/")
+    @GetMapping("/stores")
     public ResponseEntity<Page<StoreDetailResponse>> getStoreList(Pageable pageable){
 
         Page<StoreDetailResponse> storeDetail = storeService.getStoreList(pageable);
@@ -56,7 +58,7 @@ public class StoreContorller {
         return ResponseEntity.ok(storeDetail);
     }
 
-    @PatchMapping("/{storeId}")
+    @PatchMapping("/stores/{storeId}")
     public ResponseEntity<?> changeStoreInfo(@PathVariable Long storeId,@RequestBody StoreRequest request,@AuthenticationPrincipal UserDetailsImpl userDetails){
 
         this.storeService.changeStoreInfo(storeId,request,userDetails.getUser());
@@ -64,7 +66,7 @@ public class StoreContorller {
         return ResponseEntity.ok("가게 정보가 변경되었습니다.");
     }
 
-    @DeleteMapping("/{storeId}")
+    @DeleteMapping("/stores/{storeId}")
     public ResponseEntity<Void> deleteStore(@PathVariable Long storeId,@AuthenticationPrincipal UserDetailsImpl userDetails){
 
         this.storeService.deleteStore(storeId,userDetails.getUser());
@@ -72,10 +74,18 @@ public class StoreContorller {
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/search")
+    @GetMapping("/stores/search")
     public ResponseEntity<Page<StoreResponse>> searchStore(@ModelAttribute StoreSearchCondition condition, Pageable pageable){
 
         Page<StoreResponse> results = storeService.searchStores(condition, pageable);
+
+        return ResponseEntity.ok(results);
+    }
+
+    @GetMapping("/my-store/orders")
+    public ResponseEntity<Page<OrderForOwnerResponse>> getOrdersForMyStore (@AuthenticationPrincipal UserDetailsImpl userDetails, Pageable pageable){
+
+        Page<OrderForOwnerResponse> results = storeService.getOrdersForMyStore(userDetails.getUser(),pageable);
 
         return ResponseEntity.ok(results);
     }
