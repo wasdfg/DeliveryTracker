@@ -19,6 +19,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.web.multipart.MultipartFile;
 
 @Entity
 @Table(name = "products")
@@ -53,7 +54,7 @@ public class Product extends BaseEntity {
     private boolean isAvailable = true;
 
     @Builder
-    public Product(String name, int price, String description, ProductCategory category, int stock, String imageUrl, boolean isAvailable) {
+    public Product(String name, int price, String description, ProductCategory category, int stock, String imageUrl, boolean isAvailable,Store store) {
         this.name = name;
         this.price = price;
         this.description = description;
@@ -61,13 +62,10 @@ public class Product extends BaseEntity {
         this.stock = stock;
         this.imageUrl = imageUrl;
         this.isAvailable = isAvailable;
-    }
-
-    protected void setStore(Store store) {
         this.store = store;
     }
 
-    public void updateInfo(ProductUpdateRequest request){
+    public void updateInfo(ProductUpdateRequest request, String imageUrl){
         if(request.getCategory() != null){
             this.category = request.getCategory();
         }
@@ -86,6 +84,9 @@ public class Product extends BaseEntity {
 
         if(request.getStock() != null){
             this.stock = request.getStock();
+        }
+        if(imageUrl != null){
+            this.imageUrl = imageUrl;
         }
     }
 

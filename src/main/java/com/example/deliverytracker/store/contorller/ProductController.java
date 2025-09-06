@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -19,7 +20,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 @RequiredArgsConstructor
 @RequestMapping("/api")
@@ -28,9 +31,9 @@ public class ProductController {
 
     private ProductService productService;
 
-    @PostMapping("/stores/{storeId}/products")
-    public ResponseEntity<String> registProduct(@PathVariable Long storeId, @RequestBody @Valid ProductRequest productRequest, @AuthenticationPrincipal UserDetailsImpl userDetail){
-        this.productService.registProduct(storeId,productRequest,userDetail.getUser());
+    @PostMapping(value = "/stores/{storeId}/products", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<String> registProduct(@PathVariable Long storeId, @RequestPart("request") @Valid ProductRequest productRequest, @AuthenticationPrincipal UserDetailsImpl userDetail, @RequestPart("image") MultipartFile imageFile){
+        this.productService.registProduct(storeId,productRequest,userDetail.getUser(),imageFile);
 
         return ResponseEntity.status(HttpStatus.CREATED).body("상품 등록이 완료되었습니다.");
     }
@@ -43,10 +46,10 @@ public class ProductController {
         return ResponseEntity.ok(productResponse);
     }
 
-    @PatchMapping("/products/{productId}")
-    public ResponseEntity<String> changeProductInfo(@PathVariable Long productId, @RequestBody @Valid ProductUpdateRequest productRequest, @AuthenticationPrincipal UserDetailsImpl userDetail){
+    @PatchMapping(value = "/products/{productId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<String> changeProductInfo(@PathVariable Long productId, @RequestPart("request") @Valid ProductUpdateRequest productRequest, @AuthenticationPrincipal UserDetailsImpl userDetail,@RequestPart("image") MultipartFile imageFile){
 
-        this.productService.changeProductInfo(productId,productRequest,userDetail.getUser());
+        this.productService.changeProductInfo(productId,productRequest,userDetail.getUser(),imageFile);
 
         return ResponseEntity.ok("상품 변경이 완료되었습니다.");
     }

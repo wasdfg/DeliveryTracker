@@ -2,6 +2,9 @@ package com.example.deliverytracker.user.service;
 
 import com.example.deliverytracker.global.jwt.JwtProvider;
 import com.example.deliverytracker.mail.service.EmailService;
+import com.example.deliverytracker.review.dto.ReviewResponse;
+import com.example.deliverytracker.review.entity.Review;
+import com.example.deliverytracker.review.repository.ReviewRepository;
 import com.example.deliverytracker.user.dto.PasswordCheckRequest;
 import com.example.deliverytracker.user.dto.UserEmailRequest;
 import com.example.deliverytracker.user.dto.UserInfoRequest;
@@ -13,6 +16,8 @@ import com.example.deliverytracker.user.dto.UserLoginRequest;
 import com.example.deliverytracker.user.dto.UserSignupRequest;
 import com.example.deliverytracker.user.entitiy.User;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -38,6 +43,8 @@ public class UserService {
     private final EmailService emailService;
 
     private static final Duration TOKEN_EXPIRATION = Duration.ofMinutes(30);
+
+    private final ReviewRepository reviewRepository;
 
 
     public void signup(UserSignupRequest request){
@@ -227,5 +234,12 @@ public class UserService {
 
         user.changePassword(passwordEncoder.encode(newPassword));
         redisTemplate.delete(redisKey);
+    }
+
+    public Page<ReviewResponse> viewMyReview(User user, Pageable pageable) {
+
+        Page<Review> reviewPage = reviewRepository.findByUser(user, pageable);
+
+        return reviewPage.map(ReviewResponse::from);
     }
 }

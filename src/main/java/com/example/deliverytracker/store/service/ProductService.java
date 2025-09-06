@@ -9,6 +9,7 @@ import com.example.deliverytracker.store.entity.Store;
 import com.example.deliverytracker.store.repository.ProductRepository;
 import com.example.deliverytracker.store.repository.StoreRepository;
 import com.example.deliverytracker.user.entitiy.User;
+import com.example.image.service.ImageService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,6 +18,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
 
 @Slf4j
 @Service
@@ -26,9 +30,11 @@ public class ProductService {
     private final StoreRepository storeRepository;
 
     private final ProductRepository productRepository;
+
+    private final ImageService imageService;
     
     @Transactional
-    public void registProduct(Long storeId, ProductRequest productRequest, User user){
+    public void registProduct(Long storeId, ProductRequest productRequest, User user, MultipartFile imageFile){
 
         Store store = this.storeRepository.findById(storeId)
                 .orElseThrow(() -> new EntityNotFoundException("가게 정보가 없습니다."));
@@ -39,16 +45,24 @@ public class ProductService {
 
         ProductCategory category = ProductCategory.valueOf(productRequest.getCategory().toUpperCase());
 
+        String imageUrl;
+
+        try {
+            imageUrl = imageService.upload(imageFile);
+        } catch (IOException e) {
+            throw new RuntimeException("이미지 업로드에 실패했습니다.", e);
+        }
+
         Product product = Product.builder()
                 .price(productRequest.getPrice())
                 .stock(productRequest.getStock())
                 .name(productRequest.getName())
                 .category(category)
                 .description(productRequest.getDescription())
+                .imageUrl(imageUrl)
                 .isAvailable(true)
+                .store(store)
                 .build();
-
-        store.addProduct(product);
 
         productRepository.save(product);
     }
@@ -60,7 +74,7 @@ public class ProductService {
     }
 
     @Transactional
-    public void changeProductInfo(Long productId, ProductUpdateRequest productRequest, User user){
+    public void changeProductInfo(Long productId, ProductUpdateRequest productRequest, User user,MultipartFile imageFile){
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new EntityNotFoundException("물품 정보가 없습니다."));
         
@@ -68,7 +82,22 @@ public class ProductService {
             throw new AccessDeniedException("상품은 점장만 등록 할 수 있습니다.");
         }
 
-        product.updateInfo(productRequest);
+        String newImageUrl = null;
+
+        if (imageFile != null && !imageFile.isEmpty()) {
+            try {
+
+                if (product.getImageUrl() != null) {
+                    imageService.delete(product.getImageUrl());
+                }
+
+                newImageUrl = imageService.upload(imageFile);
+            } catch (IOException e) {
+                throw new RuntimeException("이미지 수정에 실패했습니다.", e);
+            }
+        }
+
+        product.updateInfo(productRequest,newImageUrl);
 
     }
 

@@ -10,5 +10,4 @@ public class ProductUpdateRequest {
     private String description;
     private ProductCategory category;
     private Integer stock;
-    private String imageUrl;
 }

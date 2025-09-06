@@ -1,6 +1,7 @@
 package com.example.deliverytracker.user.contorller;
 
 import com.example.deliverytracker.global.jwt.JwtProvider;
+import com.example.deliverytracker.review.dto.ReviewResponse;
 import com.example.deliverytracker.user.dto.PasswordCheckRequest;
 import com.example.deliverytracker.user.dto.LoginResponse;
 import com.example.deliverytracker.user.dto.ResetPasswordRequest;
@@ -16,10 +17,13 @@ import com.example.deliverytracker.user.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -131,5 +135,13 @@ public class UserContorller {
     public ResponseEntity<Void> resetPassword(@RequestBody ResetPasswordRequest request) {
         userService.resetPassword(request.getToken(), request.getNewPassword());
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/me/reviews")
+    public ResponseEntity<Page<ReviewResponse>> viewMyReview(@AuthenticationPrincipal UserDetailsImpl userDetails, Pageable pageable){
+
+        Page<ReviewResponse> review = this.userService.viewMyReview(userDetails.getUser(),pageable);
+
+        return ResponseEntity.ok(review);
     }
 }

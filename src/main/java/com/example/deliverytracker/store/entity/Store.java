@@ -114,9 +114,4 @@ public class Store {
         this.isDeleted = isDeleted;
     }
 
-    public void addProduct(Product product) {
-        this.products.add(product);
-        product.setStore(this);
-    }
-
 }
