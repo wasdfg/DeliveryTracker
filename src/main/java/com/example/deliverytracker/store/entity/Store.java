@@ -72,7 +72,7 @@ public class Store {
     private List<Review> reviews = new ArrayList<>();
 
     @Builder
-    public Store(String name, String address, String phone, boolean active, User owner, String description, StoreCategory category, String operatingHours, BigDecimal minOrderAmount, int deliveryFee) {
+    public Store(String name, String address, String phone, boolean active, User owner, String description, StoreCategory category, String operatingHours, BigDecimal minOrderAmount, int deliveryFee,String imageUrl) {
         this.name = name;
         this.address = address;
         this.phone = phone;
@@ -83,6 +83,7 @@ public class Store {
         this.operatingHours = operatingHours;
         this.minOrderAmount = minOrderAmount;
         this.deliveryFee = deliveryFee;
+        this.imageUrl = imageUrl;
     }
 
     public void changeInfo(StoreRequest request) {

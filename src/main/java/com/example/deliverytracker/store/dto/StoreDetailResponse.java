@@ -23,9 +23,11 @@ public class StoreDetailResponse {
 
     private int deliveryFee;
 
+    private String imageUrl;
+
     private List<ProductResponse> products;
 
-    public StoreDetailResponse(String name, String phone, String address, List<ProductResponse> productResponses,String description, String operatingHours, BigDecimal minOrderAmount, int deliveryFee) {
+    public StoreDetailResponse(String name, String phone, String address, List<ProductResponse> productResponses,String description, String operatingHours, BigDecimal minOrderAmount, int deliveryFee,String imageUrl) {
         this.storeName = name;
         this.storePhone = phone;
         this.storeAddress = address;
@@ -34,6 +36,7 @@ public class StoreDetailResponse {
         this.operatingHours = operatingHours;
         this.minOrderAmount = minOrderAmount;
         this.deliveryFee = deliveryFee;
+        this.imageUrl = imageUrl;
     }
 
     public static StoreDetailResponse from(Store store) {
@@ -49,7 +52,8 @@ public class StoreDetailResponse {
                 store.getDescription(),
                 store.getOperatingHours(),
                 store.getMinOrderAmount(),
-                store.getDeliveryFee()
+                store.getDeliveryFee(),
+                store.getImageUrl()
         );
     }
 }

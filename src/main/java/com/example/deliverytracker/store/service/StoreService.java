@@ -12,6 +12,7 @@ import com.example.deliverytracker.store.entity.Store;
 import com.example.deliverytracker.store.entity.StoreCategory;
 import com.example.deliverytracker.store.repository.StoreRepository;
 import com.example.deliverytracker.user.entitiy.User;
+import com.example.image.service.ImageService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,6 +22,9 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
 
 
 @Slf4j
@@ -32,10 +36,20 @@ public class StoreService {
 
     private final OrderRepository orderRepository;
 
+    private final ImageService imageService;
+
     @Transactional
-    public void registStore(StoreRequest request, User user){
+    public void registStore(StoreRequest request, User user, MultipartFile imageFile){
         if(!user.getRole().equals(User.Role.STORE_OWNER)){
             throw new AccessDeniedException("점장만 가게를 등록할 수 있습니다.");
+        }
+
+        String imageUrl;
+
+        try {
+            imageUrl = imageService.upload(imageFile);
+        } catch (IOException e) {
+            throw new RuntimeException("이미지 업로드에 실패했습니다.", e);
         }
 
         Store store = Store.builder()
@@ -49,6 +63,7 @@ public class StoreService {
                 .operatingHours(request.getOperatingHours())
                 .minOrderAmount(request.getMinOrderAmount())
                 .deliveryFee(request.getDeliveryFee())
+                .imageUrl(imageUrl)
                 .build();
 
         storeRepository.save(store);
@@ -71,13 +86,28 @@ public class StoreService {
     }
 
     @Transactional
-    public void changeStoreInfo(Long storeId, StoreRequest request, User user){
+    public void changeStoreInfo(Long storeId, StoreRequest request, User user,MultipartFile imageFile){
 
         Store store = this.storeRepository.findStoreWithProductsById(storeId)
                 .orElseThrow(() -> new EntityNotFoundException("가게 정보가 없습니다."));
 
         if (!store.getOwner().getId().equals(user.getId())) {
             throw new AccessDeniedException("수정 권한이 없습니다.");
+        }
+
+        String newImageUrl = null;
+
+        if (imageFile != null && !imageFile.isEmpty()) {
+            try {
+
+                if (store.getImageUrl() != null) {
+                    imageService.delete(store.getImageUrl());
+                }
+
+                newImageUrl = imageService.upload(imageFile);
+            } catch (IOException e) {
+                throw new RuntimeException("이미지 수정에 실패했습니다.", e);
+            }
         }
 
         store.changeInfo(request);
@@ -93,7 +123,10 @@ public class StoreService {
             throw new AccessDeniedException("삭제 권한이 없습니다.");
         }
 
+        imageService.delete(store.getImageUrl());
+
         store.delete(true);
+
     }
 
     public Page<StoreResponse> searchStores(StoreSearchCondition condition,Pageable pageable){
@@ -123,7 +156,7 @@ public class StoreService {
     public Page<OrderForOwnerResponse> getOrdersForMyStore(User user, Pageable pageable){
 
         Store store = this.storeRepository.findByOwner(user)
-                .orElseThrow(() -> new EntityNotFoundException("소유한 가게 정보가 없습니다.")); //user의 id로 store정보를 가져오려면 어떻게해야할까?
+                .orElseThrow(() -> new EntityNotFoundException("소유한 가게 정보가 없습니다."));
 
         Page<Order> orderPage = orderRepository.findByStore(store, pageable);
 

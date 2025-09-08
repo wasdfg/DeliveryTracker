@@ -110,6 +110,8 @@ public class ProductService {
             throw new AccessDeniedException("상품은 점장만 삭제 할 수 있습니다.");
         }
 
+        imageService.delete(product.getImageUrl());
+
         product.delete();
     }
 }

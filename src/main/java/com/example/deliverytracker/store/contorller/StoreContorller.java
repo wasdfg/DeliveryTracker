@@ -13,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -23,7 +24,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 @RequiredArgsConstructor
 @RequestMapping("/api")
@@ -32,10 +35,10 @@ public class StoreContorller {
 
     private final StoreService storeService;
 
-    @PostMapping("/stores")
-    public ResponseEntity<String> registStore(@Valid @RequestBody StoreRequest request, @AuthenticationPrincipal UserDetailsImpl userDetails){
+    @PostMapping(value = "/stores", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<String> registStore(@Valid @RequestPart("request") StoreRequest request, @AuthenticationPrincipal UserDetailsImpl userDetails,@RequestPart("image") MultipartFile imageFile){
 
-        storeService.registStore(request, userDetails.getUser());
+        storeService.registStore(request, userDetails.getUser(),imageFile);
 
         return ResponseEntity
                 .status(HttpStatus.CREATED)
@@ -58,10 +61,10 @@ public class StoreContorller {
         return ResponseEntity.ok(storeDetail);
     }
 
-    @PatchMapping("/stores/{storeId}")
-    public ResponseEntity<?> changeStoreInfo(@PathVariable Long storeId,@RequestBody StoreRequest request,@AuthenticationPrincipal UserDetailsImpl userDetails){
+    @PatchMapping(value = "/stores/{storeId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<?> changeStoreInfo(@PathVariable Long storeId,@RequestPart("request") StoreRequest request,@AuthenticationPrincipal UserDetailsImpl userDetails,@RequestPart("image") MultipartFile imageFile){
 
-        this.storeService.changeStoreInfo(storeId,request,userDetails.getUser());
+        this.storeService.changeStoreInfo(storeId,request,userDetails.getUser(),imageFile);
 
         return ResponseEntity.ok("가게 정보가 변경되었습니다.");
     }
