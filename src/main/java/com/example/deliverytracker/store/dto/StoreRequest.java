@@ -32,4 +32,6 @@ public class StoreRequest {
     private StoreCategory category;
 
     private String imageUrl;
+
+    private Boolean deleteImage;
 }

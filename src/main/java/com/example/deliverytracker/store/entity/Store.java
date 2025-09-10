@@ -86,7 +86,7 @@ public class Store {
         this.imageUrl = imageUrl;
     }
 
-    public void changeInfo(StoreRequest request) {
+    public void changeInfo(StoreRequest request,String newImageUrl) {
         if (request.getName() != null) {
             this.name = request.getName();
         }
@@ -109,6 +109,7 @@ public class Store {
         if (request.getCategory() != null) {
             this.category = request.getCategory();
         }
+        this.imageUrl = newImageUrl;
     }
 
     public void delete(boolean isDeleted){

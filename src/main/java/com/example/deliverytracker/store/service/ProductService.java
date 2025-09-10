@@ -45,12 +45,14 @@ public class ProductService {
 
         ProductCategory category = ProductCategory.valueOf(productRequest.getCategory().toUpperCase());
 
-        String imageUrl;
+        String imageUrl = null;
 
-        try {
-            imageUrl = imageService.upload(imageFile);
-        } catch (IOException e) {
-            throw new RuntimeException("이미지 업로드에 실패했습니다.", e);
+        if (imageFile != null && !imageFile.isEmpty()) {
+            try {
+                imageUrl = imageService.upload(imageFile);
+            } catch (IOException e) {
+                throw new RuntimeException("이미지 업로드에 실패했습니다.", e);
+            }
         }
 
         Product product = Product.builder()
@@ -82,7 +84,7 @@ public class ProductService {
             throw new AccessDeniedException("상품은 점장만 등록 할 수 있습니다.");
         }
 
-        String newImageUrl = null;
+        String newImageUrl = productRequest.getImageUrl();
 
         if (imageFile != null && !imageFile.isEmpty()) {
             try {
@@ -95,6 +97,13 @@ public class ProductService {
             } catch (IOException e) {
                 throw new RuntimeException("이미지 수정에 실패했습니다.", e);
             }
+        }
+        else if (productRequest.getDeleteImage() != null && productRequest.getDeleteImage()) {
+            if (product.getImageUrl() != null) {
+                imageService.delete(product.getImageUrl());
+            }
+
+            newImageUrl = null;
         }
 
         product.updateInfo(productRequest,newImageUrl);

@@ -64,7 +64,7 @@ public class Review extends BaseEntity {
         this.imageUrl = imageUrl;
     }
 
-    public void changeInfo(ReviewUpdateRequest request) {
+    public void changeInfo(ReviewUpdateRequest request,String imageUrl) {
         if(request.getContent() != null){
             this.content = request.getContent();
         }
@@ -73,9 +73,7 @@ public class Review extends BaseEntity {
             this.rating = request.getRating();
         }
         
-        if(request.getImageUrl() != null){
-            //이미지 처리
-        }
+        this.imageUrl = imageUrl;
     }
 
     public void delete(){

@@ -44,12 +44,14 @@ public class StoreService {
             throw new AccessDeniedException("점장만 가게를 등록할 수 있습니다.");
         }
 
-        String imageUrl;
+        String imageUrl = null;
 
-        try {
-            imageUrl = imageService.upload(imageFile);
-        } catch (IOException e) {
-            throw new RuntimeException("이미지 업로드에 실패했습니다.", e);
+        if (imageFile != null && !imageFile.isEmpty()) {
+            try {
+                imageUrl = imageService.upload(imageFile);
+            } catch (IOException e) {
+                throw new RuntimeException("이미지 업로드에 실패했습니다.", e);
+            }
         }
 
         Store store = Store.builder()
@@ -95,7 +97,7 @@ public class StoreService {
             throw new AccessDeniedException("수정 권한이 없습니다.");
         }
 
-        String newImageUrl = null;
+        String newImageUrl = store.getImageUrl();
 
         if (imageFile != null && !imageFile.isEmpty()) {
             try {
@@ -108,9 +110,17 @@ public class StoreService {
             } catch (IOException e) {
                 throw new RuntimeException("이미지 수정에 실패했습니다.", e);
             }
+
+        }
+        else if (request.getDeleteImage() != null && request.getDeleteImage()) {
+            if (store.getImageUrl() != null) {
+                imageService.delete(store.getImageUrl());
+            }
+
+            newImageUrl = null;
         }
 
-        store.changeInfo(request);
+        store.changeInfo(request, newImageUrl);
 
     }
 

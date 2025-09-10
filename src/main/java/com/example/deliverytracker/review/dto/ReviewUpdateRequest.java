@@ -9,4 +9,6 @@ public class ReviewUpdateRequest {
     private Integer rating;
 
     private String imageUrl;
+
+    private Boolean deleteImage;
 }

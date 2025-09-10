@@ -85,9 +85,8 @@ public class Product extends BaseEntity {
         if(request.getStock() != null){
             this.stock = request.getStock();
         }
-        if(imageUrl != null){
-            this.imageUrl = imageUrl;
-        }
+
+        this.imageUrl = imageUrl;
     }
 
     public void delete() {

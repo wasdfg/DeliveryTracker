@@ -12,15 +12,17 @@ public class ReviewResponse {
     private String userNickname;
     private Integer rating;
     private String content;
+    private String imageUrl;
     private LocalDateTime createdAt;
     private List<String> orderedProductNames;
 
-    public ReviewResponse(String userNickname, Integer rating, String content, LocalDateTime createdAt,List<String> orderedProductNames){
+    public ReviewResponse(String userNickname, Integer rating, String content, LocalDateTime createdAt,List<String> orderedProductNames,String imageUrl){
         this.userNickname = userNickname;
         this.rating = rating;
         this.content = content;
         this.createdAt = createdAt;
         this.orderedProductNames = orderedProductNames;
+        this.imageUrl = imageUrl;
     }
 
     public static ReviewResponse from(Review review) {
@@ -34,7 +36,8 @@ public class ReviewResponse {
                 review.getRating(),
                 review.getContent(),
                 review.getCreatedAt(),
-                productNames
+                productNames,
+                review.getImageUrl()
         );
     }
 }
