@@ -69,6 +69,8 @@ public class User extends BaseEntity {
     @OneToMany(mappedBy = "user")
     private List<Review> reviews = new ArrayList<>();
 
+    private String imageUrl;
+
     public enum Role {
         USER, ADMIN , RIDER , STORE_OWNER
     }
@@ -80,11 +82,12 @@ public class User extends BaseEntity {
         WITHDRAWN     // 회원 탈퇴한 사용자
     }
 
-    public void changeInfo(String email, String nickname, String phone, String address) {
+    public void changeInfo(String email, String nickname, String phone, String address,String imageUrl) {
         this.email = email;
         this.nickname = nickname;
         this.phone = phone;
         this.address = address;
+        this.imageUrl = imageUrl;
     }
 
     public void changePassword(String encryptedPassword) {

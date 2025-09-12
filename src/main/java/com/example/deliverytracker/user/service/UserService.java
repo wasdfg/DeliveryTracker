@@ -15,6 +15,7 @@ import com.example.deliverytracker.user.repository.UserRepository;
 import com.example.deliverytracker.user.dto.UserLoginRequest;
 import com.example.deliverytracker.user.dto.UserSignupRequest;
 import com.example.deliverytracker.user.entitiy.User;
+import com.example.image.service.ImageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -22,7 +23,9 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -46,8 +49,9 @@ public class UserService {
 
     private final ReviewRepository reviewRepository;
 
+    private final ImageService imageService;
 
-    public void signup(UserSignupRequest request){
+    public void signup(UserSignupRequest request, MultipartFile imageFile){
         String email = request.getEmail();
         String idForLogin = request.getIdForLogin();
         String nickname = request.getNickname();
@@ -63,6 +67,16 @@ public class UserService {
         else{
             String encryptedPassword = passwordEncoder.encode(request.getPassword());
 
+            String imageUrl = null;
+
+            if (imageFile != null && !imageFile.isEmpty()) {
+                try {
+                    imageUrl = imageService.upload(imageFile);
+                } catch (IOException e) {
+                    throw new RuntimeException("이미지 업로드에 실패했습니다.", e);
+                }
+            }
+
             User user = User.builder()
                     .email(email)
                     .idForLogin(idForLogin)
@@ -72,6 +86,7 @@ public class UserService {
                     .address(address)
                     .role(User.Role.USER)
                     .status(User.Status.ACTIVE)
+                    .imageUrl(imageUrl)
                     .build();
 
             userRepository.save(user);
@@ -82,7 +97,7 @@ public class UserService {
         User finduser = userRepository.findById(user.getId())
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 계정입니다."));
 
-        return new UserResponse(user);
+        return new UserResponse(finduser);
     }
 
     public String login(UserLoginRequest request){
@@ -128,13 +143,37 @@ public class UserService {
     }
 
     @Transactional
-    public void updateMyInfo(User user, UserInfoRequest request){
+    public void updateMyInfo(User user, UserInfoRequest request,MultipartFile imageFile){
+
+        String newImageUrl = user.getImageUrl();
+
+        if (imageFile != null && !imageFile.isEmpty()) {
+            try {
+
+                if (user.getImageUrl() != null) {
+                    imageService.delete(user.getImageUrl());
+                }
+
+                newImageUrl = imageService.upload(imageFile);
+            } catch (IOException e) {
+                throw new RuntimeException("이미지 수정에 실패했습니다.", e);
+            }
+
+        }
+        else if (request.getDeleteImage() != null && request.getDeleteImage()) {
+            if (user.getImageUrl() != null) {
+                imageService.delete(user.getImageUrl());
+            }
+
+            newImageUrl = null;
+        }
 
         user.changeInfo(
                 request.getEmail(),
                 request.getNickname(),
                 request.getPhone(),
-                request.getAddress()
+                request.getAddress(),
+                newImageUrl
         );
     }
 
@@ -169,6 +208,8 @@ public class UserService {
         if(!passwordEncoder.matches(request.getPassword(), user.getPassword())){
             throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
         }
+
+        imageService.delete(user.getImageUrl());
 
         user.changeStatus(User.Status.WITHDRAWN);
     }

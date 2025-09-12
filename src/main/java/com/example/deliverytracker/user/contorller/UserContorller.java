@@ -20,6 +20,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -27,7 +28,9 @@ import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 @RequiredArgsConstructor
 @RequestMapping("/api/users")
@@ -38,10 +41,10 @@ public class UserContorller {
 
     private final JwtProvider jwtProvider;
 
-    @PostMapping("/signup")
-    public ResponseEntity<String> signup(@RequestBody @Valid UserSignupRequest request){
+    @PostMapping(value = "/signup", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<String> signup(@RequestPart("request") @Valid UserSignupRequest request,@RequestPart("image") MultipartFile imageFile){
 
-        this.userService.signup(request);
+        this.userService.signup(request,imageFile);
         return ResponseEntity
                 .status(HttpStatus.CREATED) // 201
                 .body("회원가입이 완료되었습니다.");
@@ -89,10 +92,10 @@ public class UserContorller {
         return ResponseEntity.ok("비밀번호가 일치합니다.");
     }
 
-    @PatchMapping("/me")
-    public ResponseEntity<String> updateMyInfo(@AuthenticationPrincipal UserDetailsImpl userDetails, @RequestBody @Valid UserInfoRequest request){
+    @PatchMapping(value = "/me", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<String> updateMyInfo(@AuthenticationPrincipal UserDetailsImpl userDetails, @RequestPart("request") @Valid UserInfoRequest request,@RequestPart("image") MultipartFile imageFile){
 
-        this.userService.updateMyInfo(userDetails.getUser(),request);
+        this.userService.updateMyInfo(userDetails.getUser(),request,imageFile);
 
         return ResponseEntity.ok("회원 정보가 성공적으로 수정되었습니다.");
     }
