@@ -3,8 +3,10 @@ package com.example.deliverytracker.order.service;
 import com.example.deliverytracker.order.dto.OrderCreateRequest;
 import com.example.deliverytracker.order.dto.OrderResponse;
 import com.example.deliverytracker.order.entity.Order;
+import com.example.deliverytracker.order.entity.OrderCreatedEvent;
 import com.example.deliverytracker.order.entity.OrderItem;
 import com.example.deliverytracker.order.repository.OrderRepository;
+import com.example.deliverytracker.redis.RedisPublisher;
 import com.example.deliverytracker.store.entity.Product;
 import com.example.deliverytracker.store.entity.Store;
 import com.example.deliverytracker.store.repository.ProductRepository;
@@ -33,6 +35,8 @@ public class OrderService {
     private final OrderRepository orderRepository;
 
     private final ProductRepository productRepository;
+
+    private final RedisPublisher redisPublisher;
 
     @Transactional
     public void createOrder(OrderCreateRequest request, User user){
