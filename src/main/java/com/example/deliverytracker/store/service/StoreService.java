@@ -82,7 +82,7 @@ public class StoreService {
 
     public Page<StoreDetailResponse> getStoreList(Pageable pageable){
 
-        Page<Store> page = this.storeRepository.findStoreList(pageable);
+        Page<Store> page = this.storeRepository.findAll(pageable);
 
         return page.map(StoreDetailResponse::from);
     }
