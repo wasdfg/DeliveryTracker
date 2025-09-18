@@ -3,7 +3,7 @@ package com.example.deliverytracker.order.service;
 import com.example.deliverytracker.order.dto.OrderCreateRequest;
 import com.example.deliverytracker.order.dto.OrderResponse;
 import com.example.deliverytracker.order.entity.Order;
-import com.example.deliverytracker.order.entity.OrderCreatedEvent;
+import com.example.deliverytracker.redis.dto.OrderCreatedEvent;
 import com.example.deliverytracker.order.entity.OrderItem;
 import com.example.deliverytracker.order.repository.OrderRepository;
 import com.example.deliverytracker.redis.RedisPublisher;
@@ -89,7 +89,10 @@ public class OrderService {
 
         orderRepository.save(order);
 
+        OrderCreatedEvent event = new OrderCreatedEvent(order.getId(), order.getStore().getId());
+
         redisPublisher.publish("order-channel", new OrderCreatedEvent(order.getId(), user.getId()));
+
     }
 
     @Transactional(readOnly = true)

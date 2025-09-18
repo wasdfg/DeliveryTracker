@@ -1,6 +1,6 @@
 package com.example.deliverytracker.redis;
 
-import com.example.deliverytracker.order.entity.OrderCreatedEvent;
+import com.example.deliverytracker.redis.dto.OrderCreatedEvent;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -13,24 +13,26 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class RedisSubscriber implements MessageListener {
 
+
     private final ObjectMapper objectMapper;
-    // private final NotificationService notificationService; // 예: 알림 서비스 주입
-    // private final DeliveryService deliveryService;       // 예: 배달 서비스 주입
+    // private final NotificationService notificationService; // 나중에 실제 알림을 보낼 서비스
 
     @Override
     public void onMessage(Message message, byte[] pattern) {
         try {
-
+            // 1. 받은 메시지를 OrderCreatedEvent 객체로 변환합니다.
             String publishedMessage = new String(message.getBody());
             OrderCreatedEvent event = objectMapper.readValue(publishedMessage, OrderCreatedEvent.class);
-            log.info("Received message from order-channel: orderId={}, userId={}", event.getOrderId(), event.getUserId());
 
-            // 여기에 실제 후속 처리 로직을 호출합니다.
-            // 예: notificationService.sendNotificationToStoreOwner(event.getOrderId());
-            // 예: deliveryService.requestDeliveryDispatch(event.getOrderId());
+            // --- 👇 이 로그가 찍히는지 확인하는 것이 최종 목표입니다 ---
+            log.info("✅ [Order Channel] 새로운 주문 수신! 가게 ID: {}, 주문 ID: {}",
+                    event.getStoreId(), event.getOrderId());
+
+            // 2. (미래의 작업) 여기서 가게 주인에게 실제 알림을 보내는 로직을 호출합니다.
+            // notificationService.sendNotificationToStore(event.getStoreId(), event.getMessage());
 
         } catch (Exception e) {
-            log.error("Error processing message from Redis", e);
+            log.error("Redis 메시지 처리 중 에러 발생", e);
         }
     }
 }
