@@ -8,6 +8,8 @@ import com.example.deliverytracker.delivery.repository.DeliveryRepository;
 import com.example.deliverytracker.order.entity.Order;
 import com.example.deliverytracker.order.repository.OrderRepository;
 import com.example.deliverytracker.order.service.OrderService;
+import com.example.deliverytracker.redis.RedisPublisher;
+import com.example.deliverytracker.redis.dto.DeliveryStartedEvent;
 import com.example.deliverytracker.rider.entity.Rider;
 import com.example.deliverytracker.user.entitiy.User;
 import jakarta.persistence.EntityNotFoundException;
@@ -32,6 +34,8 @@ public class DeliveryService {
     private final OrderRepository orderRepository;
 
     private final OrderService orderService;
+
+    private final RedisPublisher redisPublisher;
 
     @Transactional
     public void requestDelivery(Long orderId,DeliveryRequest requestDto, User user) {
@@ -105,6 +109,13 @@ public class DeliveryService {
         }
 
         delivery.updateStatus(status);
+
+        if(status.equals(DeliveryStatus.PICKED_UP)){
+            Order order = delivery.getOrder();
+
+            DeliveryStartedEvent event = new DeliveryStartedEvent(order.getId(), order.getUser().getId(), riderUser.getUser().getNickname());
+            redisPublisher.publish("order-channel", event);
+        }
 
         return DeliveryResponse.from(delivery);
     }

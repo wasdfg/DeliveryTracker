@@ -3,6 +3,7 @@ package com.example.deliverytracker.order.service;
 import com.example.deliverytracker.order.dto.OrderCreateRequest;
 import com.example.deliverytracker.order.dto.OrderResponse;
 import com.example.deliverytracker.order.entity.Order;
+import com.example.deliverytracker.redis.dto.OrderAcceptedEvent;
 import com.example.deliverytracker.redis.dto.OrderCreatedEvent;
 import com.example.deliverytracker.order.entity.OrderItem;
 import com.example.deliverytracker.order.repository.OrderRepository;
@@ -153,6 +154,11 @@ public class OrderService {
         }
 
         order.changeStatus(newStatus);
+
+        if(newStatus.equals(Order.Status.REQUESTED)){
+            OrderAcceptedEvent event = new OrderAcceptedEvent(order.getId(), order.getUser().getId());
+            redisPublisher.publish("order-channel", event);
+        }
     }
 
     @Transactional

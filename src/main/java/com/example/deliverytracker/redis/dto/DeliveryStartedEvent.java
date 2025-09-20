@@ -7,14 +7,16 @@ import java.io.Serializable;
 
 @Getter
 @NoArgsConstructor
-public class OrderAcceptedEvent implements Serializable {
+public class DeliveryStartedEvent implements Serializable {
     private Long orderId;
     private Long userId;
+    private String riderName;
     private String message;
 
-    public OrderAcceptedEvent(Long orderId, Long userId) {
+    public DeliveryStartedEvent(Long orderId, Long userId, String riderName) {
         this.orderId = orderId;
         this.userId = userId;
-        this.message = "가게에서 주문을 수락했습니다!";
+        this.riderName = riderName;
+        this.message = riderName + " 라이더가 배달을 시작했습니다!";
     }
 }
