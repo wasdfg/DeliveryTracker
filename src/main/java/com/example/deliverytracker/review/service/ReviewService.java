@@ -2,6 +2,8 @@ package com.example.deliverytracker.review.service;
 
 import com.example.deliverytracker.order.entity.Order;
 import com.example.deliverytracker.order.repository.OrderRepository;
+import com.example.deliverytracker.redis.RedisPublisher;
+import com.example.deliverytracker.redis.dto.NewReviewEvent;
 import com.example.deliverytracker.review.dto.ReviewCreateRequest;
 import com.example.deliverytracker.review.dto.ReviewResponse;
 import com.example.deliverytracker.review.dto.ReviewUpdateRequest;
@@ -37,6 +39,8 @@ public class ReviewService {
 
     private final ImageService imageService;
 
+    private final RedisPublisher redisPublisher;
+
     @Transactional
     public void writeReview(Long orderId, ReviewCreateRequest request, User user, MultipartFile imageFile){
 
@@ -71,6 +75,16 @@ public class ReviewService {
                 .build();
 
         reviewRepository.save(review);
+
+        NewReviewEvent event = new NewReviewEvent(
+                review.getId(),
+                order.getStore().getId(),
+                user.getNickname(),
+                request.getRating(),
+                request.getContent()
+        );
+
+        redisPublisher.publish("order-channel", event);
     }
 
     public Page<ReviewResponse> getReviewList(Long storeId, Pageable pageable){

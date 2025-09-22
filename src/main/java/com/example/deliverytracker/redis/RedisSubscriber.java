@@ -3,6 +3,7 @@ package com.example.deliverytracker.redis;
 import com.example.deliverytracker.order.entity.Order;
 import com.example.deliverytracker.order.entity.OrderStatusChangedEvent;
 import com.example.deliverytracker.redis.dto.DeliveryStartedEvent;
+import com.example.deliverytracker.redis.dto.NewReviewEvent;
 import com.example.deliverytracker.redis.dto.OrderAcceptedEvent;
 import com.example.deliverytracker.redis.dto.OrderCreatedEvent;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -55,6 +56,18 @@ public class RedisSubscriber implements MessageListener {
                 OrderAcceptedEvent event = objectMapper.treeToValue(jsonNode, OrderAcceptedEvent.class);
                 log.info("✅ [주문 수락] 사용자 ID: {}, 주문 ID: {}", event.getUserId(), event.getOrderId());
                 // notificationService.sendToUser(event);
+            }
+
+            if (jsonNode.has("authorName")) {
+                NewReviewEvent event = objectMapper.treeToValue(jsonNode, NewReviewEvent.class);
+
+                log.info("✅ [새 리뷰] 가게 ID: {}, 작성자: {}", event.getStoreId(), event.getAuthorName());
+
+                // 1. (미래의 작업) 가게 주인에게 실제 알림을 보내는 로직 호출
+                // notificationService.sendNotificationToStoreOwner(event.getStoreId(), event.getMessage());
+
+                // 2. (미래의 작업) 가게의 평균 별점을 비동기적으로 업데이트하는 로직 호출
+                // storeService.updateAverageRating(event.getStoreId());
             }
 
         } catch (Exception e) {

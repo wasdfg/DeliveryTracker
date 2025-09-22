@@ -117,6 +117,10 @@ public class DeliveryService {
             redisPublisher.publish("order-channel", event);
         }
 
+        if(status.equals(DeliveryStatus.DELIVERED)){
+            delivery.getOrder().changeStatus(Order.Status.COMPLETED);
+        }
+
         return DeliveryResponse.from(delivery);
     }
 }
