@@ -1,4 +1,4 @@
-package com.example.image.service;
+package com.example.deliverytracker.image.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;

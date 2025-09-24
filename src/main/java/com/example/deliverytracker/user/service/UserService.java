@@ -15,7 +15,7 @@ import com.example.deliverytracker.user.repository.UserRepository;
 import com.example.deliverytracker.user.dto.UserLoginRequest;
 import com.example.deliverytracker.user.dto.UserSignupRequest;
 import com.example.deliverytracker.user.entitiy.User;
-import com.example.image.service.ImageService;
+import com.example.deliverytracker.image.service.ImageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

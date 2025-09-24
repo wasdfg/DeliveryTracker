@@ -70,6 +70,9 @@ public class Order extends BaseEntity {
     @Column(nullable = false)
     private String deliveryAddress;
 
+    private Double deliveryLatitude;  // 배달지 위도
+    private Double deliveryLongitude; // 배달지 경도
+
     @Column(nullable = false)
     private int totalPrice;
 
