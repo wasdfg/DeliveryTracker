@@ -13,6 +13,8 @@ import com.example.deliverytracker.store.entity.Store;
 import com.example.deliverytracker.store.repository.ProductRepository;
 import com.example.deliverytracker.store.repository.StoreRepository;
 import com.example.deliverytracker.user.entitiy.User;
+import com.example.deliverytracker.util.geocoding.Coordinates;
+import com.example.deliverytracker.util.geocoding.GeocodingService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -38,6 +40,8 @@ public class OrderService {
     private final ProductRepository productRepository;
 
     private final RedisPublisher redisPublisher;
+
+    private final GeocodingService geocodingService;
 
     @Transactional
     public void createOrder(OrderCreateRequest request, User user){
@@ -70,12 +74,15 @@ public class OrderService {
             orderItems.add(orderItem);
         }
 
+        Coordinates coords = geocodingService.getCoordinates(request.getDeliveryAddress());
 
         Order order = Order.builder()
                 .user(user)
                 .store(store)
                 .deliveryAddress(request.getDeliveryAddress())
                 .pickupAddress(request.getPickupAddress())
+                .deliveryLatitude(coords.getLatitude())   // 👈 변환된 위도 저장
+                .deliveryLongitude(coords.getLongitude()) // 👈 변환된 경도 저장
                 .requestedAt(LocalDateTime.now())
                 .status(Order.Status.REQUESTED)
                 .totalPrice(totalPrice)
