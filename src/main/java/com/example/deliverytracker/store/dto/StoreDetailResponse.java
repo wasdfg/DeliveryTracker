@@ -25,18 +25,21 @@ public class StoreDetailResponse {
 
     private String imageUrl;
 
+    private CategoryResponseDto category;
+
     private List<ProductResponse> products;
 
-    public StoreDetailResponse(String name, String phone, String address, List<ProductResponse> productResponses,String description, String operatingHours, BigDecimal minOrderAmount, int deliveryFee,String imageUrl) {
-        this.storeName = name;
-        this.storePhone = phone;
-        this.storeAddress = address;
+    public StoreDetailResponse(Store store, List<ProductResponse> productResponses) {
+        this.storeName = store.getName();
+        this.storePhone = store.getPhone();
+        this.storeAddress = store.getAddress();
         this.products = productResponses;
-        this.description = description;
-        this.operatingHours = operatingHours;
-        this.minOrderAmount = minOrderAmount;
-        this.deliveryFee = deliveryFee;
-        this.imageUrl = imageUrl;
+        this.description = store.getDescription();
+        this.operatingHours = store.getOperatingHours();
+        this.minOrderAmount = store.getMinOrderAmount();
+        this.deliveryFee = store.getDeliveryFee();
+        this.imageUrl = store.getImageUrl();
+        this.category = CategoryResponseDto.from(store.getCategory());
     }
 
     public static StoreDetailResponse from(Store store) {
@@ -44,16 +47,6 @@ public class StoreDetailResponse {
                 .map(ProductResponse::from)
                 .toList();
 
-        return new StoreDetailResponse(
-                store.getName(),
-                store.getPhone(),
-                store.getAddress(),
-                productResponses,
-                store.getDescription(),
-                store.getOperatingHours(),
-                store.getMinOrderAmount(),
-                store.getDeliveryFee(),
-                store.getImageUrl()
-        );
+        return new StoreDetailResponse(store, productResponses);
     }
 }

@@ -7,8 +7,10 @@ import com.example.deliverytracker.store.dto.StoreDetailResponse;
 import com.example.deliverytracker.store.dto.StoreRequest;
 import com.example.deliverytracker.store.dto.StoreResponse;
 import com.example.deliverytracker.store.dto.StoreSearchCondition;
+import com.example.deliverytracker.store.entity.Category;
 import com.example.deliverytracker.store.entity.Store;
 import com.example.deliverytracker.store.entity.StoreCategory;
+import com.example.deliverytracker.store.repository.CategoryRepository;
 import com.example.deliverytracker.store.repository.StoreRepository;
 import com.example.deliverytracker.user.entitiy.User;
 import com.example.deliverytracker.image.service.ImageService;
@@ -35,6 +37,8 @@ public class StoreService {
 
     private final OrderRepository orderRepository;
 
+    private final CategoryRepository categoryRepository;
+
     private final ImageService imageService;
 
     @Transactional
@@ -53,6 +57,11 @@ public class StoreService {
             }
         }
 
+        Long categoryId = request.getCategoryId();
+
+        Category category = categoryRepository.findById(categoryId)
+                .orElseThrow(() -> new EntityNotFoundException("해당 카테고리를 찾을 수 없습니다. ID: " + categoryId));
+
         Store store = Store.builder()
                 .name(request.getName())
                 .address(request.getAddress())
@@ -60,7 +69,7 @@ public class StoreService {
                 .active(true)
                 .owner(user)
                 .description(request.getDescription())
-                .category(request.getCategory())
+                .category(category)
                 .operatingHours(request.getOperatingHours())
                 .minOrderAmount(request.getMinOrderAmount())
                 .deliveryFee(request.getDeliveryFee())
@@ -138,28 +147,8 @@ public class StoreService {
 
     }
 
-    public Page<StoreResponse> searchStores(StoreSearchCondition condition,Pageable pageable){
-
-        String keyword = condition.getKeyword();
-        StoreCategory category = condition.getCategory();
-
-        Page<Store> storePage;
-
-        if (StringUtils.hasText(keyword) && category != null) {
-            // 조건 : 이름 + 카테고리
-            storePage = storeRepository.findByNameContainingAndCategory(keyword, category, pageable);
-        } else if (StringUtils.hasText(keyword)) {
-            // 조건 : 이름
-            storePage = storeRepository.findByNameContaining(keyword, pageable);
-        } else if (category != null) {
-            // 조건 : 카테고리
-            storePage = storeRepository.findByCategory(category, pageable);
-        } else {
-
-            storePage = storeRepository.findAll(pageable);
-        }
-
-        return storePage.map(StoreResponse::from);
+    public Page<StoreResponse> searchStores(StoreSearchCondition condition, Pageable pageable) {
+        return storeRepository.searchStores(condition, pageable).map(StoreResponse::from);
     }
 
     public Page<OrderForOwnerResponse> getOrdersForMyStore(User user, Pageable pageable){

@@ -13,7 +13,7 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
-public interface StoreRepository extends JpaRepository<Store, Long>{
+public interface StoreRepository extends JpaRepository<Store, Long>, StoreRepositoryCustom{
     Optional<Store> findByIdAndActiveTrue(Long id);
 
     @Query("SELECT s FROM Store s LEFT JOIN FETCH s.products WHERE s.id = :storeId")

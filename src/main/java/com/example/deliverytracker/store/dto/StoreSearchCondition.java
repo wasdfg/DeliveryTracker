@@ -10,9 +10,13 @@ public class StoreSearchCondition {
 
     private String keyword;
 
-    private StoreCategory category;
+    private Long categoryId;
 
     private Integer minOrderAmount;
 
     private Integer deliveryFee;
+
+    private String storeName;
+
+    private String categoryName;
 }

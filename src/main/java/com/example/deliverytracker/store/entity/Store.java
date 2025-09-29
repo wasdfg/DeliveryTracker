@@ -5,8 +5,6 @@ import com.example.deliverytracker.store.dto.StoreRequest;
 import com.example.deliverytracker.user.entitiy.User;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -45,8 +43,9 @@ public class Store {
 
     private String description;
 
-    @Enumerated(EnumType.STRING)
-    private StoreCategory category;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "category_id")
+    private Category category;
 
     private String imageUrl;
 
@@ -72,7 +71,7 @@ public class Store {
     private List<Review> reviews = new ArrayList<>();
 
     @Builder
-    public Store(String name, String address, String phone, boolean active, User owner, String description, StoreCategory category, String operatingHours, BigDecimal minOrderAmount, int deliveryFee,String imageUrl) {
+    public Store(String name, String address, String phone, boolean active, User owner, String description, Category category, String operatingHours, BigDecimal minOrderAmount, int deliveryFee,String imageUrl) {
         this.name = name;
         this.address = address;
         this.phone = phone;
@@ -106,9 +105,6 @@ public class Store {
             this.minOrderAmount = request.getMinOrderAmount();
         }
         this.deliveryFee = request.getDeliveryFee();
-        if (request.getCategory() != null) {
-            this.category = request.getCategory();
-        }
         this.imageUrl = newImageUrl;
     }
 

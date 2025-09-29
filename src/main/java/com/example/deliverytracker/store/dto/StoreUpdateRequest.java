@@ -22,7 +22,7 @@ public class StoreUpdateRequest {
 
     private int deliveryFee;
 
-    private StoreCategory category;
+    private Long categoryId;
 
     private String imageUrl;
 }
