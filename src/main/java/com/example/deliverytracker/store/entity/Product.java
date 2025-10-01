@@ -21,6 +21,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.math.BigDecimal;
+
 @Entity
 @Table(name = "products")
 @Getter
@@ -39,7 +41,7 @@ public class Product extends BaseEntity {
     private String name;
 
     @Column(nullable = false)
-    private int price;
+    private BigDecimal price;
 
     private String description;
 
@@ -54,7 +56,7 @@ public class Product extends BaseEntity {
     private boolean isAvailable = true;
 
     @Builder
-    public Product(String name, int price, String description, ProductCategory category, int stock, String imageUrl, boolean isAvailable,Store store) {
+    public Product(String name, BigDecimal price, String description, ProductCategory category, int stock, String imageUrl, boolean isAvailable,Store store) {
         this.name = name;
         this.price = price;
         this.description = description;
@@ -79,7 +81,7 @@ public class Product extends BaseEntity {
         }
 
         if(request.getPrice() != null){
-            this.price = request.getPrice();
+            this.price = BigDecimal.valueOf(request.getPrice());
         }
 
         if(request.getStock() != null){

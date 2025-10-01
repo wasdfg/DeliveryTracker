@@ -27,6 +27,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.BatchSize;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -74,7 +75,7 @@ public class Order extends BaseEntity {
     private Double deliveryLongitude; // 배달지 경도
 
     @Column(nullable = false)
-    private int totalPrice;
+    private BigDecimal totalPrice;
 
     private LocalDateTime requestedAt;
     private LocalDateTime canceledAt;

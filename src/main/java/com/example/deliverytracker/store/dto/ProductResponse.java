@@ -4,18 +4,20 @@ import com.example.deliverytracker.store.entity.Product;
 import com.example.deliverytracker.store.entity.ProductCategory;
 import lombok.Getter;
 
+import java.math.BigDecimal;
+
 @Getter
 public class ProductResponse {
 
     private Long productId;
     private String name;
-    private int price;
+    private BigDecimal price;
     private ProductCategory category;
     private String description;
     private int stock;
     private String imageUrl;
 
-    public ProductResponse(Long id, String name, int price,ProductCategory category,String description,int stock,String imageUrl) {
+    public ProductResponse(Long id, String name, BigDecimal price,ProductCategory category,String description,int stock,String imageUrl) {
         this.productId = id;
         this.name = name;
         this.price = price;

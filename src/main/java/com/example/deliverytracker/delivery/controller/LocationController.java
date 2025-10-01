@@ -14,12 +14,7 @@ public class LocationController {
     private final SimpMessagingTemplate messagingTemplate;
 
     private final ProximityService proximityService;
-
-    public LocationController(SimpMessagingTemplate messagingTemplate) {
-        this.messagingTemplate = messagingTemplate;
-    }
-
-
+    
     @MessageMapping("/rider/location")
     public void updateRiderLocation(LocationMessage message) {
 

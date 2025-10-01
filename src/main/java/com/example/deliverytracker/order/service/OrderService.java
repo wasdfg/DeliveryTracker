@@ -24,6 +24,7 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -54,14 +55,15 @@ public class OrderService {
 
         List<OrderItem> orderItems = new ArrayList<>();
 
-        int totalPrice = 0;
+        BigDecimal totalPrice = BigDecimal.valueOf(0);
 
         for (OrderCreateRequest.Item item : request.getItems()) {
             Product product = productRepository.findByIdAndStoreId(item.getProductId(), store.getId())
                     .orElseThrow(() -> new EntityNotFoundException("상품 정보를 찾을 수 없습니다."));
 
-            int itemTotal = product.getPrice() * item.getQuantity();
-            totalPrice += itemTotal;
+            BigDecimal itemTotal = product.getPrice().multiply(BigDecimal.valueOf(item.getQuantity()));
+
+            totalPrice = totalPrice.add(itemTotal);
 
             OrderItem orderItem = OrderItem.builder()
                     .product(product)

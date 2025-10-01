@@ -17,6 +17,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
+
 @Entity
 @Table(name = "order_items")
 @Getter
@@ -45,7 +47,7 @@ public class OrderItem extends BaseEntity {
     private int quantity;
 
     @Column(nullable = false)
-    private int price;
+    private BigDecimal price;
 
     private String imageUrl; //첨부파일 경로
 
