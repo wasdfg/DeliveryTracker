@@ -1,6 +1,7 @@
 package com.example.deliverytracker.cart.controller;
 
 import com.example.deliverytracker.cart.dto.CartItemRequestDto;
+import com.example.deliverytracker.cart.dto.CartItemUpdateRequestDto;
 import com.example.deliverytracker.cart.dto.CartResponseDto;
 import com.example.deliverytracker.cart.service.CartService;
 import com.example.deliverytracker.user.entitiy.User;
@@ -9,7 +10,10 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -26,7 +30,7 @@ public class CartController {
     public ResponseEntity<String> addItemToCart(@AuthenticationPrincipal UserDetailsImpl userDetails, @Valid @RequestBody CartItemRequestDto requestDto) {
 
         User user = userDetails.getUser();
-        
+
         cartService.addItemToCart(user, requestDto);
 
         return ResponseEntity.ok("장바구니에 상품을 담았습니다.");
@@ -40,5 +44,25 @@ public class CartController {
         CartResponseDto cartResponseDto = cartService.getCart(user);
 
         return ResponseEntity.ok(cartResponseDto);
+    }
+
+    @PatchMapping("/items/{cartItemId}")
+    public ResponseEntity<String> updateCartItemQuantity(@AuthenticationPrincipal UserDetailsImpl userDetails, @PathVariable Long cartItemId, @Valid @RequestBody CartItemUpdateRequestDto requestDto){
+
+        User user = userDetails.getUser();
+
+        cartService.updateCartItemQuantity(user, cartItemId , requestDto);
+
+        return ResponseEntity.ok("장바구니에 상품을 변경하였습니다.");
+    }
+
+    @DeleteMapping("/items/{cartItemId}")
+    public ResponseEntity<String> removeCartItem(@AuthenticationPrincipal UserDetailsImpl userDetails, @PathVariable Long cartItemId){
+
+        User user = userDetails.getUser();
+
+        cartService.removeCartItem(user, cartItemId);
+
+        return ResponseEntity.ok("장바구니에 상품을 삭제하였습니다.");
     }
 }
