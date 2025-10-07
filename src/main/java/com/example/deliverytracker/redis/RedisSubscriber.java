@@ -6,6 +6,7 @@ import com.example.deliverytracker.redis.dto.DeliveryStartedEvent;
 import com.example.deliverytracker.redis.dto.NewReviewEvent;
 import com.example.deliverytracker.redis.dto.OrderAcceptedEvent;
 import com.example.deliverytracker.redis.dto.OrderCreatedEvent;
+import com.example.deliverytracker.user.repository.UserRepository;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -19,9 +20,11 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class RedisSubscriber implements MessageListener {
 
+    private final UserRepository userRepository;
 
     private final ObjectMapper objectMapper;
-    // private final NotificationService notificationService; // 나중에 실제 알림을 보낼 서비스
+
+    private final NotificationService notificationService;
 
     @Override
     public void onMessage(Message message, byte[] pattern) {
@@ -31,6 +34,19 @@ public class RedisSubscriber implements MessageListener {
             // 1. 먼저 메시지를 JsonNode로 읽어 어떤 필드가 있는지 확인
             JsonNode jsonNode = objectMapper.readTree(publishedMessage);
 
+            if (jsonNode.has("newStatus")) { // 주문 상태 변경 이벤트 예시
+                OrderStatusChangedEvent event = objectMapper.treeToValue(jsonNode, OrderStatusChangedEvent.class);
+
+                // 사용자 정보를 조회
+                userRepository.findById(event.getUserId()).ifPresent(user -> {
+                    String title = "주문 상태 변경 알림";
+                    String body = createMessageForStatus(event.getNewStatus());
+
+                    // NotificationService 호출!
+                    notificationService.sendNotification(user.getFcmToken(), title, body);
+                });
+            }
+
             // 2. 메시지에 포함된 필드를 보고 어떤 이벤트인지 추론
             if (jsonNode.has("storeId")) { // 'storeId'가 있으면 OrderCreatedEvent
                 OrderCreatedEvent event = objectMapper.treeToValue(jsonNode, OrderCreatedEvent.class);
@@ -38,10 +54,9 @@ public class RedisSubscriber implements MessageListener {
                 // notificationService.sendToStore(event);
 
             } else if (jsonNode.has("newStatus")) { // 'newStatus'가 있으면 OrderStatusChangedEvent
-                // --- 👇 이 부분을 추가하세요 ---
+
                 OrderStatusChangedEvent event = objectMapper.treeToValue(jsonNode, OrderStatusChangedEvent.class);
 
-                // 상태에 따라 다른 메시지 생성
                 String notificationMessage = createMessageForStatus(event.getNewStatus());
 
                 log.info("✅ [상태 변경] 사용자 ID: {}, 메시지: {}", event.getUserId(), notificationMessage);

@@ -70,6 +70,13 @@ public class User extends BaseEntity {
 
     private String imageUrl;
 
+    @Column
+    private String fcmToken;
+
+    public void updateFcmToken(String fcmToken) {
+        this.fcmToken = fcmToken;
+    }
+
     public enum Role {
         USER, ADMIN , RIDER , STORE_OWNER
     }
