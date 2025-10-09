@@ -70,7 +70,7 @@ public class User extends BaseEntity {
 
     private String imageUrl;
 
-    @Column
+    @Column(length = 255)
     private String fcmToken;
 
     public void updateFcmToken(String fcmToken) {

@@ -2,6 +2,7 @@ package com.example.deliverytracker.user.contorller;
 
 import com.example.deliverytracker.global.jwt.JwtProvider;
 import com.example.deliverytracker.review.dto.ReviewResponse;
+import com.example.deliverytracker.user.dto.FcmTokenRequestDto;
 import com.example.deliverytracker.user.dto.PasswordCheckRequest;
 import com.example.deliverytracker.user.dto.LoginResponse;
 import com.example.deliverytracker.user.dto.ResetPasswordRequest;
@@ -146,5 +147,16 @@ public class UserContorller {
         Page<ReviewResponse> review = this.userService.viewMyReview(userDetails.getUser(),pageable);
 
         return ResponseEntity.ok(review);
+    }
+
+    @PostMapping("/fcm-token")
+    public ResponseEntity<String> updateFcmToken(
+            @AuthenticationPrincipal UserDetailsImpl userDetails,
+            @Valid @RequestBody FcmTokenRequestDto requestDto) {
+
+        User user = userDetails.getUser();
+        userService.updateFcmToken(user, requestDto.getFcmToken());
+
+        return ResponseEntity.ok("FCM 토큰이 성공적으로 업데이트되었습니다.");
     }
 }
