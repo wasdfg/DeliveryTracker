@@ -8,6 +8,7 @@ import com.example.deliverytracker.store.dto.StoreRequest;
 import com.example.deliverytracker.store.dto.StoreResponse;
 import com.example.deliverytracker.store.dto.StoreSearchCondition;
 import com.example.deliverytracker.store.entity.Category;
+import com.example.deliverytracker.store.entity.DeliveryTime;
 import com.example.deliverytracker.store.entity.Store;
 import com.example.deliverytracker.store.entity.StoreCategory;
 import com.example.deliverytracker.store.repository.CategoryRepository;
@@ -22,7 +23,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -159,5 +159,17 @@ public class StoreService {
         Page<Order> orderPage = orderRepository.findByStore(store, pageable);
 
         return orderPage.map(OrderForOwnerResponse::from);
+    }
+
+    @Transactional
+    public void updateDeliveryTime(Long storeId, User owner, DeliveryTime newTime) {
+        Store store = storeRepository.findById(storeId)
+                .orElseThrow(() -> new EntityNotFoundException("가게를 찾을 수 없습니다."));
+
+        if (!store.getOwner().getId().equals(owner.getId())) {
+            throw new AccessDeniedException("가게 정보를 수정할 권한이 없습니다.");
+        }
+
+        store.changeCurrentDeliveryTime(newTime);
     }
 }

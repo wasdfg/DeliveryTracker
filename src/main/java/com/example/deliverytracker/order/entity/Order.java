@@ -82,6 +82,8 @@ public class Order extends BaseEntity {
 
     private boolean deleted;
 
+    @Column(name = "estimated_delivery_time")
+    private String estimatedDeliveryTime;
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     @BatchSize(size = 100)

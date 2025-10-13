@@ -78,6 +78,10 @@ public class OrderService {
 
         Coordinates coords = geocodingService.getCoordinates(request.getDeliveryAddress());
 
+        if (store.getCurrentDeliveryTime() == null) {
+            throw new IllegalStateException("가게에서 배달 시간을 설정하지 않아 주문할 수 없습니다.");
+        }
+
         Order order = Order.builder()
                 .user(user)
                 .store(store)
@@ -86,6 +90,7 @@ public class OrderService {
                 .deliveryLatitude(coords.getLatitude())   // 👈 변환된 위도 저장
                 .deliveryLongitude(coords.getLongitude()) // 👈 변환된 경도 저장
                 .requestedAt(LocalDateTime.now())
+                .estimatedDeliveryTime(store.getCurrentDeliveryTime().getDescription())
                 .status(Order.Status.REQUESTED)
                 .totalPrice(totalPrice)
                 .orderItems(orderItems)

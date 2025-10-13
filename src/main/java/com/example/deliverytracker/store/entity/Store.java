@@ -4,7 +4,10 @@ import com.example.deliverytracker.review.entity.Review;
 import com.example.deliverytracker.store.dto.StoreRequest;
 import com.example.deliverytracker.user.entitiy.User;
 import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -19,7 +22,6 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.BatchSize;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -55,9 +57,12 @@ public class Store {
 
     private int deliveryFee;
 
-    private LocalDateTime createdAt;
+    @Column(name = "current_prep_time")
+    private Integer currentPrepTime;
 
-    private LocalDateTime updatedAt;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "current_delivery_time")
+    private DeliveryTime currentDeliveryTime;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "owner_id")
@@ -110,6 +115,14 @@ public class Store {
 
     public void delete(boolean isDeleted){
         this.isDeleted = isDeleted;
+    }
+
+    public void updatePrepTime(Integer prepTime) {
+        this.currentPrepTime = prepTime;
+    }
+
+    public void changeCurrentDeliveryTime(DeliveryTime newTime) {
+        this.currentDeliveryTime = newTime;
     }
 
 }
