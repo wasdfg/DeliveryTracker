@@ -29,6 +29,10 @@ public class StoreDetailResponse {
 
     private List<ProductResponse> products;
 
+    private String averageRating;
+
+    private int reviewCount;
+
     public StoreDetailResponse(Store store, List<ProductResponse> productResponses) {
         this.storeName = store.getName();
         this.storePhone = store.getPhone();
@@ -40,6 +44,9 @@ public class StoreDetailResponse {
         this.deliveryFee = store.getDeliveryFee();
         this.imageUrl = store.getImageUrl();
         this.category = CategoryResponseDto.from(store.getCategory());
+        this.averageRating = String.format("%.1f", store.getAverageRating());
+        this.reviewCount = store.getReviewCount();
+
     }
 
     public static StoreDetailResponse from(Store store) {

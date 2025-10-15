@@ -64,6 +64,10 @@ public class Store {
     @Column(name = "current_delivery_time")
     private DeliveryTime currentDeliveryTime;
 
+    private double averageRating = 0.0;
+
+    private int reviewCount = 0;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "owner_id")
     private User owner;
@@ -123,6 +127,11 @@ public class Store {
 
     public void changeCurrentDeliveryTime(DeliveryTime newTime) {
         this.currentDeliveryTime = newTime;
+    }
+
+    public void addReview(double newRating) {
+        this.averageRating = ((this.averageRating * this.reviewCount) + newRating) / (this.reviewCount + 1);
+        this.reviewCount++;
     }
 
 }
