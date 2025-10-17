@@ -1,6 +1,7 @@
 package com.example.deliverytracker.order.service;
 
 import com.example.deliverytracker.order.dto.OrderCreateRequest;
+import com.example.deliverytracker.order.dto.OrderHistoryDto;
 import com.example.deliverytracker.order.dto.OrderResponse;
 import com.example.deliverytracker.order.entity.Order;
 import com.example.deliverytracker.redis.dto.OrderAcceptedEvent;
@@ -125,27 +126,23 @@ public class OrderService {
 
     }
 
-    @Transactional(readOnly = true)
-    public Page<OrderResponse> findAllOrders(String statusStr, Pageable pageable, User user){
+    public Page<OrderHistoryDto> findMyOrderHistory(String statusStr, Pageable pageable, User user){
 
         Page<Order> orderPage;
 
-        if(statusStr != null && !statusStr.isBlank()){
-            try{
-
+        if (statusStr != null && !statusStr.isBlank()) {
+            try {
                 Order.Status status = Order.Status.valueOf(statusStr.toUpperCase());
-                orderPage = orderRepository.findByUserAndStatus(user, status, pageable);
+                orderPage = orderRepository.findAllByUserAndStatusOrderByRequestedAtDesc(user, status, pageable);
             } catch (IllegalArgumentException e) {
-
                 throw new IllegalArgumentException("유효하지 않은 주문 상태입니다: " + statusStr);
             }
-        }
-        else{
+        } else {
 
-            orderPage = orderRepository.findByUser(user, pageable);
+            orderPage = orderRepository.findAllByUserOrderByRequestedAtDesc(user, pageable);
         }
 
-        return orderPage.map(OrderResponse::from);
+        return orderPage.map(OrderHistoryDto::new);
 
     }
 

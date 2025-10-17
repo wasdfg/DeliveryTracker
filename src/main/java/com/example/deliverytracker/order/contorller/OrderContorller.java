@@ -2,6 +2,7 @@ package com.example.deliverytracker.order.contorller;
 
 
 import com.example.deliverytracker.order.dto.OrderCreateRequest;
+import com.example.deliverytracker.order.dto.OrderHistoryDto;
 import com.example.deliverytracker.order.dto.OrderResponse;
 import com.example.deliverytracker.order.dto.OrderStatusUpdateRequest;
 import com.example.deliverytracker.order.service.OrderService;
@@ -47,9 +48,9 @@ public class OrderContorller {
     }
 
     @GetMapping
-    public ResponseEntity<Page<OrderResponse>> findAllOrders(@RequestParam(required = false) String status, Pageable pageable, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+    public ResponseEntity<Page<OrderHistoryDto>> findMyOrderHistory(@RequestParam(required = false) String status, Pageable pageable, @AuthenticationPrincipal UserDetailsImpl userDetails) {
 
-        Page<OrderResponse> response = orderService.findAllOrders(status, pageable,userDetails.getUser());
+        Page<OrderHistoryDto> response = orderService.findMyOrderHistory(status, pageable,userDetails.getUser());
 
         return ResponseEntity.ok(response);
     }

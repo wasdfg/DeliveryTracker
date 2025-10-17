@@ -65,6 +65,8 @@ public class ReviewService {
             }
         }
 
+        Store store = order.getStore();
+
         Review review = Review.builder()
                 .content(request.getContent())
                 .rating(request.getRating())
@@ -75,6 +77,8 @@ public class ReviewService {
                 .build();
 
         reviewRepository.save(review);
+
+        store.addReview(review.getRating());
 
         NewReviewEvent event = new NewReviewEvent(
                 review.getId(),
