@@ -4,6 +4,7 @@ import com.example.deliverytracker.order.entity.Order;
 import com.example.deliverytracker.review.entity.Review;
 import lombok.Getter;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -19,13 +20,13 @@ public class OrderForOwnerResponse {
 
     private Order.Status status;
 
-    private Integer totalPrice;
+    private BigDecimal totalPrice;
 
     private List<OrderItemResponse> orderItems;
 
     private ReviewInfo reviewInfo;
 
-    public OrderForOwnerResponse(Long orderId, LocalDateTime orderDate, String deliveryAddress, String customerPhoneNumber, Order.Status status, List<OrderItemResponse> orderItems,Integer totalPrice,ReviewInfo reviewInfo) {
+    public OrderForOwnerResponse(Long orderId, LocalDateTime orderDate, String deliveryAddress, String customerPhoneNumber, Order.Status status, List<OrderItemResponse> orderItems, BigDecimal totalPrice, ReviewInfo reviewInfo) {
         this.orderId = orderId;
         this.orderDate = orderDate;
         this.deliveryAddress = deliveryAddress;

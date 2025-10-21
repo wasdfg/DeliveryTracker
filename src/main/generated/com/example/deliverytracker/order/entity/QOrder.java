@@ -39,6 +39,8 @@ public class QOrder extends EntityPathBase<Order> {
 
     public final NumberPath<Double> deliveryLongitude = createNumber("deliveryLongitude", Double.class);
 
+    public final StringPath estimatedDeliveryTime = createString("estimatedDeliveryTime");
+
     public final NumberPath<Long> id = createNumber("id", Long.class);
 
     public final ListPath<OrderItem, QOrderItem> orderItems = this.<OrderItem, QOrderItem>createList("orderItems", OrderItem.class, QOrderItem.class, PathInits.DIRECT2);
@@ -53,7 +55,7 @@ public class QOrder extends EntityPathBase<Order> {
 
     public final com.example.deliverytracker.store.entity.QStore store;
 
-    public final NumberPath<Integer> totalPrice = createNumber("totalPrice", Integer.class);
+    public final NumberPath<java.math.BigDecimal> totalPrice = createNumber("totalPrice", java.math.BigDecimal.class);
 
     //inherited
     public final DateTimePath<java.time.LocalDateTime> updatedAt = _super.updatedAt;

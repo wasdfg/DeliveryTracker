@@ -3,13 +3,15 @@ package com.example.deliverytracker.order.dto;
 import com.example.deliverytracker.order.entity.OrderItem;
 import lombok.Getter;
 
+import java.math.BigDecimal;
+
 @Getter
 public class OrderItemResponse {
     private String menuName;
     private int quantity;
-    private int price;
+    private BigDecimal price;
 
-    public OrderItemResponse(String name, int quantity, int price) {
+    public OrderItemResponse(String name, int quantity, BigDecimal price) {
         this.menuName = name;
         this.quantity = quantity;
         this.price = price;

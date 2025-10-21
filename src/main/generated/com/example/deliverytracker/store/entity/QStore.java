@@ -26,9 +26,13 @@ public class QStore extends EntityPathBase<Store> {
 
     public final StringPath address = createString("address");
 
+    public final NumberPath<Double> averageRating = createNumber("averageRating", Double.class);
+
     public final QCategory category;
 
-    public final DateTimePath<java.time.LocalDateTime> createdAt = createDateTime("createdAt", java.time.LocalDateTime.class);
+    public final EnumPath<DeliveryTime> currentDeliveryTime = createEnum("currentDeliveryTime", DeliveryTime.class);
+
+    public final NumberPath<Integer> currentPrepTime = createNumber("currentPrepTime", Integer.class);
 
     public final NumberPath<Integer> deliveryFee = createNumber("deliveryFee", Integer.class);
 
@@ -52,9 +56,9 @@ public class QStore extends EntityPathBase<Store> {
 
     public final ListPath<Product, QProduct> products = this.<Product, QProduct>createList("products", Product.class, QProduct.class, PathInits.DIRECT2);
 
-    public final ListPath<com.example.deliverytracker.review.entity.Review, com.example.deliverytracker.review.entity.QReview> reviews = this.<com.example.deliverytracker.review.entity.Review, com.example.deliverytracker.review.entity.QReview>createList("reviews", com.example.deliverytracker.review.entity.Review.class, com.example.deliverytracker.review.entity.QReview.class, PathInits.DIRECT2);
+    public final NumberPath<Integer> reviewCount = createNumber("reviewCount", Integer.class);
 
-    public final DateTimePath<java.time.LocalDateTime> updatedAt = createDateTime("updatedAt", java.time.LocalDateTime.class);
+    public final ListPath<com.example.deliverytracker.review.entity.Review, com.example.deliverytracker.review.entity.QReview> reviews = this.<com.example.deliverytracker.review.entity.Review, com.example.deliverytracker.review.entity.QReview>createList("reviews", com.example.deliverytracker.review.entity.Review.class, com.example.deliverytracker.review.entity.QReview.class, PathInits.DIRECT2);
 
     public QStore(String variable) {
         this(Store.class, forVariable(variable), INITS);
