@@ -9,6 +9,8 @@ import java.util.List;
 @Getter
 public class StoreDetailResponse {
 
+    private Long id;
+
     private String storeName;
 
     private String storePhone;
@@ -34,6 +36,7 @@ public class StoreDetailResponse {
     private int reviewCount;
 
     public StoreDetailResponse(Store store, List<ProductResponse> productResponses) {
+        this.id = store.getId();
         this.storeName = store.getName();
         this.storePhone = store.getPhone();
         this.storeAddress = store.getAddress();
