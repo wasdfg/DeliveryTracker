@@ -3,11 +3,14 @@ package com.example.deliverytracker.store.repository;
 import com.example.deliverytracker.store.dto.StoreSearchCondition;
 import com.example.deliverytracker.store.entity.Store;
 import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.support.PageableExecutionUtils;
+import org.springframework.util.StringUtils;
 
 import java.util.List;
 
@@ -27,36 +30,40 @@ public class StoreRepositoryCustomImpl implements StoreRepositoryCustom {
 
         List<Store> content = queryFactory
                 .selectFrom(store)
-                .leftJoin(store.category, category).fetchJoin() // N+1 문제 해결을 위한 fetchJoin
+                // ⚠️ 주의: store.category가 Entity(테이블) 관계일 때만 join 사용
+                // store.category가 단순 Enum이라면 .leftJoin... 부분 삭제 필요
+                .leftJoin(store.category, category).fetchJoin()
                 .where(
-
-                        storeNameContains(condition.getStoreName()),
-                        categoryNameEq(condition.getCategoryName())
+                        // 👇 DTO의 'keyword' 필드를 가게 이름 검색에 사용
+                        storeNameContains(condition.getKeyword()),
+                        // 👇 DTO의 'categoryName' (또는 category) 필드 사용
+                        categoryEq(condition.getCategory())
                 )
-                .offset(pageable.getOffset()) // 페이징
-                .limit(pageable.getPageSize()) // 페이징
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
                 .fetch();
 
-
-        Long total = queryFactory
+        JPAQuery<Long> countQuery = queryFactory
                 .select(store.count())
                 .from(store)
                 .where(
-                        storeNameContains(condition.getStoreName()),
-                        categoryNameEq(condition.getCategoryName())
-                )
-                .fetchOne();
+                        storeNameContains(condition.getKeyword()),
+                        categoryEq(condition.getCategory())
+                );
 
-        return new PageImpl<>(content, pageable, total);
+        return PageableExecutionUtils.getPage(content, pageable, countQuery::fetchOne);
+    }
+    
+    private BooleanExpression storeNameContains(String keyword) {
+        return StringUtils.hasText(keyword) ? store.name.contains(keyword) : null;
     }
 
+    private BooleanExpression categoryEq(String categoryName) {
+        if (!StringUtils.hasText(categoryName) || categoryName.equals("전체")) {
+            return null;
+        }
 
-    private BooleanExpression storeNameContains(String storeName) {
-        return storeName != null ? store.name.contains(storeName) : null;
-    }
+        return store.category.name.eq(categoryName);
 
-
-    private BooleanExpression categoryNameEq(String categoryName) {
-        return categoryName != null ? store.category.name.eq(categoryName) : null;
     }
 }

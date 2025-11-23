@@ -1,6 +1,5 @@
 package com.example.deliverytracker.store.dto;
 
-import com.example.deliverytracker.store.entity.StoreCategory;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -18,5 +17,5 @@ public class StoreSearchCondition {
 
     private String storeName;
 
-    private String categoryName;
+    private String category;
 }
