@@ -1,6 +1,8 @@
 package com.example.deliverytracker.coupon.repository;
 
+import com.example.deliverytracker.coupon.entity.Coupon;
 import com.example.deliverytracker.coupon.entity.UserCoupon;
+import com.example.deliverytracker.user.entitiy.User;
 import io.lettuce.core.dynamic.annotation.Param;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -16,4 +18,6 @@ public interface UserCouponRepository extends JpaRepository<UserCoupon, Long> {
 
     @Query("select uc from UserCoupon uc join fetch uc.coupon c join fetch uc.user u where uc.id = :userCouponId")
     Optional<UserCoupon> findByIdWithCouponAndUser(@Param("userCouponId") Long userCouponId);
+
+    boolean existsByUserAndCoupon(User user, Coupon coupon);
 }

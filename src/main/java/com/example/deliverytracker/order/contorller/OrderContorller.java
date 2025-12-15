@@ -34,7 +34,7 @@ public class OrderContorller {
     @PostMapping
     public ResponseEntity<?> createOrder(@RequestBody @Valid OrderCreateRequest request,@AuthenticationPrincipal UserDetailsImpl userDetails) {
 
-        orderService.createOrder(request,userDetails.getUser());
+        orderService.createOrder(request,userDetails.getUser(),request.getCoupon().getId());
 
         return ResponseEntity.status(HttpStatus.CREATED).body("주문이 완료되었습니다.");
     }

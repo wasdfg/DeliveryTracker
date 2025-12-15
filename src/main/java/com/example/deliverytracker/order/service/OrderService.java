@@ -1,5 +1,6 @@
 package com.example.deliverytracker.order.service;
 
+import com.example.deliverytracker.coupon.service.CouponService;
 import com.example.deliverytracker.order.dto.OrderCreateRequest;
 import com.example.deliverytracker.order.dto.OrderHistoryDto;
 import com.example.deliverytracker.order.dto.OrderResponse;
@@ -45,8 +46,10 @@ public class OrderService {
 
     private final GeocodingService geocodingService;
 
+    private final CouponService couponService;
+
     @Transactional
-    public void createOrder(OrderCreateRequest request, User user){
+    public void createOrder(OrderCreateRequest request, User user, Long userCouponId){
         if(!user.getRole().equals(User.Role.USER)){
             throw new EntityNotFoundException("일반 사용자만 주문할 수 있습니다.");
         }
@@ -57,6 +60,10 @@ public class OrderService {
         List<OrderItem> orderItems = new ArrayList<>();
 
         BigDecimal totalPrice = BigDecimal.valueOf(0);
+
+        int discountAmount = 0;
+
+
 
         for (OrderCreateRequest.Item item : request.getItems()) {
             Product product = productRepository.findByIdAndStoreId(item.getProductId(), store.getId())
@@ -77,6 +84,12 @@ public class OrderService {
             orderItems.add(orderItem);
         }
 
+        if (userCouponId != null) {
+            discountAmount = couponService.validateAndUseCoupon(userCouponId, user, totalPrice.intValue());
+        }
+
+        BigDecimal finalPrice = totalPrice.subtract(BigDecimal.valueOf(discountAmount));
+
         Coordinates coords = geocodingService.getCoordinates(request.getDeliveryAddress());
 
         if (store.getCurrentDeliveryTime() == null) {
@@ -93,7 +106,7 @@ public class OrderService {
                 .requestedAt(LocalDateTime.now())
                 .estimatedDeliveryTime(store.getCurrentDeliveryTime().getDescription())
                 .status(Order.Status.REQUESTED)
-                .totalPrice(totalPrice)
+                .totalPrice(finalPrice)
                 .orderItems(orderItems)
                 .build();
 

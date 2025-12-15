@@ -1,5 +1,6 @@
 package com.example.deliverytracker.order.dto;
 
+import com.example.deliverytracker.coupon.entity.Coupon;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
@@ -24,6 +25,8 @@ public class OrderCreateRequest {
     private Long storeId;
 
     private List<Item> items;
+
+    private Coupon coupon;
 
     @Getter
     public static class Item {

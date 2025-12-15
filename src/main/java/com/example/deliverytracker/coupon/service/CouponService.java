@@ -1,13 +1,16 @@
 package com.example.deliverytracker.coupon.service;
 
 import com.example.deliverytracker.coupon.dto.CouponResponseDto;
+import com.example.deliverytracker.coupon.entity.Coupon;
 import com.example.deliverytracker.coupon.entity.UserCoupon;
+import com.example.deliverytracker.coupon.repository.CouponRepository;
 import com.example.deliverytracker.coupon.repository.UserCouponRepository;
 import com.example.deliverytracker.user.entitiy.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -16,6 +19,8 @@ import java.util.stream.Collectors;
 public class CouponService {
 
     private final UserCouponRepository userCouponRepository;
+
+    private final CouponRepository couponRepository;
 
     @Transactional(readOnly = true)
     public List<CouponResponseDto> getMyCoupons(User user) {
@@ -45,5 +50,20 @@ public class CouponService {
         userCoupon.use();
 
         return userCoupon.getCoupon().getDiscountAmount();
+    }
+
+    @Transactional
+    public void registerCoupon(User user, String code) {
+
+        Coupon coupon = couponRepository.findByCode(code)
+                .orElseThrow(() -> new IllegalArgumentException("유효하지 않은 쿠폰 코드입니다."));
+
+        boolean exists = userCouponRepository.existsByUserAndCoupon(user, coupon);
+        if (exists) {
+            throw new IllegalStateException("이미 등록된 쿠폰입니다.");
+        }
+
+        UserCoupon userCoupon = new UserCoupon(user, coupon);
+        userCouponRepository.save(userCoupon);
     }
 }
