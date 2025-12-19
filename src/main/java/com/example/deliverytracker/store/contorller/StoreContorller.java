@@ -1,7 +1,6 @@
 package com.example.deliverytracker.store.contorller;
 
 import com.example.deliverytracker.order.dto.OrderForOwnerResponse;
-import com.example.deliverytracker.order.dto.OrderResponse;
 import com.example.deliverytracker.store.dto.DeliveryTimeUpdateRequestDto;
 import com.example.deliverytracker.store.dto.StoreDetailResponse;
 import com.example.deliverytracker.store.dto.StoreRequest;
