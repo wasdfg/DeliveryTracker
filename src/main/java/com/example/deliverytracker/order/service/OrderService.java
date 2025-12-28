@@ -48,6 +48,8 @@ public class OrderService {
 
     private final CouponService couponService;
 
+    private final StockService stockService;
+
     @Transactional
     public void createOrder(OrderCreateRequest request, User user, Long userCouponId){
         if(!user.getRole().equals(User.Role.USER)){
@@ -68,6 +70,8 @@ public class OrderService {
         for (OrderCreateRequest.Item item : request.getItems()) {
             Product product = productRepository.findByIdAndStoreId(item.getProductId(), store.getId())
                     .orElseThrow(() -> new EntityNotFoundException("상품 정보를 찾을 수 없습니다."));
+
+            stockService.decreaseProductStock(product.getId(), item.getQuantity());
 
             BigDecimal itemTotal = product.getPrice().multiply(BigDecimal.valueOf(item.getQuantity()));
 
@@ -101,8 +105,8 @@ public class OrderService {
                 .store(store)
                 .deliveryAddress(request.getDeliveryAddress())
                 .pickupAddress(request.getPickupAddress())
-                .deliveryLatitude(coords.getLatitude())   // 👈 변환된 위도 저장
-                .deliveryLongitude(coords.getLongitude()) // 👈 변환된 경도 저장
+                .deliveryLatitude(coords.getLatitude())   // 변환된 위도 저장
+                .deliveryLongitude(coords.getLongitude()) // 변환된 경도 저장
                 .requestedAt(LocalDateTime.now())
                 .estimatedDeliveryTime(store.getCurrentDeliveryTime().getDescription())
                 .status(Order.Status.REQUESTED)
@@ -120,7 +124,7 @@ public class OrderService {
 
         OrderCreatedEvent event = new OrderCreatedEvent(order.getId(), order.getStore().getId());
 
-        redisPublisher.publish("order-channel", new OrderCreatedEvent(order.getId(), user.getId()));
+        redisPublisher.publish("order-channel", new OrderCreatedEvent(order.getId(), store.getId()));
 
     }
 

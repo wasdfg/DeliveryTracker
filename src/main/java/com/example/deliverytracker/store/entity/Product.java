@@ -48,7 +48,8 @@ public class Product extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private ProductCategory category;
 
-    private int stock;
+    @Column(nullable = true)
+    private Integer stock;
 
     private String imageUrl;
 
@@ -93,6 +94,15 @@ public class Product extends BaseEntity {
 
     public void delete() {
         this.isAvailable = false;
+    }
+
+    public void decreaseStock(int quantity) {
+        if (this.stock != null) {
+            if (this.stock < quantity) {
+                throw new IllegalStateException(this.name + " 상품의 재고가 부족합니다. (현재 재고: " + this.stock + ")");
+            }
+            this.stock -= quantity;
+        }
     }
 }
 
