@@ -14,6 +14,7 @@ import com.example.deliverytracker.store.entity.Product;
 import com.example.deliverytracker.store.entity.Store;
 import com.example.deliverytracker.store.repository.ProductRepository;
 import com.example.deliverytracker.store.repository.StoreRepository;
+import com.example.deliverytracker.store.service.ProductService;
 import com.example.deliverytracker.user.entitiy.User;
 import com.example.deliverytracker.util.geocoding.Coordinates;
 import com.example.deliverytracker.util.geocoding.GeocodingService;
@@ -48,7 +49,7 @@ public class OrderService {
 
     private final CouponService couponService;
 
-    private final StockService stockService;
+    private final ProductService productService;
 
     @Transactional
     public void createOrder(OrderCreateRequest request, User user, Long userCouponId){
@@ -68,10 +69,11 @@ public class OrderService {
 
 
         for (OrderCreateRequest.Item item : request.getItems()) {
+
+            productService.validateProductAvailability(item.getProductId());
+
             Product product = productRepository.findByIdAndStoreId(item.getProductId(), store.getId())
                     .orElseThrow(() -> new EntityNotFoundException("상품 정보를 찾을 수 없습니다."));
-
-            stockService.decreaseProductStock(product.getId(), item.getQuantity());
 
             BigDecimal itemTotal = product.getPrice().multiply(BigDecimal.valueOf(item.getQuantity()));
 

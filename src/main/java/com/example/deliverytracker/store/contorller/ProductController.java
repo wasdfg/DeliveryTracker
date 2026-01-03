@@ -60,4 +60,10 @@ public class ProductController {
 
         return ResponseEntity.noContent().build();
     }
+
+    @PatchMapping("/{productId}/toggle-availability")
+    public ResponseEntity<Boolean> toggleProductAvailability(@PathVariable Long productId) {
+        boolean newState = productService.toggleProductStatus(productId);
+        return ResponseEntity.ok(newState);
+    }
 }

@@ -123,4 +123,23 @@ public class ProductService {
 
         product.delete();
     }
+
+    @Transactional(readOnly = true)
+    public void validateProductAvailability(Long productId) {
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new EntityNotFoundException("상품을 찾을 수 없습니다."));
+
+        if (!product.isAvailable()) {
+            throw new IllegalStateException(product.getName() + " 상품은 현재 품절 상태입니다.");
+        }
+    }
+
+    @Transactional
+    public boolean toggleProductStatus(Long productId) {
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new EntityNotFoundException("상품을 찾을 수 없습니다."));
+
+        product.toggleAvailability();
+        return product.isAvailable();
+    }
 }

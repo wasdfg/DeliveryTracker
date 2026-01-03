@@ -56,6 +56,9 @@ public class Product extends BaseEntity {
     @Column(nullable = false)
     private boolean isAvailable = true;
 
+    @Column(nullable = false)
+    private boolean isDelete = true;
+
     @Builder
     public Product(String name, BigDecimal price, String description, ProductCategory category, int stock, String imageUrl, boolean isAvailable,Store store) {
         this.name = name;
@@ -93,16 +96,11 @@ public class Product extends BaseEntity {
     }
 
     public void delete() {
-        this.isAvailable = false;
+        this.isDelete = true;
     }
 
-    public void decreaseStock(int quantity) {
-        if (this.stock != null) {
-            if (this.stock < quantity) {
-                throw new IllegalStateException(this.name + " 상품의 재고가 부족합니다. (현재 재고: " + this.stock + ")");
-            }
-            this.stock -= quantity;
-        }
+    public void toggleAvailability() {
+        this.isAvailable = !this.isAvailable;
     }
 }
 
