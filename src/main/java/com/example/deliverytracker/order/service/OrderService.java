@@ -60,6 +60,10 @@ public class OrderService {
         Store store = storeRepository.findByIdAndActiveTrue(request.getStoreId())
                 .orElseThrow(() -> new EntityNotFoundException("가게 정보가 없습니다."));
 
+        if (!store.isCurrentlyOrderable()) {
+            throw new IllegalStateException("현재 주문 가능한 시간이 아닙니다.");
+        }
+
         List<OrderItem> orderItems = new ArrayList<>();
 
         BigDecimal totalPrice = BigDecimal.valueOf(0);

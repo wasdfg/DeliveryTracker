@@ -22,6 +22,9 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.BatchSize;
 
 import java.math.BigDecimal;
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -67,6 +70,12 @@ public class Store {
     private double averageRating = 0.0;
 
     private int reviewCount = 0;
+
+    @Column(nullable = false)
+    private boolean isManualClosed = false;
+
+    @OneToMany(mappedBy = "store", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<OperationTime> operationTimes = new ArrayList<>();
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "owner_id")
@@ -134,4 +143,26 @@ public class Store {
         this.reviewCount++;
     }
 
+    public void toggleManualClose() {
+        this.isManualClosed = !this.isManualClosed;
+    }
+
+    public boolean isCurrentlyOrderable() {
+        if (this.isManualClosed) {
+            return false;
+        }
+
+        return isWithinBusinessHours();
+    }
+
+    private boolean isWithinBusinessHours() {
+        DayOfWeek today = LocalDate.now().getDayOfWeek();
+        LocalTime now = LocalTime.now();
+
+        return operationTimes.stream()
+                .filter(ot -> ot.getDayOfWeek() == today)
+                .findFirst()
+                .map(ot -> !ot.isDayOff() && !now.isBefore(ot.getOpenTime()) && !now.isAfter(ot.getCloseTime()))
+                .orElse(false);
+    }
 }
