@@ -6,6 +6,8 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 
 import java.math.BigDecimal;
+import java.time.DayOfWeek;
+import java.util.List;
 
 @Getter
 public class StoreRequest {
@@ -21,8 +23,6 @@ public class StoreRequest {
 
     private String description;
 
-    private String operatingHours;
-
     @NotBlank
     private BigDecimal minOrderAmount;
 
@@ -34,4 +34,14 @@ public class StoreRequest {
     private String imageUrl;
 
     private Boolean deleteImage;
+
+    private List<OperationTimeRequest> operationTimes;
+
+    @Getter
+    public static class OperationTimeRequest {
+        private DayOfWeek dayOfWeek;
+        private String openTime;
+        private String closeTime;
+        private boolean isDayOff;
+    }
 }

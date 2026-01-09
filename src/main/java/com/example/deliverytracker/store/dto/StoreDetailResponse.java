@@ -1,5 +1,6 @@
 package com.example.deliverytracker.store.dto;
 
+import com.example.deliverytracker.store.entity.OperationTime;
 import com.example.deliverytracker.store.entity.Store;
 import lombok.Getter;
 
@@ -35,6 +36,8 @@ public class StoreDetailResponse {
 
     private int reviewCount;
 
+    private List<OperationTimeResponse> operationTimes;
+
     public StoreDetailResponse(Store store, List<ProductResponse> productResponses) {
         this.id = store.getId();
         this.storeName = store.getName();
@@ -49,7 +52,9 @@ public class StoreDetailResponse {
         this.category = CategoryResponseDto.from(store.getCategory());
         this.averageRating = String.format("%.1f", store.getAverageRating());
         this.reviewCount = store.getReviewCount();
-
+        this.operationTimes = store.getOperationTimes().stream()
+                .map(OperationTimeResponse::from)
+                .toList();
     }
 
     public static StoreDetailResponse from(Store store) {
@@ -58,5 +63,22 @@ public class StoreDetailResponse {
                 .toList();
 
         return new StoreDetailResponse(store, productResponses);
+    }
+
+    @Getter
+    public static class OperationTimeResponse {
+        private String dayOfWeek;
+        private String openTime;
+        private String closeTime;
+        private boolean isDayOff;
+
+        public static OperationTimeResponse from(OperationTime ot) {
+            OperationTimeResponse res = new OperationTimeResponse();
+            res.dayOfWeek = ot.getDayOfWeek().name();
+            res.openTime = ot.getOpenTime().toString();
+            res.closeTime = ot.getCloseTime().toString();
+            res.isDayOff = ot.isDayOff();
+            return res;
+        }
     }
 }

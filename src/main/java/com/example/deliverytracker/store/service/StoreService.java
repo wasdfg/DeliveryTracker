@@ -9,8 +9,8 @@ import com.example.deliverytracker.store.dto.StoreResponse;
 import com.example.deliverytracker.store.dto.StoreSearchCondition;
 import com.example.deliverytracker.store.entity.Category;
 import com.example.deliverytracker.store.entity.DeliveryTime;
+import com.example.deliverytracker.store.entity.OperationTime;
 import com.example.deliverytracker.store.entity.Store;
-import com.example.deliverytracker.store.entity.StoreCategory;
 import com.example.deliverytracker.store.repository.CategoryRepository;
 import com.example.deliverytracker.store.repository.StoreRepository;
 import com.example.deliverytracker.user.entitiy.User;
@@ -26,6 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.time.LocalTime;
 
 
 @Slf4j
@@ -70,11 +71,25 @@ public class StoreService {
                 .owner(user)
                 .description(request.getDescription())
                 .category(category)
-                .operatingHours(request.getOperatingHours())
                 .minOrderAmount(request.getMinOrderAmount())
                 .deliveryFee(request.getDeliveryFee())
                 .imageUrl(imageUrl)
+                .isManualClosed(false)
                 .build();
+
+        if (request.getOperationTimes() != null) {
+            for (StoreRequest.OperationTimeRequest timeRequest : request.getOperationTimes()) {
+                OperationTime operationTime = OperationTime.builder()
+                        .dayOfWeek(timeRequest.getDayOfWeek())
+                        .openTime(LocalTime.parse(timeRequest.getOpenTime())) // String -> LocalTime 변환
+                        .closeTime(LocalTime.parse(timeRequest.getCloseTime()))
+                        .isDayOff(timeRequest.isDayOff())
+                        .store(store)
+                        .build();
+
+                store.getOperationTimes().add(operationTime);
+            }
+        }
 
         storeRepository.save(store);
         log.info("New store created storeId {}", store.getId());
@@ -129,6 +144,22 @@ public class StoreService {
         }
 
         store.changeInfo(request, newImageUrl);
+
+        if (request.getOperationTimes() != null && !request.getOperationTimes().isEmpty()) {
+
+            store.getOperationTimes().clear();
+
+            for (StoreRequest.OperationTimeRequest timeReq : request.getOperationTimes()) {
+                OperationTime newTime = OperationTime.builder()
+                        .dayOfWeek(timeReq.getDayOfWeek())
+                        .openTime(LocalTime.parse(timeReq.getOpenTime()))
+                        .closeTime(LocalTime.parse(timeReq.getCloseTime()))
+                        .isDayOff(timeReq.isDayOff())
+                        .store(store)
+                        .build();
+                store.getOperationTimes().add(newTime);
+            }
+        }
 
     }
 

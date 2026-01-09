@@ -89,7 +89,7 @@ public class Store {
     private List<Review> reviews = new ArrayList<>();
 
     @Builder
-    public Store(String name, String address, String phone, boolean active, User owner, String description, Category category, String operatingHours, BigDecimal minOrderAmount, int deliveryFee,String imageUrl) {
+    public Store(String name, String address, String phone, boolean active, User owner, String description, Category category, BigDecimal minOrderAmount, int deliveryFee, String imageUrl,boolean isManualClosed) {
         this.name = name;
         this.address = address;
         this.phone = phone;
@@ -97,10 +97,10 @@ public class Store {
         this.owner = owner;
         this.description = description;
         this.category = category;
-        this.operatingHours = operatingHours;
         this.minOrderAmount = minOrderAmount;
         this.deliveryFee = deliveryFee;
         this.imageUrl = imageUrl;
+        this.isManualClosed = isManualClosed;
     }
 
     public void changeInfo(StoreRequest request,String newImageUrl) {
@@ -115,9 +115,6 @@ public class Store {
         }
         if (request.getDescription() != null) {
             this.description = request.getDescription();
-        }
-        if (request.getOperatingHours() != null) {
-            this.operatingHours = request.getOperatingHours();
         }
         if (request.getMinOrderAmount() != null) {
             this.minOrderAmount = request.getMinOrderAmount();
