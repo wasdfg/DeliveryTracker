@@ -1,7 +1,7 @@
 package com.example.deliverytracker.order.contorller;
 
 import com.example.deliverytracker.order.service.OwnerStatsService;
-import com.example.deliverytracker.store.dto.OwnerStatsResponseDto;
+import com.example.deliverytracker.order.dto.OwnerStatsResponseDto;
 import com.example.deliverytracker.user.entitiy.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -27,4 +27,5 @@ public class OwnerStatsController {
 
         return ResponseEntity.ok(result);
     }
+
 }
