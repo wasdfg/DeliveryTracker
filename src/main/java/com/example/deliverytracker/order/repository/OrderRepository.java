@@ -3,6 +3,7 @@ package com.example.deliverytracker.order.repository;
 import com.example.deliverytracker.order.dto.DailySalesDto;
 import com.example.deliverytracker.order.dto.MenuStatsDto;
 import com.example.deliverytracker.order.entity.Order;
+import com.example.deliverytracker.order.entity.OrderRepositoryCustom;
 import com.example.deliverytracker.store.entity.Store;
 import com.example.deliverytracker.user.entitiy.User;
 import io.lettuce.core.dynamic.annotation.Param;
@@ -14,7 +15,7 @@ import org.springframework.data.jpa.repository.Query;
 import java.util.List;
 import java.util.Optional;
 
-public interface OrderRepository extends JpaRepository<Order,Long> {
+public interface OrderRepository extends JpaRepository<Order,Long>, OrderRepositoryCustom {
 
     @Query("SELECT o FROM Order o " +
             "JOIN FETCH o.store s " +

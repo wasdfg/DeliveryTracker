@@ -1,6 +1,8 @@
 package com.example.deliverytracker.order.service;
 
 import com.example.deliverytracker.order.dto.DailySalesDto;
+import com.example.deliverytracker.order.dto.DayOfWeekStatsDto;
+import com.example.deliverytracker.order.dto.HourlyStatsDto;
 import com.example.deliverytracker.order.dto.MenuStatsDto;
 import com.example.deliverytracker.order.repository.OrderRepository;
 import com.example.deliverytracker.order.dto.OwnerStatsResponseDto;
@@ -31,10 +33,12 @@ public class OwnerStatsService {
 
         List<DailySalesDto> dailySales = orderRepository.findDailySales(storeId);
         List<MenuStatsDto> topMenus = orderRepository.findTopMenus(storeId);
+        List<HourlyStatsDto> hourlyStats = orderRepository.findHourlyStats(storeId);
+        List<DayOfWeekStatsDto> dayOfWeekStats = orderRepository.findDayOfWeekStats(storeId);
 
-        long totalSales = dailySales.stream().mapToLong(DailySalesDto::getDailyTotal).sum();
-        long totalOrderCount = topMenus.stream().mapToLong(MenuStatsDto::getCount).sum();
+        long totalSales = dailySales.stream().mapToLong(DailySalesDto::totalSales).sum();
+        long totalOrderCount = hourlyStats.stream().mapToLong(HourlyStatsDto::orderCount).sum();
 
-        return new OwnerStatsResponseDto(dailySales, topMenus, totalSales, totalOrderCount);
+        return new OwnerStatsResponseDto(dailySales, topMenus, hourlyStats, dayOfWeekStats, totalSales, totalOrderCount);
     }
 }

@@ -1,6 +1,8 @@
 package com.example.deliverytracker.order.repository;
 
 import com.example.deliverytracker.order.dto.DailySalesDto;
+import com.example.deliverytracker.order.dto.DayOfWeekStatsDto;
+import com.example.deliverytracker.order.dto.HourlyStatsDto;
 import com.example.deliverytracker.order.dto.MenuStatsDto;
 import com.example.deliverytracker.order.entity.Order;
 import com.example.deliverytracker.order.entity.OrderRepositoryCustom;
@@ -45,6 +47,33 @@ public class OrderRepositoryCustomImpl implements OrderRepositoryCustom {
                 .groupBy(orderItem.product.name)
                 .orderBy(orderItem.count().sum().desc())
                 .limit(5)
+                .fetch();
+    }
+
+    @Override
+    public List<HourlyStatsDto> findHourlyStats(Long storeId) {
+        return queryFactory
+                .select(Projections.constructor(HourlyStatsDto.class,
+                        order.createdAt.hour(),
+                        order.count()
+                ))
+                .from(order)
+                .where(order.store.id.eq(storeId), order.status.eq(Order.Status.COMPLETED))
+                .groupBy(order.createdAt.hour())
+                .orderBy(order.createdAt.hour().asc())
+                .fetch();
+    }
+
+    @Override
+    public List<DayOfWeekStatsDto> findDayOfWeekStats(Long storeId) {
+        return queryFactory
+                .select(Projections.constructor(DayOfWeekStatsDto.class,
+                        order.createdAt.dayOfWeek().stringValue(),
+                        order.totalPrice.sum()
+                ))
+                .from(order)
+                .where(order.store.id.eq(storeId), order.status.eq(Order.Status.COMPLETED))
+                .groupBy(order.createdAt.dayOfWeek())
                 .fetch();
     }
 }
