@@ -15,14 +15,16 @@ public class ReviewResponse {
     private String imageUrl;
     private LocalDateTime createdAt;
     private List<String> orderedProductNames;
+    private ReplyResponse reply;
 
-    public ReviewResponse(String userNickname, Integer rating, String content, LocalDateTime createdAt,List<String> orderedProductNames,String imageUrl){
+    public ReviewResponse(String userNickname, Integer rating, String content, LocalDateTime createdAt,List<String> orderedProductNames,String imageUrl, ReplyResponse reply){
         this.userNickname = userNickname;
         this.rating = rating;
         this.content = content;
         this.createdAt = createdAt;
         this.orderedProductNames = orderedProductNames;
         this.imageUrl = imageUrl;
+        this.reply = reply;
     }
 
     public static ReviewResponse from(Review review) {
@@ -31,13 +33,22 @@ public class ReviewResponse {
                 .map(orderItem -> orderItem.getProduct().getName())
                 .toList();
 
+        ReplyResponse reply = null;
+        if (review.getReviewReply() != null) {
+            reply = new ReplyResponse(
+                    review.getReviewReply().getContent(),
+                    review.getReviewReply().getCreatedAt()
+            );
+        }
+
         return new ReviewResponse(
-                review.getUser().getNickname(), // User 엔티티에 getNickname()이 있다고 가정
+                review.getUser().getNickname(),
                 review.getRating(),
                 review.getContent(),
                 review.getCreatedAt(),
                 productNames,
-                review.getImageUrl()
+                review.getImageUrl(),
+                reply
         );
     }
 }

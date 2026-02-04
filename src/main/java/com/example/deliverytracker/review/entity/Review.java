@@ -6,6 +6,7 @@ import com.example.deliverytracker.review.dto.ReviewUpdateRequest;
 import com.example.deliverytracker.store.dto.StoreRequest;
 import com.example.deliverytracker.store.entity.Store;
 import com.example.deliverytracker.user.entitiy.User;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -53,6 +54,9 @@ public class Review extends BaseEntity {
     private String imageUrl;
 
     private boolean deleted = false;
+
+    @OneToOne(mappedBy = "review", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private ReviewReply reviewReply;
 
     @Builder
     public Review(User user, Store store, Order order, int rating, String content, String imageUrl) {

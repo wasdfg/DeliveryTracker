@@ -37,6 +37,8 @@ public class QProduct extends EntityPathBase<Product> {
 
     public final BooleanPath isAvailable = createBoolean("isAvailable");
 
+    public final BooleanPath isDelete = createBoolean("isDelete");
+
     public final StringPath name = createString("name");
 
     public final NumberPath<java.math.BigDecimal> price = createNumber("price", java.math.BigDecimal.class);

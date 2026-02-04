@@ -1,5 +1,6 @@
 package com.example.deliverytracker.review.entity;
 
+import com.example.deliverytracker.common.BaseEntity;
 import com.example.deliverytracker.user.entitiy.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -16,7 +17,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @Getter
 @NoArgsConstructor
-public class ReviewReply {
+public class ReviewReply extends BaseEntity{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

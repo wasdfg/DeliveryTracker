@@ -39,6 +39,8 @@ public class QReview extends EntityPathBase<Review> {
 
     public final NumberPath<Integer> rating = createNumber("rating", Integer.class);
 
+    public final QReviewReply reviewReply;
+
     public final com.example.deliverytracker.store.entity.QStore store;
 
     //inherited
@@ -65,6 +67,7 @@ public class QReview extends EntityPathBase<Review> {
     public QReview(Class<? extends Review> type, PathMetadata metadata, PathInits inits) {
         super(type, metadata, inits);
         this.order = inits.isInitialized("order") ? new com.example.deliverytracker.order.entity.QOrder(forProperty("order"), inits.get("order")) : null;
+        this.reviewReply = inits.isInitialized("reviewReply") ? new QReviewReply(forProperty("reviewReply"), inits.get("reviewReply")) : null;
         this.store = inits.isInitialized("store") ? new com.example.deliverytracker.store.entity.QStore(forProperty("store"), inits.get("store")) : null;
         this.user = inits.isInitialized("user") ? new com.example.deliverytracker.user.entitiy.QUser(forProperty("user")) : null;
     }

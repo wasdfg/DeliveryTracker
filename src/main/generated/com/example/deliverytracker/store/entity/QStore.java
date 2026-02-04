@@ -44,11 +44,15 @@ public class QStore extends EntityPathBase<Store> {
 
     public final BooleanPath isDeleted = createBoolean("isDeleted");
 
+    public final BooleanPath isManualClosed = createBoolean("isManualClosed");
+
     public final NumberPath<java.math.BigDecimal> minOrderAmount = createNumber("minOrderAmount", java.math.BigDecimal.class);
 
     public final StringPath name = createString("name");
 
     public final StringPath operatingHours = createString("operatingHours");
+
+    public final ListPath<OperationTime, QOperationTime> operationTimes = this.<OperationTime, QOperationTime>createList("operationTimes", OperationTime.class, QOperationTime.class, PathInits.DIRECT2);
 
     public final com.example.deliverytracker.user.entitiy.QUser owner;
 
