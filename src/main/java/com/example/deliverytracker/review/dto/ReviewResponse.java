@@ -36,8 +36,7 @@ public class ReviewResponse {
         ReplyResponse reply = null;
         if (review.getReviewReply() != null) {
             reply = new ReplyResponse(
-                    review.getReviewReply().getContent(),
-                    review.getReviewReply().getCreatedAt()
+                    review.getReviewReply()
             );
         }
 

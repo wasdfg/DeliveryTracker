@@ -62,4 +62,6 @@ public class ReviewController {
 
         return ResponseEntity.ok("리뷰가 삭제되었습니다.");
     }
+
+
 }

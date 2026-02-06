@@ -38,4 +38,8 @@ public class ReviewReply extends BaseEntity{
         this.review = review;
         this.owner = owner;
     }
+
+    public void update(String content) {
+        this.content = content;
+    }
 }

@@ -33,4 +33,28 @@ public class ReplyService {
         ReviewReply reply = new ReviewReply(content, review, owner);
         replyRepository.save(reply);
     }
+
+    @Transactional
+    public void updateReply(Long reviewId, String content, User owner) {
+        ReviewReply reply = replyRepository.findByReviewId(reviewId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 리뷰에 대한 답글이 존재하지 않습니다."));
+
+        if (!reply.getOwner().getId().equals(owner.getId())) {
+            throw new IllegalArgumentException("본인의 답글만 수정할 수 있습니다.");
+        }
+
+        reply.update(content);
+    }
+
+    @Transactional
+    public void deleteReply(Long reviewId, User owner) {
+        ReviewReply reply = replyRepository.findByReviewId(reviewId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 리뷰에 대한 답글이 존재하지 않습니다."));
+
+        if (!reply.getOwner().getId().equals(owner.getId())) {
+            throw new IllegalArgumentException("본인의 답글만 삭제할 수 있습니다.");
+        }
+
+        replyRepository.delete(reply);
+    }
 }
