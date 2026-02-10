@@ -1,6 +1,6 @@
 package com.example.deliverytracker.store.service;
 
-import com.example.deliverytracker.store.dto.CategoryResponseDto;
+import com.example.deliverytracker.store.dto.CategoryResponse;
 import com.example.deliverytracker.store.repository.CategoryRepository;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,9 +16,9 @@ public class CategoryService {
 
     private final CategoryRepository categoryRepository;
 
-    public List<CategoryResponseDto> findAll() {
+    public List<CategoryResponse> findAll() {
         return categoryRepository.findAll().stream()
-                .map(CategoryResponseDto::from)
+                .map(CategoryResponse::from)
                 .collect(Collectors.toList());
     }
 }

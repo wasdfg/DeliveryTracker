@@ -5,17 +5,16 @@ import lombok.Getter;
 
 @Getter
 public class CategoryResponse {
-
+    private Long id;
     private String name;
 
-    public CategoryResponse(String name) {
-        this.name = name;
+    public CategoryResponse(Category category) {
+        this.id = category.getId();
+        this.name = category.getName();
     }
 
     public static CategoryResponse from(Category category) {
-
-        return new CategoryResponse(
-                category.getName()
-        );
+        if (category == null) return null;
+        return new CategoryResponse(category);
     }
 }

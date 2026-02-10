@@ -28,7 +28,7 @@ public class StoreDetailResponse {
 
     private String imageUrl;
 
-    private CategoryResponseDto category;
+    private CategoryResponse category;
 
     private List<ProductResponse> products;
 
@@ -49,7 +49,7 @@ public class StoreDetailResponse {
         this.minOrderAmount = store.getMinOrderAmount();
         this.deliveryFee = store.getDeliveryFee();
         this.imageUrl = store.getImageUrl();
-        this.category = CategoryResponseDto.from(store.getCategory());
+        this.category = CategoryResponse.from(store.getCategory());
         this.averageRating = String.format("%.1f", store.getAverageRating());
         this.reviewCount = store.getReviewCount();
         this.operationTimes = store.getOperationTimes().stream()
