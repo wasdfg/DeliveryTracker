@@ -14,6 +14,7 @@ import com.example.deliverytracker.store.entity.Product;
 import com.example.deliverytracker.store.entity.Store;
 import com.example.deliverytracker.store.repository.ProductRepository;
 import com.example.deliverytracker.store.repository.StoreRepository;
+import com.example.deliverytracker.store.service.BlacklistService;
 import com.example.deliverytracker.store.service.ProductService;
 import com.example.deliverytracker.user.entitiy.User;
 import com.example.deliverytracker.util.geocoding.Coordinates;
@@ -51,6 +52,8 @@ public class OrderService {
 
     private final ProductService productService;
 
+    private final BlacklistService blacklistService;
+
     @Transactional
     public void createOrder(OrderCreateRequest request, User user, Long userCouponId){
         if(!user.getRole().equals(User.Role.USER)){
@@ -59,6 +62,8 @@ public class OrderService {
 
         Store store = storeRepository.findByIdAndActiveTrue(request.getStoreId())
                 .orElseThrow(() -> new EntityNotFoundException("가게 정보가 없습니다."));
+
+        blacklistService.validateNotBlacklisted(request.getStoreId(), user.getId());
 
         if (!store.isCurrentlyOrderable()) {
             throw new IllegalStateException("현재 주문 가능한 시간이 아닙니다.");

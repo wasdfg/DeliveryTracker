@@ -11,6 +11,7 @@ import com.example.deliverytracker.review.entity.Review;
 import com.example.deliverytracker.review.repository.ReviewRepository;
 import com.example.deliverytracker.store.entity.Store;
 import com.example.deliverytracker.store.repository.StoreRepository;
+import com.example.deliverytracker.store.service.BlacklistService;
 import com.example.deliverytracker.user.entitiy.User;
 import com.example.deliverytracker.image.service.ImageService;
 import jakarta.persistence.EntityNotFoundException;
@@ -41,11 +42,15 @@ public class ReviewService {
 
     private final RedisPublisher redisPublisher;
 
+    private final BlacklistService blacklistService;
+
     @Transactional
     public void writeReview(Long orderId, ReviewCreateRequest request, User user, MultipartFile imageFile){
 
         Order order = this.orderRepository.findById(orderId)
                 .orElseThrow(() -> new EntityNotFoundException("주문 정보가 없습니다."));
+
+        blacklistService.validateNotBlacklisted(order.getStore().getId(), user.getId());
 
         if(!order.getUser().equals(user)){
             throw new AccessDeniedException("주문자만 리뷰를 등록 할 수 있습니다");
