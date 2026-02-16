@@ -3,6 +3,8 @@ package com.example.deliverytracker.store.service;
 import com.example.deliverytracker.store.dto.ProductRequest;
 import com.example.deliverytracker.store.dto.ProductResponse;
 import com.example.deliverytracker.store.dto.ProductUpdateRequest;
+import com.example.deliverytracker.store.entity.Option;
+import com.example.deliverytracker.store.entity.OptionGroup;
 import com.example.deliverytracker.store.entity.Product;
 import com.example.deliverytracker.store.entity.ProductCategory;
 import com.example.deliverytracker.store.entity.Store;
@@ -21,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 
 @Slf4j
 @Service
@@ -65,6 +68,26 @@ public class ProductService {
                 .isAvailable(true)
                 .store(store)
                 .build();
+
+        if (productRequest.getOptionGroups() != null) {
+            for (ProductRequest.OptionGroupRequest groupDto : productRequest.getOptionGroups()) {
+                OptionGroup group = OptionGroup.builder()
+                        .product(product)
+                        .name(groupDto.getName())
+                        .isRequired(groupDto.isRequired())
+                        .build();
+
+                for (ProductRequest.OptionRequest optDto : groupDto.getOptions()) {
+                    Option option = Option.builder()
+                            .optionGroup(group)
+                            .name(optDto.getName())
+                            .additionalPrice(BigDecimal.valueOf(optDto.getAdditionalPrice()))
+                            .build();
+                    group.getOptions().add(option);
+                }
+                product.getOptionGroups().add(group);
+            }
+        }
 
         productRepository.save(product);
     }

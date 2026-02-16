@@ -3,6 +3,7 @@ package com.example.deliverytracker.store.entity;
 
 import com.example.deliverytracker.common.BaseEntity;
 import com.example.deliverytracker.store.dto.ProductUpdateRequest;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -13,6 +14,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -22,6 +24,8 @@ import lombok.NoArgsConstructor;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "products")
@@ -58,6 +62,9 @@ public class Product extends BaseEntity {
 
     @Column(nullable = false)
     private boolean isDelete = true;
+
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<OptionGroup> optionGroups = new ArrayList<>();
 
     @Builder
     public Product(String name, BigDecimal price, String description, ProductCategory category, int stock, String imageUrl, boolean isAvailable,Store store) {

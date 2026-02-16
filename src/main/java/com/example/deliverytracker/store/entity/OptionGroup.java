@@ -1,7 +1,7 @@
-package com.example.deliverytracker.order.entity;
+package com.example.deliverytracker.store.entity;
 
 import com.example.deliverytracker.common.BaseEntity;
-import com.example.deliverytracker.store.entity.Product;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -10,47 +10,40 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
+import jakarta.persistence.OneToMany;
 import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
-@Table(name = "order_items")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@AllArgsConstructor
-@Builder
-public class OrderItem extends BaseEntity {
+public class OptionGroup extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "order_id", nullable = false)
-    private Order order;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "product_id")
+    @JoinColumn(name = "product_id", nullable = false)
     private Product product;
 
     @Column(nullable = false)
     private String name;
 
-    @Column(nullable = false)
-    private int quantity;
+    private boolean isRequired;
 
-    @Column(nullable = false)
-    private BigDecimal price;
+    @OneToMany(mappedBy = "optionGroup", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Option> options = new ArrayList<>();
 
-    private String imageUrl;
-
-    public void assignOrder(Order order) {
-        this.order = order;
+    @Builder
+    public OptionGroup(Product product, String name, boolean isRequired) {
+        this.product = product;
+        this.name = name;
+        this.isRequired = isRequired;
     }
 }
