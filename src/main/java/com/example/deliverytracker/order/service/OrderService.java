@@ -5,13 +5,16 @@ import com.example.deliverytracker.order.dto.OrderCreateRequest;
 import com.example.deliverytracker.order.dto.OrderHistoryDto;
 import com.example.deliverytracker.order.dto.OrderResponse;
 import com.example.deliverytracker.order.entity.Order;
+import com.example.deliverytracker.order.entity.OrderOption;
 import com.example.deliverytracker.redis.dto.OrderAcceptedEvent;
 import com.example.deliverytracker.redis.dto.OrderCreatedEvent;
 import com.example.deliverytracker.order.entity.OrderItem;
 import com.example.deliverytracker.order.repository.OrderRepository;
 import com.example.deliverytracker.redis.RedisPublisher;
+import com.example.deliverytracker.store.entity.Option;
 import com.example.deliverytracker.store.entity.Product;
 import com.example.deliverytracker.store.entity.Store;
+import com.example.deliverytracker.store.repository.OptionRepository;
 import com.example.deliverytracker.store.repository.ProductRepository;
 import com.example.deliverytracker.store.repository.StoreRepository;
 import com.example.deliverytracker.store.service.BlacklistService;
@@ -53,6 +56,8 @@ public class OrderService {
     private final ProductService productService;
 
     private final BlacklistService blacklistService;
+
+    private final OptionRepository optionRepository;
 
     @Transactional
     public void createOrder(OrderCreateRequest request, User user, Long userCouponId){
@@ -96,8 +101,32 @@ public class OrderService {
                     .imageUrl(product.getImageUrl())
                     .build();
 
+            BigDecimal itemOptionsTotalPrice = BigDecimal.ZERO;
+
+            if (item.getOptionIds() != null && !item.getOptionIds().isEmpty()) {
+                List<Option> selectedOptions = optionRepository.findAllByIdIn(item.getOptionIds());
+
+                for (Option opt : selectedOptions) {
+                    OrderOption orderOption = OrderOption.builder()
+                            .name(opt.getName())
+                            .price(opt.getAdditionalPrice())
+                            .orderItem(orderItem)
+                            .build();
+
+
+                    orderItem.getOrderOptions().add(orderOption);
+
+                    itemOptionsTotalPrice = itemOptionsTotalPrice.add(opt.getAdditionalPrice());
+                }
+            }
+
+            BigDecimal itemFinalPrice = product.getPrice().add(itemOptionsTotalPrice)
+                    .multiply(BigDecimal.valueOf(item.getQuantity()));
+
             orderItems.add(orderItem);
         }
+
+
 
         if (userCouponId != null) {
             discountAmount = couponService.validateAndUseCoupon(userCouponId, user, totalPrice.intValue());

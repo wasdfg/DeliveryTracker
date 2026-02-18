@@ -28,9 +28,12 @@ public class OrderCreateRequest {
 
     private Coupon coupon;
 
+    private List<Item> orderItems;
+
     @Getter
     public static class Item {
-        private Long productId;  // 기존 name → productId
+        private Long productId;
         private int quantity;
+        private List<Long> optionIds;
     }
 }
