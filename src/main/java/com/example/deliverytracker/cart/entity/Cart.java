@@ -1,5 +1,6 @@
 package com.example.deliverytracker.cart.entity;
 
+import com.example.deliverytracker.common.BaseEntity;
 import com.example.deliverytracker.user.entitiy.User;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
@@ -19,7 +20,7 @@ import java.util.List;
 @Entity
 @Getter
 @NoArgsConstructor
-public class Cart {
+public class Cart extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -30,6 +31,9 @@ public class Cart {
 
     @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CartItem> cartItems = new ArrayList<>();
+
+    @OneToMany(mappedBy = "cartItem", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<CartOption> cartOptions = new ArrayList<>();
 
     public Cart(User user) {
         this.user = user;

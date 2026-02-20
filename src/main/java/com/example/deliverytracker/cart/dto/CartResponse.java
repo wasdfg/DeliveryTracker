@@ -7,21 +7,21 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class CartResponseDto {
+public class CartResponse {
     private Long cartId;
-    private List<CartItemResponseDto> cartItems;
+    private List<CartItemResponse> cartItems;
     private BigDecimal totalPrice;
 
-    public CartResponseDto() {
+    public CartResponse() {
         this.cartId = null;
         this.cartItems = Collections.emptyList(); // 비어있는 리스트
         this.totalPrice = BigDecimal.ZERO;
     }
 
-    public CartResponseDto(Cart cart) {
+    public CartResponse(Cart cart) {
         this.cartId = cart.getId();
         this.cartItems = cart.getCartItems().stream()
-                .map(CartItemResponseDto::new)
+                .map(CartItemResponse::new)
                 .collect(Collectors.toList());
         this.totalPrice = calculateTotalPrice();
     }

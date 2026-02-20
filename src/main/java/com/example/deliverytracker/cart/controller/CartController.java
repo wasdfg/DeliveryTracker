@@ -1,8 +1,8 @@
 package com.example.deliverytracker.cart.controller;
 
-import com.example.deliverytracker.cart.dto.CartItemRequestDto;
-import com.example.deliverytracker.cart.dto.CartItemUpdateRequestDto;
-import com.example.deliverytracker.cart.dto.CartResponseDto;
+import com.example.deliverytracker.cart.dto.CartItemRequest;
+import com.example.deliverytracker.cart.dto.CartItemUpdateRequest;
+import com.example.deliverytracker.cart.dto.CartResponse;
 import com.example.deliverytracker.cart.service.CartService;
 import com.example.deliverytracker.user.entitiy.User;
 import com.example.deliverytracker.user.entitiy.UserDetailsImpl;
@@ -27,7 +27,7 @@ public class CartController {
     private final CartService cartService;
 
     @PostMapping("/items")
-    public ResponseEntity<String> addItemToCart(@AuthenticationPrincipal UserDetailsImpl userDetails, @Valid @RequestBody CartItemRequestDto requestDto) {
+    public ResponseEntity<String> addItemToCart(@AuthenticationPrincipal UserDetailsImpl userDetails, @Valid @RequestBody CartItemRequest requestDto) {
 
         User user = userDetails.getUser();
 
@@ -37,17 +37,17 @@ public class CartController {
     }
 
     @GetMapping
-    public ResponseEntity<CartResponseDto> getCart(
+    public ResponseEntity<CartResponse> getCart(
             @AuthenticationPrincipal UserDetailsImpl userDetails) {
 
         User user = userDetails.getUser();
-        CartResponseDto cartResponseDto = cartService.getCart(user);
+        CartResponse cartResponseDto = cartService.getCart(user);
 
         return ResponseEntity.ok(cartResponseDto);
     }
 
     @PatchMapping("/items/{cartItemId}")
-    public ResponseEntity<String> updateCartItemQuantity(@AuthenticationPrincipal UserDetailsImpl userDetails, @PathVariable Long cartItemId, @Valid @RequestBody CartItemUpdateRequestDto requestDto){
+    public ResponseEntity<String> updateCartItemQuantity(@AuthenticationPrincipal UserDetailsImpl userDetails, @PathVariable Long cartItemId, @Valid @RequestBody CartItemUpdateRequest requestDto){
 
         User user = userDetails.getUser();
 
