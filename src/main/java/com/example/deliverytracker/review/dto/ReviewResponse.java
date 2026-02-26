@@ -5,6 +5,7 @@ import lombok.Getter;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Getter
 public class ReviewResponse {
@@ -29,23 +30,31 @@ public class ReviewResponse {
 
     public static ReviewResponse from(Review review) {
 
-        List<String> productNames = review.getOrder().getOrderItems().stream()
-                .map(orderItem -> orderItem.getProduct().getName())
+        List<String> productWithOptions = review.getOrder().getOrderItems().stream()
+                .map(orderItem -> {
+                    String productName = orderItem.getProduct().getName();
+
+                    if (orderItem.getOrderOptions() != null && !orderItem.getOrderOptions().isEmpty()) {
+                        String options = orderItem.getOrderOptions().stream()
+                                .map(orderOption -> orderOption.getName())
+                                .collect(Collectors.joining(", "));
+                        return productName + " (" + options + ")";
+                    }
+
+                    return productName;
+                })
                 .toList();
 
-        ReplyResponse reply = null;
-        if (review.getReviewReply() != null) {
-            reply = new ReplyResponse(
-                    review.getReviewReply()
-            );
-        }
+        ReplyResponse reply = (review.getReviewReply() != null)
+                ? new ReplyResponse(review.getReviewReply())
+                : null;
 
         return new ReviewResponse(
                 review.getUser().getNickname(),
                 review.getRating(),
                 review.getContent(),
                 review.getCreatedAt(),
-                productNames,
+                productWithOptions,
                 review.getImageUrl(),
                 reply
         );
