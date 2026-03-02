@@ -260,4 +260,17 @@ public class OrderService {
         order.delete(true);
 
     }
+
+    public Page<OrderHistoryDto> findStoreOrders(Long storeId, Pageable pageable, User user) {
+        Store store = storeRepository.findById(storeId)
+                .orElseThrow(() -> new EntityNotFoundException("가게를 찾을 수 없습니다."));
+
+        if (!store.getOwner().getId().equals(user.getId())) {
+            throw new AccessDeniedException("본인 가게의 주문만 조회할 수 있습니다.");
+        }
+
+        Page<Order> storeOrders = orderRepository.findAllByStoreIdOrderByRequestedAtDesc(storeId, pageable);
+
+        return storeOrders.map(OrderHistoryDto::new);
+    }
 }

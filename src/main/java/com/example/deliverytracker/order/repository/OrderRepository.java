@@ -54,4 +54,6 @@ public interface OrderRepository extends JpaRepository<Order,Long>, OrderReposit
             "ORDER BY count DESC " +
             "LIMIT 5")
     List<MenuStatsDto> findTopMenus(@Param("storeId") Long storeId);
+
+    Page<Order> findAllByStoreIdOrderByRequestedAtDesc(Long storeId, Pageable pageable);
 }

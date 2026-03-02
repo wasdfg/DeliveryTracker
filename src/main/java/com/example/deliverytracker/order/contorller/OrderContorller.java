@@ -77,4 +77,10 @@ public class OrderContorller {
         return ResponseEntity.noContent().build();
     }
 
+    @GetMapping("/owner/stores/{storeId}/orders")
+    public ResponseEntity<Page<OrderHistoryDto>> findStoreOrders(@PathVariable Long storeId, Pageable pageable, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        Page<OrderHistoryDto> response = orderService.findStoreOrders(storeId, pageable, userDetails.getUser());
+        return ResponseEntity.ok(response);
+    }
+
 }
