@@ -12,6 +12,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -33,27 +34,6 @@ public interface OrderRepository extends JpaRepository<Order,Long>, OrderReposit
     Page<Order> findAllByUserOrderByRequestedAtDesc(User user, Pageable pageable);
 
     Page<Order> findAllByUserAndStatusOrderByRequestedAtDesc(User user, Order.Status status, Pageable pageable);
-
-    @Query(value = "SELECT DATE(created_at) as date, SUM(total_price) as totalSales " +
-            "FROM orders " +
-            "WHERE store_id = :storeId " +
-            "AND status != 'CANCELED' " +
-            "AND created_at >= DATE_SUB(NOW(), INTERVAL 7 DAY) " +
-            "GROUP BY DATE(created_at) " +
-            "ORDER BY date ASC", nativeQuery = true)
-    List<DailySalesDto> findDailySales(@Param("storeId") Long storeId);
-
-
-    @Query("SELECT m.name as menuName, SUM(oi.quantity) as count " +
-            "FROM OrderItem oi " +
-            "JOIN oi.menu m " +
-            "JOIN oi.order o " +
-            "WHERE o.store.id = :storeId " +
-            "AND o.status != 'CANCELED' " +
-            "GROUP BY m.name " +
-            "ORDER BY count DESC " +
-            "LIMIT 5")
-    List<MenuStatsDto> findTopMenus(@Param("storeId") Long storeId);
 
     Page<Order> findAllByStoreIdOrderByRequestedAtDesc(Long storeId, Pageable pageable);
 }

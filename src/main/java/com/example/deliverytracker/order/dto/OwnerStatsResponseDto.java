@@ -8,5 +8,6 @@ public record OwnerStatsResponseDto(
         List<HourlyStatsDto> hourlyStats,
         List<DayOfWeekStatsDto> dayOfWeekStats,
         Long totalSales,
-        Long totalOrderCount
+        Long totalOrderCount,
+        Long averageOrderValue
 ) {}
