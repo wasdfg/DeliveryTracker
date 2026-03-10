@@ -13,4 +13,10 @@ public interface OrderRepositoryCustom {
     List<MenuStatsDto> findTopMenus(Long storeId, LocalDateTime start, LocalDateTime end);
     List<HourlyStatsDto> findHourlyStats(Long storeId, LocalDateTime start, LocalDateTime end);
     List<DayOfWeekStatsDto> findDayOfWeekStats(Long storeId, LocalDateTime start, LocalDateTime end);
+
+    long countOrders(Long storeId, LocalDateTime start, LocalDateTime end);
+
+    long countCancelledOrders(Long storeId, LocalDateTime start, LocalDateTime end);
+
+    double calculateRetentionRate(Long storeId, LocalDateTime start, LocalDateTime end);
 }

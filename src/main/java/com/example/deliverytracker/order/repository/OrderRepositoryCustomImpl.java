@@ -93,4 +93,55 @@ public class OrderRepositoryCustomImpl implements OrderRepositoryCustom {
                 .groupBy(order.createdAt.dayOfWeek())
                 .fetch();
     }
+
+    @Override
+    public long countOrders(Long storeId, LocalDateTime start, LocalDateTime end) {
+        return queryFactory
+                .selectFrom(order)
+                .where(order.store.id.eq(storeId), order.createdAt.between(start, end))
+                .fetchCount();
+    }
+
+    @Override
+    public long countCancelledOrders(Long storeId, LocalDateTime start, LocalDateTime end) {
+        return queryFactory
+                .selectFrom(order)
+                .where(
+                        order.store.id.eq(storeId),
+                        order.status.eq(Order.Status.CANCELED),
+                        order.createdAt.between(start, end)
+                )
+                .fetchCount();
+    }
+
+    @Override
+    public double calculateRetentionRate(Long storeId, LocalDateTime start, LocalDateTime end) {
+
+        List<Long> currentOrdererIds = queryFactory
+                .select(order.user.id)
+                .from(order)
+                .where(
+                        order.store.id.eq(storeId),
+                        order.status.eq(Order.Status.COMPLETED),
+                        order.createdAt.between(start, end)
+                )
+                .distinct()
+                .fetch();
+
+        if (currentOrdererIds.isEmpty()) return 0.0;
+
+        long loyalCustomerCount = queryFactory
+                .select(order.user.id)
+                .from(order)
+                .where(
+                        order.store.id.eq(storeId),
+                        order.user.id.in(currentOrdererIds),
+                        order.status.eq(Order.Status.COMPLETED)
+                )
+                .groupBy(order.user.id)
+                .having(order.count().goe(2))
+                .fetchCount();
+
+        return (double) loyalCustomerCount / currentOrdererIds.size() * 100;
+    }
 }

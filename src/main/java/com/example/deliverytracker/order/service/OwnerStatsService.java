@@ -6,6 +6,7 @@ import com.example.deliverytracker.order.dto.HourlyStatsDto;
 import com.example.deliverytracker.order.dto.MenuStatsDto;
 import com.example.deliverytracker.order.repository.OrderRepository;
 import com.example.deliverytracker.order.dto.OwnerStatsResponseDto;
+import com.example.deliverytracker.review.repository.ReviewRepository;
 import com.example.deliverytracker.store.entity.Store;
 import com.example.deliverytracker.store.repository.StoreRepository;
 import com.example.deliverytracker.user.entitiy.User;
@@ -26,6 +27,7 @@ public class OwnerStatsService {
 
     private final OrderRepository orderRepository;
     private final StoreRepository storeRepository;
+    private final ReviewRepository reviewRepository;
 
     public OwnerStatsResponseDto getStats(Long storeId, LocalDate startDate, LocalDate endDate, User user) {
         Store store = storeRepository.findById(storeId)
@@ -44,13 +46,25 @@ public class OwnerStatsService {
         List<DayOfWeekStatsDto> dayOfWeekStats = orderRepository.findDayOfWeekStats(storeId, startDateTime, endDateTime);
 
         long totalSales = dailySales.stream().mapToLong(DailySalesDto::totalSales).sum();
-        long totalOrderCount = hourlyStats.stream().mapToLong(HourlyStatsDto::orderCount).sum();
-
+        long totalOrderCount = orderRepository.countOrders(storeId, startDateTime, endDateTime);
+        long completedOrderCount = hourlyStats.stream().mapToLong(HourlyStatsDto::orderCount).sum();
         long averageOrderValue = totalOrderCount > 0 ? (totalSales / totalOrderCount) : 0;
+
+        long cancelledCount = orderRepository.countCancelledOrders(storeId, startDateTime, endDateTime);
+        double cancellationRate = totalOrderCount > 0 ? (double) cancelledCount / totalOrderCount * 100 : 0;
+
+        double customerRetentionRate = orderRepository.calculateRetentionRate(storeId, startDateTime, endDateTime);
+
+        Double averageRating = reviewRepository.findAverageRatingByStoreId(storeId, startDateTime, endDateTime);
+        double replyRate = reviewRepository.calculateReplyRate(storeId, startDateTime, endDateTime);
 
         return new OwnerStatsResponseDto(
                 dailySales, topMenus, hourlyStats, dayOfWeekStats,
-                totalSales, totalOrderCount, averageOrderValue
+                totalSales, completedOrderCount, averageOrderValue,
+                customerRetentionRate, cancellationRate,
+                averageRating != null ? averageRating : 0.0,
+                replyRate,
+                startDate, endDate
         );
     }
 }
