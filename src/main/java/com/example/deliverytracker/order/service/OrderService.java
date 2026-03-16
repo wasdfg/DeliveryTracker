@@ -1,6 +1,7 @@
 package com.example.deliverytracker.order.service;
 
 import com.example.deliverytracker.coupon.service.CouponService;
+import com.example.deliverytracker.notification.service.NotificationService;
 import com.example.deliverytracker.order.dto.OrderCreateRequest;
 import com.example.deliverytracker.order.dto.OrderHistoryDto;
 import com.example.deliverytracker.order.dto.OrderResponse;
@@ -58,6 +59,8 @@ public class OrderService {
     private final BlacklistService blacklistService;
 
     private final OptionRepository optionRepository;
+
+    private final NotificationService notificationService;
 
     @Transactional
     public void createOrder(OrderCreateRequest request, User user, Long userCouponId){
@@ -165,6 +168,8 @@ public class OrderService {
         OrderCreatedEvent event = new OrderCreatedEvent(order.getId(), order.getStore().getId());
 
         redisPublisher.publish("order-channel", new OrderCreatedEvent(order.getId(), store.getId()));
+
+        notificationService.sendNewOrderNotification(order.getStore().getId(), order.getId());
 
     }
 

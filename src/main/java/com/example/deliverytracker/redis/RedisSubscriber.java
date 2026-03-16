@@ -23,7 +23,7 @@ public class RedisSubscriber implements MessageListener {
 
     private final UserRepository userRepository;
     private final ObjectMapper objectMapper;
-    private final NotificationService notificationService;
+    private final RedisNotificationService notificationService;
     private final SimpMessagingTemplate messagingTemplate;
 
     @Override

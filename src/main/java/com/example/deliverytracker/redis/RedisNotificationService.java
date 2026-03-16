@@ -7,7 +7,7 @@ import com.google.firebase.messaging.Notification;
 import org.springframework.stereotype.Service;
 
 @Service
-public class NotificationService {
+public class RedisNotificationService {
     public void sendNotification(String fcmToken, String title, String body) {
 
         if (fcmToken == null || fcmToken.isEmpty()) {
