@@ -228,10 +228,11 @@ public class OrderService {
 
         order.changeStatus(newStatus);
 
-        if(newStatus.equals(Order.Status.REQUESTED)){
-            OrderAcceptedEvent event = new OrderAcceptedEvent(order.getId(), order.getUser().getId());
-            redisPublisher.publish("order-channel", event);
-        }
+        notificationService.notifyOrderStatusChanged(
+                order.getId(),
+                order.getUser().getId(),
+                newStatus
+        );
     }
 
     @Transactional
