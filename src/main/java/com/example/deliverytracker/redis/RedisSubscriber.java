@@ -79,9 +79,9 @@ public class RedisSubscriber implements MessageListener {
     private String createMessageForStatus(Order.Status status) {
 
         switch (status) {
-            case REQUESTED: return "가게에서 주문을 확인 중입니다.";
+            case ACCEPTED: return "가게에서 주문을 확인 중입니다.";
             case PREPARING: return "주문하신 음식이 조리되기 시작했습니다!";
-            case SHIPPING: return "배달이 시작되었습니다! 🏍️";
+            case DELIVERING: return "배달이 시작되었습니다! 🏍️";
             case COMPLETED: return "배달이 완료되었습니다. 맛있게 드세요! 😋";
             case CANCELED: return "주문이 취소되었습니다.";
             default: return "주문 상태가 업데이트되었습니다.";

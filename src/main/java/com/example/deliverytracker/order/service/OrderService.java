@@ -152,7 +152,7 @@ public class OrderService {
                 .deliveryLongitude(coords.getLongitude()) // 변환된 경도 저장
                 .requestedAt(LocalDateTime.now())
                 .estimatedDeliveryTime(store.getCurrentDeliveryTime().getDescription())
-                .status(Order.Status.REQUESTED)
+                .status(Order.Status.ACCEPTED)
                 .totalPrice(finalPrice)
                 .orderItems(orderItems)
                 .build();
@@ -169,7 +169,7 @@ public class OrderService {
 
         redisPublisher.publish("order-channel", new OrderCreatedEvent(order.getId(), store.getId()));
 
-        notificationService.sendNewOrderNotification(order.getStore().getId(), order.getId());
+        notificationService.sendNewOrderNotification(order.getStore().getId(), user.getId(),order.getId());
 
     }
 

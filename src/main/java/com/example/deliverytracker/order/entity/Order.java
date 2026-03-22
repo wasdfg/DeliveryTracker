@@ -91,10 +91,10 @@ public class Order extends BaseEntity {
     private List<OrderItem> orderItems = new ArrayList<>();
 
     public enum Status {
-        REQUESTED,     // 주문 요청됨
+        ACCEPTED,     // 주문 요청됨
         PREPARING,          // 음식 조리 중
         READY_FOR_PICKUP,   // 라이더 픽업 대기
-        SHIPPING,           // 배달 중
+        DELIVERING,           // 배달 중
         COMPLETED,          // 배달완료
         CANCELED            // 주문 취소
     }
