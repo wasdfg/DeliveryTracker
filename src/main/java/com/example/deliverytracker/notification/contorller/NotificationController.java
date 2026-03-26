@@ -41,4 +41,10 @@ public class NotificationController {
         Long count = notificationService.getUnreadNotificationCount(userId);
         return ResponseEntity.ok(count);
     }
+
+    @PatchMapping("/read-all")
+    public ResponseEntity<Void> readAllNotifications(@AuthenticationPrincipal UserDetailsImpl user) {
+        notificationService.readAllNotifications(user.getUser().getId());
+        return ResponseEntity.noContent().build();
+    }
 }

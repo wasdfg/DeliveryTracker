@@ -89,4 +89,12 @@ public class NotificationService {
     public Long getUnreadNotificationCount(Long userId) {
         return notificationRepository.countByReceiverIdAndIsReadFalse(userId);
     }
+
+    @Transactional
+    public void readAllNotifications(Long userId) {
+        List<Notification> unreadNotifications = notificationRepository.findAllByReceiverIdAndIsReadFalse(userId);
+
+        unreadNotifications.forEach(Notification::markAsRead);
+
+    }
 }
