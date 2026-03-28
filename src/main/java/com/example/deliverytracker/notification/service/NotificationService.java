@@ -10,6 +10,7 @@ import com.example.deliverytracker.order.entity.OrderStatusChangedEvent;
 import com.example.deliverytracker.redis.RedisPublisher;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
@@ -96,5 +97,17 @@ public class NotificationService {
 
         unreadNotifications.forEach(Notification::markAsRead);
 
+    }
+
+    @Transactional
+    public void deleteNotification(Long notificationId, Long userId) {
+        Notification notification = notificationRepository.findById(notificationId)
+                .orElseThrow(() -> new EntityNotFoundException("알림을 찾을 수 없습니다."));
+
+        if (!notification.getReceiverId().equals(userId)) {
+            throw new AccessDeniedException("삭제 권한이 없습니다.");
+        }
+
+        notificationRepository.delete(notification);
     }
 }
