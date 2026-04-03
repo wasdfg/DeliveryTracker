@@ -1,6 +1,7 @@
 package com.example.deliverytracker.order.contorller;
 
 
+import com.example.deliverytracker.order.dto.CancelOrderRequest;
 import com.example.deliverytracker.order.dto.OrderCreateRequest;
 import com.example.deliverytracker.order.dto.OrderHistoryDto;
 import com.example.deliverytracker.order.dto.OrderResponse;
@@ -62,9 +63,9 @@ public class OrderContorller {
     }
 
     @PatchMapping("/{orderId}/cancel")
-    public ResponseEntity<?> cancelOrder(@PathVariable Long orderId,@AuthenticationPrincipal UserDetailsImpl userDetails) {
+    public ResponseEntity<?> cancelOrder(@PathVariable Long orderId,@AuthenticationPrincipal UserDetailsImpl userDetails,@RequestBody CancelOrderRequest request) {
 
-        orderService.cancelOrder(orderId,userDetails.getUser());
+        orderService.cancelOrder(orderId,userDetails.getUser(),request.getReason());
 
         return ResponseEntity.ok().build();
     }

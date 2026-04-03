@@ -6,7 +6,9 @@ import com.example.deliverytracker.order.dto.OrderCreateRequest;
 import com.example.deliverytracker.order.dto.OrderHistoryDto;
 import com.example.deliverytracker.order.dto.OrderResponse;
 import com.example.deliverytracker.order.entity.Order;
+import com.example.deliverytracker.order.entity.OrderHistory;
 import com.example.deliverytracker.order.entity.OrderOption;
+import com.example.deliverytracker.order.repository.OrderHistoryRepository;
 import com.example.deliverytracker.redis.dto.OrderAcceptedEvent;
 import com.example.deliverytracker.redis.dto.OrderCreatedEvent;
 import com.example.deliverytracker.order.entity.OrderItem;
@@ -61,6 +63,8 @@ public class OrderService {
     private final OptionRepository optionRepository;
 
     private final NotificationService notificationService;
+
+    private final OrderHistoryRepository orderHistoryRepository;
 
     @Transactional
     public void createOrder(OrderCreateRequest request, User user, Long userCouponId){
@@ -157,7 +161,13 @@ public class OrderService {
                 .orderItems(orderItems)
                 .build();
 
-
+        OrderHistory history = OrderHistory.builder()
+                .order(order)
+                .previousStatus(Order.Status.ACCEPTED)
+                .newStatus(Order.Status.PREPARING)
+                .changedBy("OWNER")
+                .reason(null)
+                .build();
 
         for (OrderItem item : orderItems) {
             item.assignOrder(order);
@@ -236,7 +246,7 @@ public class OrderService {
     }
 
     @Transactional
-    public void cancelOrder(Long orderId, User user){
+    public void cancelOrder(Long orderId, User user,String reason){
 
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new EntityNotFoundException("주문을 찾을 수 없습니다."));
@@ -251,6 +261,14 @@ public class OrderService {
         }
 
         order.cancel(Order.Status.CANCELED);
+
+        OrderHistory history = OrderHistory.builder()
+                .order(order)
+                .previousStatus(order.getStatus())
+                .newStatus(Order.Status.CANCELED)
+                .changedBy("OWNER")
+                .reason(reason)
+                .build();
     }
 
     @Transactional
