@@ -30,15 +30,14 @@ public class StoreRepositoryCustomImpl implements StoreRepositoryCustom {
 
         List<Store> content = queryFactory
                 .selectFrom(store)
-                // ⚠️ 주의: store.category가 Entity(테이블) 관계일 때만 join 사용
-                // store.category가 단순 Enum이라면 .leftJoin... 부분 삭제 필요
                 .leftJoin(store.category, category).fetchJoin()
                 .where(
-                        // 👇 DTO의 'keyword' 필드를 가게 이름 검색에 사용
-                        storeNameContains(condition.getKeyword()),
-                        // 👇 DTO의 'categoryName' (또는 category) 필드 사용
-                        categoryEq(condition.getCategory())
+                        keywordLike(condition.getKeyword()),
+                        categoryIdEq(condition.getCategoryId()),
+                        minOrderAmountLoe(condition.getMinOrderAmount()),
+                        deliveryFeeLoe(condition.getDeliveryFee())
                 )
+                .orderBy(store.id.desc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetch();
@@ -47,23 +46,32 @@ public class StoreRepositoryCustomImpl implements StoreRepositoryCustom {
                 .select(store.count())
                 .from(store)
                 .where(
-                        storeNameContains(condition.getKeyword()),
-                        categoryEq(condition.getCategory())
+                        keywordLike(condition.getKeyword()),
+                        categoryIdEq(condition.getCategoryId()),
+                        minOrderAmountLoe(condition.getMinOrderAmount()),
+                        deliveryFeeLoe(condition.getDeliveryFee())
                 );
 
         return PageableExecutionUtils.getPage(content, pageable, countQuery::fetchOne);
     }
     
-    private BooleanExpression storeNameContains(String keyword) {
-        return StringUtils.hasText(keyword) ? store.name.contains(keyword) : null;
-    }
-
-    private BooleanExpression categoryEq(String categoryName) {
-        if (!StringUtils.hasText(categoryName) || categoryName.equals("전체")) {
+    private BooleanExpression keywordLike(String keyword) {
+        if (!StringUtils.hasText(keyword)) {
             return null;
         }
 
-        return store.category.name.eq(categoryName);
+        return store.name.contains(keyword);
+    }
 
+    private BooleanExpression categoryIdEq(Long categoryId) {
+        return categoryId != null ? store.category.id.eq(categoryId) : null;
+    }
+
+    private BooleanExpression minOrderAmountLoe(Integer minOrderAmount) {
+        return minOrderAmount != null ? store.minOrderAmount.loe(minOrderAmount) : null;
+    }
+
+    private BooleanExpression deliveryFeeLoe(Integer deliveryFee) {
+        return deliveryFee != null ? store.deliveryFee.loe(deliveryFee) : null;
     }
 }

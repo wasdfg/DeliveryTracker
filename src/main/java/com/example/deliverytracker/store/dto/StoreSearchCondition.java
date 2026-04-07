@@ -15,7 +15,5 @@ public class StoreSearchCondition {
 
     private Integer deliveryFee;
 
-    private String storeName;
-
-    private String category;
+    //카데고리 가게 유사명도 나오도록 조회
 }
