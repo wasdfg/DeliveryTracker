@@ -85,13 +85,16 @@ public class Order extends BaseEntity {
     @Column(name = "estimated_delivery_time")
     private String estimatedDeliveryTime;
 
+    private String cancellationReason;
+
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     @BatchSize(size = 100)
     @Builder.Default
     private List<OrderItem> orderItems = new ArrayList<>();
 
     public enum Status {
-        ACCEPTED,     // 주문 요청됨
+        PENDING,            // 신규 주문
+        ACCEPTED,     // 주문 접수됨
         PREPARING,          // 음식 조리 중
         READY_FOR_PICKUP,   // 라이더 픽업 대기
         DELIVERING,           // 배달 중
@@ -116,5 +119,15 @@ public class Order extends BaseEntity {
 
     public void delete(boolean deleted){
         this.deleted = deleted;
+    }
+
+    public void cancelBySystem(String cancellationReason) {
+        this.status = Order.Status.CANCELED;
+
+        this.cancellationReason = cancellationReason;
+    }
+
+    public void completeBySystem() {
+        this.status = Order.Status.COMPLETED;
     }
 }

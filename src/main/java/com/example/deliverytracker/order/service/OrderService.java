@@ -156,15 +156,15 @@ public class OrderService {
                 .deliveryLongitude(coords.getLongitude()) // 변환된 경도 저장
                 .requestedAt(LocalDateTime.now())
                 .estimatedDeliveryTime(store.getCurrentDeliveryTime().getDescription())
-                .status(Order.Status.ACCEPTED)
+                .status(Order.Status.PENDING)
                 .totalPrice(finalPrice)
                 .orderItems(orderItems)
                 .build();
 
         OrderHistory history = OrderHistory.builder()
                 .order(order)
-                .previousStatus(Order.Status.ACCEPTED)
-                .newStatus(Order.Status.PREPARING)
+                .previousStatus(Order.Status.PENDING)
+                .newStatus(Order.Status.ACCEPTED)
                 .changedBy("OWNER")
                 .reason(null)
                 .build();
@@ -175,7 +175,7 @@ public class OrderService {
 
         orderRepository.save(order);
 
-        OrderCreatedEvent event = new OrderCreatedEvent(order.getId(), order.getStore().getId());
+        orderHistoryRepository.save(history);
 
         redisPublisher.publish("order-channel", new OrderCreatedEvent(order.getId(), store.getId()));
 
@@ -269,6 +269,8 @@ public class OrderService {
                 .changedBy("OWNER")
                 .reason(reason)
                 .build();
+
+        orderHistoryRepository.save(history);
     }
 
     @Transactional
@@ -296,5 +298,40 @@ public class OrderService {
         Page<Order> storeOrders = orderRepository.findAllByStoreIdOrderByRequestedAtDesc(storeId, pageable);
 
         return storeOrders.map(OrderHistoryDto::new);
+    }
+
+    public void autoCancelUnacceptedOrders() {
+
+        LocalDateTime thresholdTime = LocalDateTime.now().minusMinutes(10);
+
+        List<Order> unacceptedOrders = orderRepository.findByStatusAndCreatedAtBefore(
+                Order.Status.PENDING, thresholdTime
+        );
+
+        if (unacceptedOrders.isEmpty()) return;
+
+        for (Order order : unacceptedOrders) {
+            order.cancelBySystem("시스템 자동 취소: 가게 미접수 (10분 경과)");
+        }
+
+        // Dirty Checking으로 인해 별도의 save 호출 없이 트랜잭션 종료 시 자동 UPDATE 쿼리 발생
+        log.info("가게 미접수 자동 취소 처리 완료: {}건", unacceptedOrders.size());
+    }
+
+    @Transactional
+    public void autoCompleteDeliveringOrders() {
+        LocalDateTime thresholdTime = LocalDateTime.now().minusHours(2);
+
+        List<Order> deliveringOrders = orderRepository.findByStatusAndCreatedAtBefore(
+                Order.Status.DELIVERING, thresholdTime
+        );
+
+        if (deliveringOrders.isEmpty()) return;
+
+        for (Order order : deliveringOrders) {
+            order.completeBySystem();
+        }
+
+        log.info("배달 중 장기 체류 주문 자동 완료 처리: {}건", deliveringOrders.size());
     }
 }

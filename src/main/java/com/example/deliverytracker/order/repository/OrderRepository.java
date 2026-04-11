@@ -36,4 +36,6 @@ public interface OrderRepository extends JpaRepository<Order,Long>, OrderReposit
     Page<Order> findAllByUserAndStatusOrderByRequestedAtDesc(User user, Order.Status status, Pageable pageable);
 
     Page<Order> findAllByStoreIdOrderByRequestedAtDesc(Long storeId, Pageable pageable);
+
+    List<Order> findByStatusAndCreatedAtBefore(Order.Status status, LocalDateTime time);
 }
