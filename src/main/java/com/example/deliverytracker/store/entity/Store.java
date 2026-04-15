@@ -71,6 +71,8 @@ public class Store {
 
     private int reviewCount = 0;
 
+    private long totalRatingSum = 0;
+
     @Column(nullable = false)
     private boolean isManualClosed = false;
 
@@ -161,5 +163,11 @@ public class Store {
                 .findFirst()
                 .map(ot -> !ot.isDayOff() && !now.isBefore(ot.getOpenTime()) && !now.isAfter(ot.getCloseTime()))
                 .orElse(false);
+    }
+
+    public void addRating(int rating) {
+        this.reviewCount++;
+        this.totalRatingSum += rating;
+        this.averageRating = (double) totalRatingSum / reviewCount;
     }
 }

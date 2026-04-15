@@ -117,6 +117,29 @@ public class Order extends BaseEntity {
         this.status = newStatus;
     }
 
+    public void updateStatus(Status nextStatus) {
+        if (this.status == Status.CANCELED || this.status == Status.COMPLETED) {
+            throw new IllegalStateException("이미 종료된 주문은 상태를 변경할 수 없습니다.");
+        }
+
+        boolean isValid = switch (this.status) {
+            case PENDING -> nextStatus == Status.ACCEPTED || nextStatus == Status.CANCELED;
+            case ACCEPTED -> nextStatus == Status.PREPARING || nextStatus == Status.CANCELED;
+            case PREPARING -> nextStatus == Status.READY_FOR_PICKUP;
+            case READY_FOR_PICKUP -> nextStatus == Status.DELIVERING;
+            case DELIVERING -> nextStatus == Status.COMPLETED;
+            default -> false;
+        };
+
+        if (!isValid) {
+            throw new IllegalStateException(
+                    String.format("[%s] 상태에서 [%s] 상태로 변경할 수 없습니다.", this.status, nextStatus)
+            );
+        }
+
+        this.status = nextStatus;
+    }
+
     public void delete(boolean deleted){
         this.deleted = deleted;
     }

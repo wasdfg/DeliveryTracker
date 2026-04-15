@@ -236,6 +236,8 @@ public class OrderService {
             throw new IllegalArgumentException("유효하지 않은 주문 상태입니다: " + statusStr);
         }
 
+        order.updateStatus(newStatus);
+
         order.changeStatus(newStatus);
 
         notificationService.notifyOrderStatusChanged(
@@ -314,7 +316,6 @@ public class OrderService {
             order.cancelBySystem("시스템 자동 취소: 가게 미접수 (10분 경과)");
         }
 
-        // Dirty Checking으로 인해 별도의 save 호출 없이 트랜잭션 종료 시 자동 UPDATE 쿼리 발생
         log.info("가게 미접수 자동 취소 처리 완료: {}건", unacceptedOrders.size());
     }
 
