@@ -25,4 +25,14 @@ public class Coupon {
 
     @Column(unique = true)
     private String code;
+
+    private int totalQuantity;
+    private int issuedQuantity;
+
+    public void issue() {
+        if (issuedQuantity >= totalQuantity) {
+            throw new IllegalStateException("쿠폰이 모두 소진되었습니다.");
+        }
+        this.issuedQuantity++;
+    }
 }

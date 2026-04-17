@@ -9,7 +9,6 @@ import com.example.deliverytracker.order.entity.Order;
 import com.example.deliverytracker.order.entity.OrderHistory;
 import com.example.deliverytracker.order.entity.OrderOption;
 import com.example.deliverytracker.order.repository.OrderHistoryRepository;
-import com.example.deliverytracker.redis.dto.OrderAcceptedEvent;
 import com.example.deliverytracker.redis.dto.OrderCreatedEvent;
 import com.example.deliverytracker.order.entity.OrderItem;
 import com.example.deliverytracker.order.repository.OrderRepository;
@@ -133,10 +132,8 @@ public class OrderService {
             orderItems.add(orderItem);
         }
 
-
-
         if (userCouponId != null) {
-            discountAmount = couponService.validateAndUseCoupon(userCouponId, user, totalPrice.intValue());
+            discountAmount = couponService.useCoupon(user.getId(), userCouponId);
         }
 
         BigDecimal finalPrice = totalPrice.subtract(BigDecimal.valueOf(discountAmount));
