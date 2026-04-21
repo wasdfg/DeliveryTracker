@@ -47,7 +47,7 @@ public class CartController {
     }
 
     @PatchMapping("/items/{cartItemId}")
-    public ResponseEntity<String> updateCartItemQuantity(@AuthenticationPrincipal UserDetailsImpl userDetails, @PathVariable Long cartItemId, @Valid @RequestBody CartItemUpdateRequest requestDto){
+    public ResponseEntity<String> updateCartItemQuantity(@AuthenticationPrincipal UserDetailsImpl userDetails, @PathVariable String cartItemId, @Valid @RequestBody CartItemUpdateRequest requestDto){
 
         User user = userDetails.getUser();
 
