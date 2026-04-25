@@ -57,7 +57,7 @@ public class CartController {
     }
 
     @DeleteMapping("/items/{cartItemId}")
-    public ResponseEntity<String> removeCartItem(@AuthenticationPrincipal UserDetailsImpl userDetails, @PathVariable Long cartItemId){
+    public ResponseEntity<String> removeCartItem(@AuthenticationPrincipal UserDetailsImpl userDetails, @PathVariable String cartItemId){
 
         User user = userDetails.getUser();
 

@@ -16,13 +16,12 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -33,8 +32,6 @@ public class CartService {
     private final RedisTemplate<String, Object> redisTemplate;
 
     private final ProductRepository productRepository;
-
-    private final CartItemRepository cartItemRepository;
 
     private final OptionRepository optionRepository;
 
@@ -58,8 +55,10 @@ public class CartService {
 
             List<RedisCartOption> redisOptions = fetchAndMapOptions(request.getOptionIds());
 
+            BigDecimal deliveryFee = BigDecimal.valueOf(product.getStore().getDeliveryFee());
+
             RedisCartItem newItem = new RedisCartItem(
-                    cartItemId, product.getId(), product.getName(), product.getPrice(), request.getQuantity(), redisOptions
+                    cartItemId, product.getId(), product.getName(), product.getImageUrl(), product.getStore().getId(),deliveryFee,product.getStore().getMinOrderAmount(),product.getPrice(), request.getQuantity(), redisOptions
             );
             hashOps.put(redisKey, cartItemId, newItem);
         }
@@ -109,16 +108,17 @@ public class CartService {
     }
 
     @Transactional
-    public void removeCartItem(User user, Long cartItemId){
+    public void removeCartItem(User user, String cartItemId){
 
-        CartItem cartItem = cartItemRepository.findById(cartItemId)
-                .orElseThrow(() -> new EntityNotFoundException("해당 장바구니 아이템을 찾을 수 없습니다."));
+        String redisKey = CART_KEY_PREFIX + user.getId();
 
-        if (!cartItem.getCart().getUser().getId().equals(user.getId())) {
-            throw new AccessDeniedException("해당 아이템에 대한 권한이 없습니다.");
+        HashOperations<String, String, RedisCartItem> hashOps = redisTemplate.opsForHash();
+
+        if (!hashOps.hasKey(redisKey, cartItemId)) {
+            throw new IllegalArgumentException("해당 장바구니 아이템을 찾을 수 없습니다.");
         }
 
-        cartItemRepository.delete(cartItem);
+        hashOps.delete(redisKey, cartItemId);
     }
 
     private String generateCartItemId(Long productId, List<Long> optionIds) {
