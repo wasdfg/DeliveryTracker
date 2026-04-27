@@ -2,6 +2,8 @@ package com.example.deliverytracker.favorite.contorller;
 
 import com.example.deliverytracker.favorite.service.FavoriteService;
 import com.example.deliverytracker.store.dto.StoreDetailResponse;
+import com.example.deliverytracker.store.dto.StoreResponse;
+import com.example.deliverytracker.user.entitiy.User;
 import com.example.deliverytracker.user.entitiy.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -17,35 +19,27 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/favorites")
 @RequiredArgsConstructor
 public class FavoriteController {
 
     private final FavoriteService favoriteService;
 
-    @PostMapping("/stores/{storeId}/favorite")
-    public ResponseEntity<String> addFavorite(
-            @PathVariable Long storeId,
-            @AuthenticationPrincipal UserDetailsImpl userDetails) {
-
-        favoriteService.addFavorite(userDetails.getUser(), storeId);
-        return ResponseEntity.status(HttpStatus.CREATED).body("가게를 찜했습니다.");
+    @GetMapping("/my")
+    public ResponseEntity<List<StoreResponse>> getMyFavorites(@AuthenticationPrincipal UserDetailsImpl user) {
+        List<StoreResponse> favorites = favoriteService.getMyFavorites(user.getUser());
+        return ResponseEntity.ok(favorites);
     }
 
-    @DeleteMapping("/stores/{storeId}/favorite")
-    public ResponseEntity<Void> removeFavorite(
-            @PathVariable Long storeId,
-            @AuthenticationPrincipal UserDetailsImpl userDetails) {
-
-        favoriteService.removeFavorite(userDetails.getUser(), storeId);
-        return ResponseEntity.noContent().build();
+    @PostMapping("/{storeId}")
+    public ResponseEntity<Void> addFavorite(@AuthenticationPrincipal UserDetailsImpl user, @PathVariable Long storeId) {
+        favoriteService.addFavorite(user.getUser(), storeId);
+        return ResponseEntity.ok().build();
     }
 
-    @GetMapping("/users/me/favorites")
-    public ResponseEntity<List<StoreDetailResponse>> getFavoriteStores(
-            @AuthenticationPrincipal UserDetailsImpl userDetails) {
-
-        List<StoreDetailResponse> favoriteStores = favoriteService.getFavoriteStores(userDetails.getUser());
-        return ResponseEntity.ok(favoriteStores);
+    @DeleteMapping("/{storeId}")
+    public ResponseEntity<Void> removeFavorite(@AuthenticationPrincipal UserDetailsImpl user, @PathVariable Long storeId) {
+        favoriteService.removeFavorite(user.getUser(), storeId);
+        return ResponseEntity.ok().build();
     }
 }

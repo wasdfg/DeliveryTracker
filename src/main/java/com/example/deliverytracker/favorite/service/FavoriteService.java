@@ -3,6 +3,7 @@ package com.example.deliverytracker.favorite.service;
 import com.example.deliverytracker.favorite.entity.Favorite;
 import com.example.deliverytracker.favorite.repository.FavoriteRepository;
 import com.example.deliverytracker.store.dto.StoreDetailResponse;
+import com.example.deliverytracker.store.dto.StoreResponse;
 import com.example.deliverytracker.store.entity.Store;
 import com.example.deliverytracker.store.repository.StoreRepository;
 import com.example.deliverytracker.user.entitiy.User;
@@ -22,6 +23,12 @@ public class FavoriteService {
     private final FavoriteRepository favoriteRepository;
 
     private final StoreRepository storeRepository;
+
+    public List<StoreResponse> getMyFavorites(User user) {
+        return favoriteRepository.findAllByUserIdWithStore(user.getId()).stream()
+                .map(favorite -> new StoreResponse())
+                .collect(Collectors.toList());
+    }
 
     @Transactional
     public void addFavorite(User user, Long storeId) {
@@ -45,14 +52,5 @@ public class FavoriteService {
                 .orElseThrow(() -> new EntityNotFoundException("찜한 내역을 찾을 수 없습니다."));
 
         favoriteRepository.delete(favorite);
-    }
-
-    public List<StoreDetailResponse> getFavoriteStores(User user) {
-        List<Favorite> favorites = favoriteRepository.findAllByUser(user);
-
-        return favorites.stream()
-                .map(Favorite::getStore) 
-                .map(StoreDetailResponse::from)
-                .collect(Collectors.toList());
     }
 }
