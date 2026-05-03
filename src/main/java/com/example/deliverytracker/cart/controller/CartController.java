@@ -65,4 +65,10 @@ public class CartController {
 
         return ResponseEntity.ok("장바구니에 상품을 삭제하였습니다.");
     }
+    
+    @DeleteMapping("/clear")
+    public ResponseEntity<Void> clearCart(@AuthenticationPrincipal User user) {
+        cartService.clearCart(user);
+        return ResponseEntity.ok().build();
+    }
 }

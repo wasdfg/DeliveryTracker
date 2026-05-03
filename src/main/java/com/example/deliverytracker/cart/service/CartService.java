@@ -22,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -41,24 +42,37 @@ public class CartService {
     public void addItemToCart(User user, CartItemRequest request) {
         String redisKey = CART_KEY_PREFIX + user.getId();
 
+        HashOperations<String, String, RedisCartItem> hashOps = redisTemplate.opsForHash();
+
+        Product product = productRepository.findById(request.getProductId())
+                .orElseThrow(() -> new EntityNotFoundException("상품을 찾을 수 없습니다."));
+        Long newStoreId = product.getStore().getId();
+
+        Map<String, RedisCartItem> currentCart = hashOps.entries(redisKey);
+        if (!currentCart.isEmpty()) {
+
+            Long existingStoreId = currentCart.values().iterator().next().storeId();
+
+            if (!existingStoreId.equals(newStoreId)) {
+                throw new IllegalStateException("DIFFERENT_STORE");
+            }
+        }
+
         String cartItemId = generateCartItemId(request.getProductId(), request.getOptionIds());
 
-        HashOperations<String, String, RedisCartItem> hashOps = redisTemplate.opsForHash();
         RedisCartItem existingItem = hashOps.get(redisKey, cartItemId);
 
         if (existingItem != null) {
             RedisCartItem updatedItem = existingItem.withUpdatedQuantity(existingItem.quantity() + request.getQuantity());
             hashOps.put(redisKey, cartItemId, updatedItem);
         } else {
-            Product product = productRepository.findById(request.getProductId())
-                    .orElseThrow(() -> new EntityNotFoundException("상품을 찾을 수 없습니다."));
-
             List<RedisCartOption> redisOptions = fetchAndMapOptions(request.getOptionIds());
-
             BigDecimal deliveryFee = BigDecimal.valueOf(product.getStore().getDeliveryFee());
 
             RedisCartItem newItem = new RedisCartItem(
-                    cartItemId, product.getId(), product.getName(), product.getImageUrl(), product.getStore().getId(),deliveryFee,product.getStore().getMinOrderAmount(),product.getPrice(), request.getQuantity(), redisOptions
+                    cartItemId, product.getId(), product.getName(), product.getImageUrl(),
+                    newStoreId, deliveryFee, product.getStore().getMinOrderAmount(),
+                    product.getPrice(), request.getQuantity(), redisOptions
             );
             hashOps.put(redisKey, cartItemId, newItem);
         }
@@ -139,4 +153,10 @@ public class CartService {
                 .map(opt -> new RedisCartOption(opt.getId(), opt.getName(), opt.getAdditionalPrice()))
                 .collect(Collectors.toList());
     }
+
+    public void clearCart(User user) {
+        String redisKey = CART_KEY_PREFIX + user.getId();
+        redisTemplate.delete(redisKey);
+    }
+
 }
