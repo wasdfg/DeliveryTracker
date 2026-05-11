@@ -13,9 +13,11 @@ import com.example.deliverytracker.redis.dto.DeliveryStartedEvent;
 import com.example.deliverytracker.rider.entity.Rider;
 import com.example.deliverytracker.user.entitiy.User;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.persistence.LockModeType;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -65,7 +67,7 @@ public class DeliveryService {
             return Page.empty();
         }
 
-        Page<Delivery> deliveries = this.deliveryRepository.findByRequesterId(user.getId(),pageable); //리포지토리는 delivery 엔티티를 사용하는데 dto로 리턴하려면 무슨 방식을 사용해야할지?
+        Page<Delivery> deliveries = this.deliveryRepository.findByRequesterId(user.getId(),pageable);
 
         return deliveries.map(DeliveryResponse::from);
     }
@@ -86,8 +88,12 @@ public class DeliveryService {
     @Transactional
     public DeliveryResponse assignDelivery(Long deliveryId, Rider rider){
 
-        Delivery delivery = deliveryRepository.findById(deliveryId)
+        Delivery delivery = deliveryRepository.findByDeliveryId(deliveryId)
                 .orElseThrow(() -> new EntityNotFoundException("배송을 찾을 수 없습니다."));
+
+        if (delivery.getStatus() != DeliveryStatus.WAITING){
+            throw new AlreadyAssignedException("이미 다른 라이더가 접수한 주문입니다.");
+        }
 
         delivery.assignRider(rider);
 
@@ -119,8 +125,15 @@ public class DeliveryService {
 
         if(status.equals(DeliveryStatus.DELIVERED)){
             delivery.getOrder().changeStatus(Order.Status.COMPLETED);
+            delivery.getRider().changeStatus(Rider.Status.WAITING);
         }
 
         return DeliveryResponse.from(delivery);
+    }
+
+    public class AlreadyAssignedException extends RuntimeException {
+        public AlreadyAssignedException(String message) {
+            super(message);
+        }
     }
 }
