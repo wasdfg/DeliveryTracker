@@ -72,6 +72,20 @@ public class DeliveryService {
         return deliveries.map(DeliveryResponse::from);
     }
 
+    public Page<DeliveryResponse> getAvailableDeliveries(Pageable pageable){
+
+        Page<Delivery> deliveries = deliveryRepository.findByStatusAndRiderIsNull(pageable);
+
+        return deliveries.map(DeliveryResponse::from);
+    }
+
+    public Page<DeliveryResponse> getMyAssignedDeliveries(Rider rider,Pageable pageable){
+
+        Page<Delivery> deliveries = deliveryRepository.findByRiderId(rider.getId(),pageable);
+
+        return deliveries.map(DeliveryResponse::from);
+    }
+
     public DeliveryResponse getDeliveryDetail(Long id, User user){
 
         Optional<Delivery> optionalDelivery = deliveryRepository.findById(id);
@@ -125,13 +139,13 @@ public class DeliveryService {
 
         if(status.equals(DeliveryStatus.DELIVERED)){
             delivery.getOrder().changeStatus(Order.Status.COMPLETED);
-            delivery.getRider().changeStatus(Rider.Status.WAITING);
+            delivery.getRider().changeStatus(Rider.Status.AVAILABLE);
         }
 
         return DeliveryResponse.from(delivery);
     }
 
-    public class AlreadyAssignedException extends RuntimeException {
+    public static class AlreadyAssignedException extends RuntimeException {
         public AlreadyAssignedException(String message) {
             super(message);
         }

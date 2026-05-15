@@ -19,4 +19,8 @@ public interface DeliveryRepository extends JpaRepository<Delivery,Long> {
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @QueryHints({@QueryHint(name = "javax.persistence.lock.timeout", value = "3000")})
     Optional<Delivery> findByDeliveryId(Long deliveryId);
+
+    Page<Delivery> findByStatusAndRiderIsNull(Pageable pageable);
+
+    Page<Delivery> findByRiderId(Long riderId,Pageable pageable);
 }

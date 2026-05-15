@@ -9,6 +9,7 @@ import lombok.Getter;
 @Builder
 public class DeliveryResponse {
     private Long id;
+    private String storeName;
     private String receiverName;
     private String receiverAddress;
     private String receiverPhone;
@@ -18,6 +19,7 @@ public class DeliveryResponse {
     public static DeliveryResponse from(Delivery delivery) {
         return DeliveryResponse.builder()
                 .id(delivery.getId())
+                .storeName(delivery.getOrder().getStore().getName())
                 .receiverName(delivery.getReceiverName())
                 .receiverAddress(delivery.getReceiverAddress())
                 .receiverPhone(delivery.getReceiverPhone())

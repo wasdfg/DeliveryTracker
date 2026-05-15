@@ -180,7 +180,6 @@ public class OrderService {
 
     }
 
-    @Transactional(readOnly = true)
     public OrderResponse findOrderInfo(Long id, User user){
 
         Order order = orderRepository.findOrderWithDetailsById(id)
