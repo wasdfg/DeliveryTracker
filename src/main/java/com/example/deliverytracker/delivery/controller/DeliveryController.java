@@ -6,6 +6,7 @@ import com.example.deliverytracker.delivery.entity.DeliveryStatus;
 import com.example.deliverytracker.delivery.service.DeliveryService;
 import com.example.deliverytracker.rider.entity.Rider;
 import com.example.deliverytracker.rider.repository.RiderRepository;
+import com.example.deliverytracker.rider.service.RiderService;
 import com.example.deliverytracker.user.entitiy.User;
 import com.example.deliverytracker.user.entitiy.UserDetailsImpl;
 import jakarta.persistence.EntityNotFoundException;
@@ -26,6 +27,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Optional;
 
 
 @RequiredArgsConstructor
@@ -34,6 +36,8 @@ import org.springframework.web.bind.annotation.RestController;
 public class DeliveryController {
 
     private final DeliveryService deliveryService;
+
+    private final RiderService riderService;
 
     private final RiderRepository riderRepository;
 
@@ -50,6 +54,35 @@ public class DeliveryController {
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body("주문이 완료되었습니다.");
+    }
+
+    @GetMapping("/delivery/available")
+    public ResponseEntity<Page<DeliveryResponse>> getAvailableDeliveries(@AuthenticationPrincipal UserDetailsImpl userDetails,@PageableDefault(size = 10) Pageable pageable) {
+        if (userDetails == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        Page<DeliveryResponse> response = deliveryService.getAvailableDeliveries(pageable);
+
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/delivery/my")
+    public ResponseEntity<Page<DeliveryResponse>> getMyAssignedDeliveries(@AuthenticationPrincipal UserDetailsImpl userDetails, @PageableDefault(size = 10) Pageable pageable) {
+        if (userDetails == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        if(userDetails.getUser().getRole() != User.Role.RIDER){
+            return ResponseEntity
+                    .status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        Rider rider = riderRepository.findByRiderId(userDetails.getUser().getId());
+
+        Page<DeliveryResponse> response = deliveryService.getMyAssignedDeliveries(rider, pageable);
+
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/delivery/my")

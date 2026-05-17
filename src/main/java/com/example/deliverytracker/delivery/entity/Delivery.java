@@ -62,6 +62,7 @@ public class Delivery extends BaseEntity {
 
     public void assignRider(Rider rider) {
         this.rider = rider;
+        this.rider.changeStatus(Rider.Status.BUSY);
         this.status = DeliveryStatus.ASSIGNED;
     }
 }

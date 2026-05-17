@@ -54,7 +54,7 @@ public class Rider extends BaseEntity {
 
     @PrePersist //저장되기 직선에 사용 persist직전
     public void prePersist() {
-        if (this.status == null) this.status = Status.WAITING;
+        if (this.status == null) this.status = Status.AVAILABLE;
         this.updatedAt = LocalDateTime.now();
     }
 
@@ -64,8 +64,8 @@ public class Rider extends BaseEntity {
     }
 
     public enum Status {
-        WAITING,    // 대기 중
-        ACTIVE,     // 배달 중
+        AVAILABLE,   // 배차 가능
+        BUSY,        // 배달 수행 중
         OFFLINE     // 오프라인 (로그아웃 또는 미접속)
     }
 
