@@ -1,6 +1,7 @@
 package com.example.deliverytracker.notification.entity;
 
 import com.example.deliverytracker.common.BaseEntity;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -21,6 +22,7 @@ public class Notification extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false)
     private Long receiverId;
 
     private String title;
@@ -34,16 +36,27 @@ public class Notification extends BaseEntity {
 
     private boolean isRead = false;
 
+    private Long referenceId;
+
+    private Long senderId;
+
     @Builder
-    public Notification(Long receiverId, String title, String content, NotificationType type, String targetUrl) {
+    public Notification(Long receiverId, String title, String content, NotificationType type, String targetUrl, Long referenceId, Long senderId) {
         this.receiverId = receiverId;
         this.title = title;
         this.content = content;
         this.type = type;
         this.targetUrl = targetUrl;
+        this.referenceId = referenceId;
+        this.senderId = senderId;
+        this.isRead = false;
     }
 
     public void markAsRead() {
         this.isRead = true;
+    }
+
+    public void markAsUnread() {
+        this.isRead = false;
     }
 }

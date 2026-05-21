@@ -56,7 +56,7 @@ public class NotificationService {
                 .receiverId(userId)
                 .title("주문 상태 업데이트")
                 .content(content)
-                .type(NotificationType.STATUS_CHANGED)
+                .type(NotificationType.ORDER_STATUS_CHANGED)
                 .targetUrl("/orders/" + orderId)
                 .build());
 
@@ -71,6 +71,19 @@ public class NotificationService {
             case CANCELED -> "주문이 취소되었습니다. 😥";
             default -> "주문 상태가 변경되었습니다.";
         };
+    }
+
+    private void createNotification(Long receiverId, NotificationType type, String content, String targetUrl, Long referenceId, Long senderId) {
+        Notification notification = Notification.builder()
+                                                .receiverId(receiverId)
+                                                .type(type)
+                                                .content(content)
+                                                .targetUrl(targetUrl)
+                                                .referenceId(referenceId)
+                                                .senderId(senderId)
+                                                .build();
+
+        notificationRepository.save(notification);
     }
 
     public List<NotificationResponse> getMyNotifications(Long userId) {
