@@ -1,6 +1,8 @@
 package com.example.deliverytracker.delivery.service;
 
 import com.example.deliverytracker.delivery.entity.LocationMessage;
+import com.example.deliverytracker.notification.entity.NotificationType;
+import com.example.deliverytracker.notification.service.NotificationService;
 import com.example.deliverytracker.order.entity.Order;
 import com.example.deliverytracker.order.repository.OrderRepository;
 import com.example.deliverytracker.redis.RedisPublisher;
@@ -19,8 +21,12 @@ public class ProximityService {
     private static final double ARRIVAL_THRESHOLD_METERS = 500; // 500미터 이내로 들어오면 알림
 
     private final OrderRepository orderRepository;
+
     private final RedisPublisher redisPublisher;
+
     private final RedisTemplate<String, String> redisTemplate;
+
+    private final NotificationService notificationService;
 
     public void checkProximity(LocationMessage message) {
 
@@ -52,6 +58,8 @@ public class ProximityService {
 
             RiderArrivingEvent event = new RiderArrivingEvent(order.getId(), order.getUser().getId());
             redisPublisher.publish("order-channel", event);
+
+            notificationService.createNotification(order.getUser().getId(), NotificationType.RIDER_ARRIVING,"라이더가 곧 도착중입니다. 배달번호: " + order.getDelivery().getId(),"/orders/" + order.getId(),order.getId(),order.getDelivery().getRider().getId());
 
             // 알림을 보냈다고 Redis에 기록 (중복 발송 방지, 1시간 유효)
             redisTemplate.opsForValue().set(redisKey, "true", 1, TimeUnit.HOURS);

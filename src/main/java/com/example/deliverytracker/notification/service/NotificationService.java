@@ -73,7 +73,8 @@ public class NotificationService {
         };
     }
 
-    private void createNotification(Long receiverId, NotificationType type, String content, String targetUrl, Long referenceId, Long senderId) {
+    @Transactional
+    public void createNotification(Long receiverId, NotificationType type, String content, String targetUrl, Long referenceId, Long senderId) {
         Notification notification = Notification.builder()
                                                 .receiverId(receiverId)
                                                 .type(type)

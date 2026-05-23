@@ -5,6 +5,8 @@ import com.example.deliverytracker.delivery.dto.DeliveryResponse;
 import com.example.deliverytracker.delivery.entity.Delivery;
 import com.example.deliverytracker.delivery.entity.DeliveryStatus;
 import com.example.deliverytracker.delivery.repository.DeliveryRepository;
+import com.example.deliverytracker.notification.entity.NotificationType;
+import com.example.deliverytracker.notification.service.NotificationService;
 import com.example.deliverytracker.order.entity.Order;
 import com.example.deliverytracker.order.repository.OrderRepository;
 import com.example.deliverytracker.order.service.OrderService;
@@ -38,6 +40,8 @@ public class DeliveryService {
     private final OrderService orderService;
 
     private final RedisPublisher redisPublisher;
+
+    private final NotificationService notificationService;
 
     @Transactional
     public void requestDelivery(Long orderId,DeliveryRequest requestDto, User user) {
@@ -111,6 +115,8 @@ public class DeliveryService {
 
         delivery.assignRider(rider);
 
+        notificationService.createNotification(delivery.getOrder().getStore().getOwner().getId(), NotificationType.DELIVERY_ASSIGNED,"라이더가 배정되었습니다. 배달번호: " + deliveryId,"/delivery/" + deliveryId+"/assign",deliveryId,rider.getId());
+
         return DeliveryResponse.from(delivery);
     }
 
@@ -134,12 +140,20 @@ public class DeliveryService {
             Order order = delivery.getOrder();
 
             DeliveryStartedEvent event = new DeliveryStartedEvent(order.getId(), order.getUser().getId(), riderUser.getUser().getNickname());
+
+            notificationService.createNotification(delivery.getOrder().getUser().getId(), NotificationType.DELIVERY_STARTED,"라이더가 배달을 시작하였습니다. 배달번호: " + deliveryId,"/orders/" + order.getId(),deliveryId,riderUser.getId());
+
+            delivery.getRider().changeStatus(Rider.Status.BUSY);
+
             redisPublisher.publish("order-channel", event);
         }
 
         if(status.equals(DeliveryStatus.DELIVERED)){
+
             delivery.getOrder().changeStatus(Order.Status.COMPLETED);
             delivery.getRider().changeStatus(Rider.Status.AVAILABLE);
+
+            notificationService.createNotification(delivery.getOrder().getUser().getId(), NotificationType.DELIVERY_COMPLETED,"배달이 완료되었습니다. 배달번호: " + deliveryId,"/orders/" + delivery.getOrder().getId(),deliveryId,riderUser.getId());
         }
 
         return DeliveryResponse.from(delivery);

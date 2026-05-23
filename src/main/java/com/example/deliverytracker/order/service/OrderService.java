@@ -1,6 +1,7 @@
 package com.example.deliverytracker.order.service;
 
 import com.example.deliverytracker.coupon.service.CouponService;
+import com.example.deliverytracker.notification.entity.NotificationType;
 import com.example.deliverytracker.notification.service.NotificationService;
 import com.example.deliverytracker.order.dto.OrderCreateRequest;
 import com.example.deliverytracker.order.dto.OrderHistoryDto;
@@ -24,6 +25,7 @@ import com.example.deliverytracker.store.service.ProductService;
 import com.example.deliverytracker.user.entitiy.User;
 import com.example.deliverytracker.util.geocoding.Coordinates;
 import com.example.deliverytracker.util.geocoding.GeocodingService;
+import com.google.storage.v2.CreateNotificationConfigRequest;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -176,7 +178,9 @@ public class OrderService {
 
         redisPublisher.publish("order-channel", new OrderCreatedEvent(order.getId(), store.getId()));
 
-        notificationService.sendNewOrderNotification(order.getStore().getId(), user.getId(),order.getId());
+        //notificationService.sendNewOrderNotification(order.getStore().getId(), user.getId(),order.getId());
+
+        notificationService.createNotification(store.getOwner().getId(), NotificationType.NEW_ORDER,"새 주문이 접수되었습니다. 주문번호: " + order.getId(),"/orders/" + order.getId(),order.getId(),order.getUser().getId());
 
     }
 

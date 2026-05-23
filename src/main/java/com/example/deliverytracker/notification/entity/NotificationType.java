@@ -9,6 +9,8 @@ public enum NotificationType {
     NEW_ORDER("신규 주문", "새로운 주문이 접수되었습니다."),
     ORDER_STATUS_CHANGED("주문 상태 변경", "주문 상태가 변경되었습니다."),
 
+    DELIVERY_ASSIGNED("배달 수락","라이더가 배정되었습니다."),
+
     DELIVERY_STARTED("배달 시작", "라이더가 배달을 시작했습니다."),
     RIDER_ARRIVING("도착 예정", "라이더가 곧 도착합니다."),
     DELIVERY_COMPLETED("배달 완료", "배달이 완료되었습니다."),
