@@ -64,6 +64,8 @@ public class QStore extends EntityPathBase<Store> {
 
     public final ListPath<com.example.deliverytracker.review.entity.Review, com.example.deliverytracker.review.entity.QReview> reviews = this.<com.example.deliverytracker.review.entity.Review, com.example.deliverytracker.review.entity.QReview>createList("reviews", com.example.deliverytracker.review.entity.Review.class, com.example.deliverytracker.review.entity.QReview.class, PathInits.DIRECT2);
 
+    public final NumberPath<Long> totalRatingSum = createNumber("totalRatingSum", Long.class);
+
     public QStore(String variable) {
         this(Store.class, forVariable(variable), INITS);
     }

@@ -9,7 +9,10 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.time.LocalDate;
 
 @RestController
 @RequestMapping("/api/owner/stats")
@@ -19,11 +22,9 @@ public class OwnerStatsController {
     private final OwnerStatsService ownerStatsService;
 
     @GetMapping("/{storeId}")
-    public ResponseEntity<OwnerStatsResponseDto> getStoreStats(
-            @PathVariable Long storeId,
-            @AuthenticationPrincipal UserDetailsImpl userDetails) {
+    public ResponseEntity<OwnerStatsResponseDto> getStoreStats(@PathVariable Long storeId, @RequestParam LocalDate startDate, @RequestParam LocalDate endDate, @AuthenticationPrincipal UserDetailsImpl userDetails) {
 
-        OwnerStatsResponseDto result = ownerStatsService.getStats(storeId, userDetails.getUser());
+        OwnerStatsResponseDto result = ownerStatsService.getStats(storeId, startDate, endDate,userDetails.getUser());
 
         return ResponseEntity.ok(result);
     }

@@ -35,6 +35,8 @@ public class QOrderItem extends EntityPathBase<OrderItem> {
 
     public final QOrder order;
 
+    public final ListPath<OrderOption, QOrderOption> orderOptions = this.<OrderOption, QOrderOption>createList("orderOptions", OrderOption.class, QOrderOption.class, PathInits.DIRECT2);
+
     public final NumberPath<java.math.BigDecimal> price = createNumber("price", java.math.BigDecimal.class);
 
     public final com.example.deliverytracker.store.entity.QProduct product;
