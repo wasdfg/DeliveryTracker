@@ -6,6 +6,7 @@ import com.example.deliverytracker.redis.dto.DeliveryStartedEvent;
 import com.example.deliverytracker.redis.dto.NewReviewEvent;
 import com.example.deliverytracker.redis.dto.OrderAcceptedEvent;
 import com.example.deliverytracker.redis.dto.OrderCreatedEvent;
+import com.example.deliverytracker.redis.dto.RiderArrivingEvent;
 import com.example.deliverytracker.user.repository.UserRepository;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -57,6 +58,16 @@ public class RedisSubscriber implements MessageListener {
 
                 messagingTemplate.convertAndSend("/topic/user/" + event.getUserId(), event);
             }
+
+            else if (jsonNode.has("orderId") && jsonNode.has("userId") && !jsonNode.has("riderName")) {
+
+                RiderArrivingEvent event = objectMapper.treeToValue(jsonNode, RiderArrivingEvent.class);
+
+                log.info("✅ [라이더 도착 임박] 주문 ID: {}", event.getOrderId());
+
+                messagingTemplate.convertAndSend("/topic/user/" + event.getUserId(), event);
+            }
+
 
             else if (jsonNode.has("userId") && !jsonNode.has("storeId")) {
                 OrderAcceptedEvent event = objectMapper.treeToValue(jsonNode, OrderAcceptedEvent.class);
