@@ -5,6 +5,8 @@ import com.example.deliverytracker.mail.service.EmailService;
 import com.example.deliverytracker.review.dto.ReviewResponse;
 import com.example.deliverytracker.review.entity.Review;
 import com.example.deliverytracker.review.repository.ReviewRepository;
+import com.example.deliverytracker.rider.entity.Rider;
+import com.example.deliverytracker.rider.repository.RiderRepository;
 import com.example.deliverytracker.user.dto.PasswordCheckRequest;
 import com.example.deliverytracker.user.dto.UserEmailRequest;
 import com.example.deliverytracker.user.dto.UserInfoRequest;
@@ -44,7 +46,7 @@ public class UserService {
 
     private final StringRedisTemplate redisTemplate;
 
-    private final EmailService emailService;
+    //private final EmailService emailService;
 
     private static final Duration TOKEN_EXPIRATION = Duration.ofMinutes(30);
 
@@ -52,12 +54,24 @@ public class UserService {
 
     private final ImageService imageService;
 
+    private final RiderRepository riderRepository;
+
     public void signup(UserSignupRequest request, MultipartFile imageFile){
         String email = request.getEmail();
         String idForLogin = request.getIdForLogin();
         String nickname = request.getNickname();
         String phone = request.getPhone();
         String address = request.getAddress();
+
+        User.Role role = request.getRole();
+
+        if (role == null) {
+            role = User.Role.USER;
+        }
+
+        if (role == User.Role.ADMIN) {
+            throw new IllegalArgumentException("관리자는 가입할 수 없습니다.");
+        }
 
         if(userRepository.existsByEmail(request.getEmail())){
             throw new IllegalArgumentException("이미 사용 중인 이메일입니다.");
@@ -85,12 +99,22 @@ public class UserService {
                     .nickname(nickname)
                     .phone(phone)
                     .address(address)
-                    .role(User.Role.USER)
+                    .role(role)
                     .status(User.Status.ACTIVE)
                     .imageUrl(imageUrl)
                     .build();
 
             userRepository.save(user);
+
+            if (role == User.Role.RIDER) {
+
+                Rider rider = Rider.builder()
+                        .user(user)
+                        .status(Rider.Status.OFFLINE)
+                        .build();
+
+                riderRepository.save(rider);
+            }
         }
     }
 
@@ -213,6 +237,8 @@ public class UserService {
         imageService.delete(user.getImageUrl());
 
         user.changeStatus(User.Status.WITHDRAWN);
+
+        user.updateFcmToken(null);
     }
 
     public void sendIdForLogin(UserEmailRequest request){
@@ -260,7 +286,7 @@ public class UserService {
             default -> throw new IllegalArgumentException("잘못된 이메일 타입입니다.");
         }
 
-        emailService.send(user.getEmail(), subject, body);
+        //emailService.send(user.getEmail(), subject, body);
     }
 
     public void resetPassword(String token, String newPassword) {

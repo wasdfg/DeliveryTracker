@@ -1,5 +1,6 @@
 package com.example.deliverytracker.user.dto;
 
+import com.example.deliverytracker.user.entitiy.User;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -24,4 +25,6 @@ public class UserSignupRequest {
     private String address;
 
     private String imageUrl;
+
+    private User.Role role;
 }
