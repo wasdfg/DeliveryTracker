@@ -1,8 +1,7 @@
 package com.example.deliverytracker.store.dto;
 
-import com.example.deliverytracker.store.entity.Category;
-import com.example.deliverytracker.store.entity.StoreCategory;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 
 import java.math.BigDecimal;
@@ -23,10 +22,10 @@ public class StoreRequest {
 
     private String description;
 
-    @NotBlank
+    @NotNull
     private BigDecimal minOrderAmount;
 
-    @NotBlank
+    @NotNull
     private int deliveryFee;
 
     private Long categoryId;

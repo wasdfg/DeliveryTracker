@@ -7,6 +7,7 @@ import com.example.deliverytracker.rider.service.RiderService;
 import com.example.deliverytracker.user.entitiy.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -24,12 +25,14 @@ public class RiderController {
     private final JwtProvider jwtProvider;
 
     @GetMapping("/me")
+    @PreAuthorize("hasRole('RIDER')")
     public ResponseEntity<?> getMyInfo(@AuthenticationPrincipal UserDetailsImpl userDetails) {
         RiderProfileResponse response = this.riderService.getMyInfo(userDetails.getUser());
         return ResponseEntity.ok(response);
     }
 
     @PostMapping("/status")
+    @PreAuthorize("hasRole('RIDER')")
     public ResponseEntity<?> changeStatus(@AuthenticationPrincipal UserDetailsImpl userDetails, @RequestBody RiderStatusRequest status) {
         this.riderService.changeStatus(userDetails.getUser(),status);
         return ResponseEntity.ok().build();

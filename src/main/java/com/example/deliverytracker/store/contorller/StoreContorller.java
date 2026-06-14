@@ -15,6 +15,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -62,6 +63,7 @@ public class StoreContorller {
     }
 
     @PatchMapping(value = "/stores/{storeId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PreAuthorize("hasRole('STORE_OWNER')")
     public ResponseEntity<?> changeStoreInfo(@PathVariable Long storeId,@RequestPart("request") StoreRequest request,@AuthenticationPrincipal UserDetailsImpl userDetails,@RequestPart("image") MultipartFile imageFile){
 
         this.storeService.changeStoreInfo(storeId,request,userDetails.getUser(),imageFile);
@@ -70,6 +72,7 @@ public class StoreContorller {
     }
 
     @DeleteMapping("/stores/{storeId}")
+    @PreAuthorize("hasRole('STORE_OWNER')")
     public ResponseEntity<Void> deleteStore(@PathVariable Long storeId,@AuthenticationPrincipal UserDetailsImpl userDetails){
 
         this.storeService.deleteStore(storeId,userDetails.getUser());
@@ -94,6 +97,7 @@ public class StoreContorller {
     }
 
     @PatchMapping("/{storeId}/delivery-time")
+    @PreAuthorize("hasRole('STORE_OWNER')")
     public ResponseEntity<Void> updateDeliveryTime(
             @PathVariable Long storeId,
             @AuthenticationPrincipal UserDetailsImpl userDetails,
