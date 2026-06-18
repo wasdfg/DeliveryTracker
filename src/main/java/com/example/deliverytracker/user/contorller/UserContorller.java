@@ -159,4 +159,11 @@ public class UserContorller {
 
         return ResponseEntity.ok("FCM 토큰이 성공적으로 업데이트되었습니다.");
     }
+
+    @PostMapping("/restore")
+    public ResponseEntity<String> restoreUser(@RequestBody UserLoginRequest request) {
+        userService.restoreUser(request);
+
+        return ResponseEntity.ok("계정 복구 완료");
+    }
 }

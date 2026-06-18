@@ -138,7 +138,7 @@ public class UserService {
             long days = Duration.between(user.getUpdatedAt(), LocalDateTime.now()).toDays();
 
             if(days <= 30){
-                throw new IllegalArgumentException("탈퇴한 계정입니다. 복구하시겠습니까?");
+                throw new RecoverableWithdrawException();
             }
             else{
                 throw new IllegalArgumentException("계정이 삭제되었습니다.");
@@ -236,7 +236,8 @@ public class UserService {
 
         imageService.delete(user.getImageUrl());
 
-        user.changeStatus(User.Status.WITHDRAWN);
+        user.withdraw();
+
 
         user.updateFcmToken(null);
     }
@@ -317,5 +318,29 @@ public class UserService {
                 .orElseThrow(() -> new EntityNotFoundException("사용자를 찾을 수 없습니다."));
 
         managedUser.updateFcmToken(fcmToken);
+    }
+
+    @Transactional
+    public void restoreUser(UserLoginRequest request){
+
+        User user = userRepository.findByIdForLogin(request.getIdForLogin())
+                .orElseThrow(() -> new IllegalArgumentException("계정이 없습니다."));
+
+        if(!passwordEncoder.matches(request.getPassword(), user.getPassword())){
+            throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
+        }
+
+        if(user.getStatus()!=User.Status.WITHDRAWN){
+            throw new IllegalArgumentException("복구 가능한 계정이 아닙니다.");
+        }
+
+        user.restore();
+    }
+
+    public class RecoverableWithdrawException extends RuntimeException {
+
+        public RecoverableWithdrawException() {
+            super("탈퇴한 계정입니다.");
+        }
     }
 }

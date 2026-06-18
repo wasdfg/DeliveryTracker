@@ -20,6 +20,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -73,6 +75,8 @@ public class User extends BaseEntity {
     @Column(length = 255)
     private String fcmToken;
 
+    private LocalDateTime withdrawnAt;
+
     public void updateFcmToken(String fcmToken) {
         this.fcmToken = fcmToken;
     }
@@ -102,5 +106,15 @@ public class User extends BaseEntity {
 
     public void changeStatus(Status status) {
         this.status = status;
+    }
+
+    public void withdraw() {
+        this.status = Status.WITHDRAWN;
+        this.withdrawnAt = LocalDateTime.now(ZoneId.of("Asia/Seoul"));
+    }
+
+    public void restore() {
+        this.status = Status.ACTIVE;
+        this.withdrawnAt = null;
     }
 }
