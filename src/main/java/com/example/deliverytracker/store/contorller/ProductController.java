@@ -4,7 +4,7 @@ import com.example.deliverytracker.store.dto.ProductRequest;
 import com.example.deliverytracker.store.dto.ProductResponse;
 import com.example.deliverytracker.store.dto.ProductUpdateRequest;
 import com.example.deliverytracker.store.service.ProductService;
-import com.example.deliverytracker.user.entitiy.UserDetailsImpl;
+import com.example.deliverytracker.user.entity.UserDetailsImpl;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;

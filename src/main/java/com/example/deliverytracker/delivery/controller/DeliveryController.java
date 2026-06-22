@@ -7,8 +7,8 @@ import com.example.deliverytracker.delivery.service.DeliveryService;
 import com.example.deliverytracker.rider.entity.Rider;
 import com.example.deliverytracker.rider.repository.RiderRepository;
 import com.example.deliverytracker.rider.service.RiderService;
-import com.example.deliverytracker.user.entitiy.User;
-import com.example.deliverytracker.user.entitiy.UserDetailsImpl;
+import com.example.deliverytracker.user.entity.User;
+import com.example.deliverytracker.user.entity.UserDetailsImpl;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -26,8 +26,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.Optional;
 
 
 @RequiredArgsConstructor

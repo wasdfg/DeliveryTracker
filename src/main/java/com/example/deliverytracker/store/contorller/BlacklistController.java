@@ -3,7 +3,7 @@ package com.example.deliverytracker.store.contorller;
 import com.example.deliverytracker.store.dto.BlacklistRequest;
 import com.example.deliverytracker.store.dto.BlacklistResponse;
 import com.example.deliverytracker.store.service.BlacklistService;
-import com.example.deliverytracker.user.entitiy.UserDetailsImpl;
+import com.example.deliverytracker.user.entity.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;

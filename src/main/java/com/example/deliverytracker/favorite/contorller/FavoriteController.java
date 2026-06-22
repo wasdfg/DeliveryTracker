@@ -1,12 +1,9 @@
 package com.example.deliverytracker.favorite.contorller;
 
 import com.example.deliverytracker.favorite.service.FavoriteService;
-import com.example.deliverytracker.store.dto.StoreDetailResponse;
 import com.example.deliverytracker.store.dto.StoreResponse;
-import com.example.deliverytracker.user.entitiy.User;
-import com.example.deliverytracker.user.entitiy.UserDetailsImpl;
+import com.example.deliverytracker.user.entity.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;

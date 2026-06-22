@@ -2,7 +2,7 @@ package com.example.deliverytracker.store.entity;
 
 import com.example.deliverytracker.review.entity.Review;
 import com.example.deliverytracker.store.dto.StoreRequest;
-import com.example.deliverytracker.user.entitiy.User;
+import com.example.deliverytracker.user.entity.User;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

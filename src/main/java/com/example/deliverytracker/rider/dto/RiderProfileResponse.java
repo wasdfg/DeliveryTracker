@@ -1,7 +1,7 @@
 package com.example.deliverytracker.rider.dto;
 
 import com.example.deliverytracker.rider.entity.Rider;
-import com.example.deliverytracker.user.entitiy.User;
+import com.example.deliverytracker.user.entity.User;
 import lombok.Builder;
 import lombok.Getter;
 

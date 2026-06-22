@@ -1,7 +1,7 @@
 package com.example.deliverytracker.review.repository;
 
 import com.example.deliverytracker.review.entity.Review;
-import com.example.deliverytracker.user.entitiy.User;
+import com.example.deliverytracker.user.entity.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 

@@ -4,7 +4,7 @@ import com.example.deliverytracker.address.dto.AddressRequestDto;
 import com.example.deliverytracker.address.dto.AddressResponseDto;
 import com.example.deliverytracker.address.enitity.Address;
 import com.example.deliverytracker.address.repository.AddressRepository;
-import com.example.deliverytracker.user.entitiy.User;
+import com.example.deliverytracker.user.entity.User;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.AccessDeniedException;

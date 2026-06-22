@@ -1,10 +1,8 @@
 package com.example.deliverytracker.notification.contorller;
 
 import com.example.deliverytracker.notification.dto.NotificationResponse;
-import com.example.deliverytracker.notification.entity.Notification;
 import com.example.deliverytracker.notification.service.NotificationService;
-import com.example.deliverytracker.user.entitiy.User;
-import com.example.deliverytracker.user.entitiy.UserDetailsImpl;
+import com.example.deliverytracker.user.entity.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;

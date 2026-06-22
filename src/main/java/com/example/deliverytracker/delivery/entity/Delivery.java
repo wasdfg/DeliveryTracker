@@ -3,7 +3,7 @@ package com.example.deliverytracker.delivery.entity;
 import com.example.deliverytracker.common.BaseEntity;
 import com.example.deliverytracker.order.entity.Order;
 import com.example.deliverytracker.rider.entity.Rider;
-import com.example.deliverytracker.user.entitiy.User;
+import com.example.deliverytracker.user.entity.User;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;

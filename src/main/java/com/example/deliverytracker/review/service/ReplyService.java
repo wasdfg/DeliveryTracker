@@ -4,7 +4,7 @@ import com.example.deliverytracker.review.entity.Review;
 import com.example.deliverytracker.review.entity.ReviewReply;
 import com.example.deliverytracker.review.repository.ReplyRepository;
 import com.example.deliverytracker.review.repository.ReviewRepository;
-import com.example.deliverytracker.user.entitiy.User;
+import com.example.deliverytracker.user.entity.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

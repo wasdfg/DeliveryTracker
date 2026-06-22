@@ -1,7 +1,6 @@
 package com.example.deliverytracker.user.service;
 
 import com.example.deliverytracker.global.jwt.JwtProvider;
-import com.example.deliverytracker.mail.service.EmailService;
 import com.example.deliverytracker.review.dto.ReviewResponse;
 import com.example.deliverytracker.review.entity.Review;
 import com.example.deliverytracker.review.repository.ReviewRepository;
@@ -12,11 +11,11 @@ import com.example.deliverytracker.user.dto.UserEmailRequest;
 import com.example.deliverytracker.user.dto.UserInfoRequest;
 import com.example.deliverytracker.user.dto.UserPasswordRequest;
 import com.example.deliverytracker.user.dto.UserResponse;
-import com.example.deliverytracker.user.entitiy.EmailType;
+import com.example.deliverytracker.user.entity.EmailType;
 import com.example.deliverytracker.user.repository.UserRepository;
 import com.example.deliverytracker.user.dto.UserLoginRequest;
 import com.example.deliverytracker.user.dto.UserSignupRequest;
-import com.example.deliverytracker.user.entitiy.User;
+import com.example.deliverytracker.user.entity.User;
 import com.example.deliverytracker.image.service.ImageService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;

@@ -13,7 +13,7 @@ import com.example.deliverytracker.store.entity.OperationTime;
 import com.example.deliverytracker.store.entity.Store;
 import com.example.deliverytracker.store.repository.CategoryRepository;
 import com.example.deliverytracker.store.repository.StoreRepository;
-import com.example.deliverytracker.user.entitiy.User;
+import com.example.deliverytracker.user.entity.User;
 import com.example.deliverytracker.image.service.ImageService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;

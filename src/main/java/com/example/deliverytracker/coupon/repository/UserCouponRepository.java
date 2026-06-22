@@ -2,7 +2,7 @@ package com.example.deliverytracker.coupon.repository;
 
 import com.example.deliverytracker.coupon.entity.Coupon;
 import com.example.deliverytracker.coupon.entity.UserCoupon;
-import com.example.deliverytracker.user.entitiy.User;
+import com.example.deliverytracker.user.entity.User;
 import io.lettuce.core.dynamic.annotation.Param;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;

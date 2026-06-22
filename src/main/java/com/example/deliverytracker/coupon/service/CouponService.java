@@ -5,7 +5,7 @@ import com.example.deliverytracker.coupon.entity.Coupon;
 import com.example.deliverytracker.coupon.entity.UserCoupon;
 import com.example.deliverytracker.coupon.repository.CouponRepository;
 import com.example.deliverytracker.coupon.repository.UserCouponRepository;
-import com.example.deliverytracker.user.entitiy.User;
+import com.example.deliverytracker.user.entity.User;
 import com.example.deliverytracker.user.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;

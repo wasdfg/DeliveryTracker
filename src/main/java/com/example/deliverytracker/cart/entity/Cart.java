@@ -1,7 +1,7 @@
 package com.example.deliverytracker.cart.entity;
 
 import com.example.deliverytracker.common.BaseEntity;
-import com.example.deliverytracker.user.entitiy.User;
+import com.example.deliverytracker.user.entity.User;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;

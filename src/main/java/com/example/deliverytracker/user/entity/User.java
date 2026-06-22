@@ -1,4 +1,4 @@
-package com.example.deliverytracker.user.entitiy;
+package com.example.deliverytracker.user.entity;
 
 import com.example.deliverytracker.common.BaseEntity;
 import com.example.deliverytracker.review.entity.Review;
@@ -10,7 +10,6 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
-import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.Pattern;

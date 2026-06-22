@@ -1,11 +1,9 @@
 package com.example.deliverytracker.order.repository;
 
-import com.example.deliverytracker.order.dto.DailySalesDto;
-import com.example.deliverytracker.order.dto.MenuStatsDto;
 import com.example.deliverytracker.order.entity.Order;
 import com.example.deliverytracker.order.entity.OrderRepositoryCustom;
 import com.example.deliverytracker.store.entity.Store;
-import com.example.deliverytracker.user.entitiy.User;
+import com.example.deliverytracker.user.entity.User;
 import io.lettuce.core.dynamic.annotation.Param;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

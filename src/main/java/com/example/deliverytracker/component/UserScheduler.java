@@ -1,7 +1,7 @@
 package com.example.deliverytracker.component;
 
 import com.example.deliverytracker.image.service.ImageService;
-import com.example.deliverytracker.user.entitiy.User;
+import com.example.deliverytracker.user.entity.User;
 import com.example.deliverytracker.user.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;

@@ -9,9 +9,8 @@ import com.example.deliverytracker.order.dto.OwnerStatsResponseDto;
 import com.example.deliverytracker.review.repository.ReviewRepository;
 import com.example.deliverytracker.store.entity.Store;
 import com.example.deliverytracker.store.repository.StoreRepository;
-import com.example.deliverytracker.user.entitiy.User;
+import com.example.deliverytracker.user.entity.User;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

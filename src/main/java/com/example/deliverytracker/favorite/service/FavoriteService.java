@@ -2,11 +2,10 @@ package com.example.deliverytracker.favorite.service;
 
 import com.example.deliverytracker.favorite.entity.Favorite;
 import com.example.deliverytracker.favorite.repository.FavoriteRepository;
-import com.example.deliverytracker.store.dto.StoreDetailResponse;
 import com.example.deliverytracker.store.dto.StoreResponse;
 import com.example.deliverytracker.store.entity.Store;
 import com.example.deliverytracker.store.repository.StoreRepository;
-import com.example.deliverytracker.user.entitiy.User;
+import com.example.deliverytracker.user.entity.User;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;

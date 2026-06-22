@@ -6,8 +6,8 @@ import static com.example.deliverytracker.order.entity.QOrder.order;
 import static com.example.deliverytracker.store.entity.QStore.store;
 
 import com.example.deliverytracker.review.entity.Review;
-import com.example.deliverytracker.user.entitiy.QUser;
-import com.example.deliverytracker.user.entitiy.User;
+import com.example.deliverytracker.user.entity.QUser;
+import com.example.deliverytracker.user.entity.User;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;

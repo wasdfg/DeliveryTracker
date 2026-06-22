@@ -2,7 +2,7 @@ package com.example.deliverytracker.store.repository;
 
 import com.example.deliverytracker.store.entity.Store;
 import com.example.deliverytracker.store.entity.StoreCategory;
-import com.example.deliverytracker.user.entitiy.User;
+import com.example.deliverytracker.user.entity.User;
 import io.lettuce.core.dynamic.annotation.Param;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

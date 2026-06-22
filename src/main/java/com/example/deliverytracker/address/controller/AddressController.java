@@ -3,7 +3,7 @@ package com.example.deliverytracker.address.controller;
 import com.example.deliverytracker.address.dto.AddressRequestDto;
 import com.example.deliverytracker.address.dto.AddressResponseDto;
 import com.example.deliverytracker.address.service.AddressService;
-import com.example.deliverytracker.user.entitiy.UserDetailsImpl;
+import com.example.deliverytracker.user.entity.UserDetailsImpl;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

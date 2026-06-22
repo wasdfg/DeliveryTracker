@@ -4,7 +4,7 @@ import com.example.deliverytracker.rider.dto.RiderProfileResponse;
 import com.example.deliverytracker.rider.dto.RiderStatusRequest;
 import com.example.deliverytracker.rider.entity.Rider;
 import com.example.deliverytracker.rider.repository.RiderRepository;
-import com.example.deliverytracker.user.entitiy.User;
+import com.example.deliverytracker.user.entity.User;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

@@ -2,7 +2,7 @@ package com.example.deliverytracker.review.controller;
 
 import com.example.deliverytracker.review.dto.ReplyRequest;
 import com.example.deliverytracker.review.service.ReplyService;
-import com.example.deliverytracker.user.entitiy.UserDetailsImpl;
+import com.example.deliverytracker.user.entity.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;

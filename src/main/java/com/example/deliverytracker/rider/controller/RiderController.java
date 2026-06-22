@@ -4,7 +4,7 @@ import com.example.deliverytracker.global.jwt.JwtProvider;
 import com.example.deliverytracker.rider.dto.RiderProfileResponse;
 import com.example.deliverytracker.rider.dto.RiderStatusRequest;
 import com.example.deliverytracker.rider.service.RiderService;
-import com.example.deliverytracker.user.entitiy.UserDetailsImpl;
+import com.example.deliverytracker.user.entity.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
