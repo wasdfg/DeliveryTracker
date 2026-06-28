@@ -7,6 +7,7 @@ import com.example.deliverytracker.admin.dto.UserStatusRequest;
 import com.example.deliverytracker.admin.service.AdminUserService;
 import com.example.deliverytracker.store.dto.StoreResponse;
 import com.example.deliverytracker.store.dto.StoreSearchCondition;
+import com.example.deliverytracker.store.dto.StoreStatusRequest;
 import com.example.deliverytracker.user.dto.UserResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -62,6 +63,15 @@ public class AdminUserController {
         Page<StoreAdminResponse> stores = adminUserService.getStores(condition,pageable);
 
         return ResponseEntity.ok(stores);
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @PatchMapping("/stores/{storeId}/status")
+    public ResponseEntity<Void> updateStoreStatus(@PathVariable Long storeId, @RequestBody StoreStatusRequest request) {
+
+        adminUserService.updateStoreStatus(storeId, request);
+
+        return ResponseEntity.noContent().build();
     }
 
 }

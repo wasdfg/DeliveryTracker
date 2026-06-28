@@ -129,6 +129,10 @@ public class Store {
         this.isDeleted = isDeleted;
     }
 
+    public void changeActive(boolean active) {
+        this.active = active;
+    }
+
     public void updatePrepTime(Integer prepTime) {
         this.currentPrepTime = prepTime;
     }

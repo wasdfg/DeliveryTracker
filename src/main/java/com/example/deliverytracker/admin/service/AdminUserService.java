@@ -3,8 +3,7 @@ package com.example.deliverytracker.admin.service;
 import com.example.deliverytracker.admin.dto.AdminStoreSearchCondition;
 import com.example.deliverytracker.admin.dto.StoreAdminResponse;
 import com.example.deliverytracker.admin.dto.UserSearchCondition;
-import com.example.deliverytracker.store.dto.StoreResponse;
-import com.example.deliverytracker.store.dto.StoreSearchCondition;
+import com.example.deliverytracker.store.dto.StoreStatusRequest;
 import com.example.deliverytracker.store.entity.Store;
 import com.example.deliverytracker.store.repository.StoreRepository;
 import com.example.deliverytracker.user.dto.UserResponse;
@@ -58,5 +57,19 @@ public class AdminUserService {
         Page<Store> stores = storeRepository.searchStoresForAdmin(condition,pageable);
 
         return stores.map(StoreAdminResponse::from);
+    }
+
+    @Transactional
+    public void updateStoreStatus(Long storeId, StoreStatusRequest request) {
+
+        Store store = storeRepository.findById(storeId).orElseThrow(() -> new EntityNotFoundException("가게 없음"));
+
+        if (request.getActive() != null) {
+            store.changeActive(request.getActive());
+        }
+
+        if (request.getDeleted() != null) {
+            store.delete(request.getDeleted());
+        }
     }
 }
