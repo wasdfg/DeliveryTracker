@@ -66,4 +66,53 @@ public class OwnerStatsService {
                 startDate, endDate
         );
     }
+
+    public OwnerStatsResponseDto getAdminStats(Long storeId, LocalDate startDate, LocalDate endDate) {
+
+        storeRepository.findById(storeId).orElseThrow(() -> new IllegalArgumentException("해당 가게를 찾을 수 없습니다."));
+
+        return getStatsInternal(storeId, startDate, endDate);
+    }
+
+    private OwnerStatsResponseDto getStatsInternal(Long storeId, LocalDate startDate, LocalDate endDate) {
+
+        LocalDateTime startDateTime = startDate.atStartOfDay();
+
+        LocalDateTime endDateTime = endDate.atTime(LocalTime.MAX);
+
+        List<DailySalesDto> dailySales = orderRepository.findDailySales(storeId, startDateTime, endDateTime);
+
+        List<MenuStatsDto> topMenus = orderRepository.findTopMenus(storeId, startDateTime, endDateTime);
+
+        List<HourlyStatsDto> hourlyStats = orderRepository.findHourlyStats(storeId, startDateTime, endDateTime);
+
+        List<DayOfWeekStatsDto> dayOfWeekStats = orderRepository.findDayOfWeekStats(storeId, startDateTime, endDateTime);
+
+        long totalSales = dailySales.stream()
+                        .mapToLong(DailySalesDto::totalSales)
+                        .sum();
+
+        long totalOrderCount = orderRepository.countOrders(storeId, startDateTime, endDateTime);
+
+        long completedOrderCount = hourlyStats.stream()
+                        .mapToLong(HourlyStatsDto::orderCount)
+                        .sum();
+
+        long averageOrderValue = totalOrderCount > 0 ? totalSales / totalOrderCount : 0;
+
+        long cancelledCount = orderRepository.countCancelledOrders(storeId, startDateTime, endDateTime);
+
+        double cancellationRate = totalOrderCount > 0 ? (double) cancelledCount / totalOrderCount * 100 : 0;
+
+        double customerRetentionRate = orderRepository.calculateRetentionRate(storeId, startDateTime, endDateTime);
+
+        Double averageRating = reviewRepository.findAverageRatingByStoreId(storeId, startDateTime, endDateTime);
+
+        double replyRate = reviewRepository.calculateReplyRate(storeId, startDateTime, endDateTime);
+
+        return new OwnerStatsResponseDto(dailySales, topMenus, hourlyStats, dayOfWeekStats, totalSales, completedOrderCount
+                                            , averageOrderValue, customerRetentionRate, cancellationRate
+                                            , averageRating != null ? averageRating : 0.0, replyRate, startDate, endDate
+                                        );
+    }
 }

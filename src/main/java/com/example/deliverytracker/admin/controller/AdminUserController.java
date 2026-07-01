@@ -5,6 +5,8 @@ import com.example.deliverytracker.admin.dto.StoreAdminResponse;
 import com.example.deliverytracker.admin.dto.UserSearchCondition;
 import com.example.deliverytracker.admin.dto.UserStatusRequest;
 import com.example.deliverytracker.admin.service.AdminUserService;
+import com.example.deliverytracker.order.dto.OwnerStatsResponseDto;
+import com.example.deliverytracker.order.service.OwnerStatsService;
 import com.example.deliverytracker.store.dto.StoreResponse;
 import com.example.deliverytracker.store.dto.StoreSearchCondition;
 import com.example.deliverytracker.store.dto.StoreStatusRequest;
@@ -20,7 +22,10 @@ import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.time.LocalDate;
 
 @RequiredArgsConstructor
 @RequestMapping("/api/admin")
@@ -28,6 +33,8 @@ import org.springframework.web.bind.annotation.RestController;
 public class AdminUserController {
 
     private final AdminUserService adminUserService;
+
+    private final OwnerStatsService ownerStatsService;
 
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/users")
@@ -72,6 +79,13 @@ public class AdminUserController {
         adminUserService.updateStoreStatus(storeId, request);
 
         return ResponseEntity.noContent().build();
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/stats")
+    public ResponseEntity<OwnerStatsResponseDto> getStats(@RequestParam Long storeId, @RequestParam LocalDate startDate, @RequestParam LocalDate endDate) {
+
+        return ResponseEntity.ok(ownerStatsService.getAdminStats(storeId, startDate, endDate));
     }
 
 }
