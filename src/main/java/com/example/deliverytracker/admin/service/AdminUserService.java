@@ -47,7 +47,6 @@ public class AdminUserService {
 
     @Transactional
     public void updateUserStatus(User user, Long userId, User.Status status){
-        User user = userRepository.findById(userId).orElseThrow(() -> new EntityNotFoundException("유저가 없습니다."));
 
         User.Status beforeStatus = user.getStatus();
 
@@ -62,7 +61,7 @@ public class AdminUserService {
 
         User.Status afterStatus = user.getStatus();
 
-        adminLogService.saveLog(userDetails.getUser(), TargetType.USER, user.getId(), AdminAction.USER_STATUS_CHANGED, "회원 상태 변경", beforeStatus.name(), afterStatus.name());
+        adminLogService.saveLog(user, TargetType.USER, user.getId(), AdminAction.USER_STATUS_CHANGED, "회원 상태 변경", beforeStatus.name(), afterStatus.name());
     }
 
     public Page<StoreAdminResponse> getStores(AdminStoreSearchCondition condition, Pageable pageable){
@@ -84,7 +83,7 @@ public class AdminUserService {
 
             boolean after = store.isActive();
 
-            adminLogService.saveLog(userDetails.getUser(), TargetType.STORE, store.getId(), AdminAction.STORE_ACTIVE_CHANGED,
+            adminLogService.saveLog(user, TargetType.STORE, store.getId(), AdminAction.STORE_ACTIVE_CHANGED,
                     "가게 운영 상태 변경",
                     before ? "운영" : "중지",
                     after ? "운영" : "중지"
@@ -99,7 +98,7 @@ public class AdminUserService {
 
             boolean after = store.isDeleted();
 
-            adminLogService.saveLog(userDetails.getUser(), TargetType.STORE, store.getId(), AdminAction.STORE_DELETED_CHANGED,
+            adminLogService.saveLog(user, TargetType.STORE, store.getId(), AdminAction.STORE_DELETED_CHANGED,
             "가게 삭제 상태 변경",
                     before ? "정상" : "삭제",
                     after ? "정상" : "삭제"
