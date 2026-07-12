@@ -329,7 +329,7 @@ public class UserService {
             throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
         }
 
-        if(user.getStatus()!=User.Status.WITHDRAWN){
+        if(user.getStatus() != User.Status.WITHDRAWN){
             throw new IllegalArgumentException("복구 가능한 계정이 아닙니다.");
         }
 

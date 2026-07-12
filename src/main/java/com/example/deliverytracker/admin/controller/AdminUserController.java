@@ -7,15 +7,15 @@ import com.example.deliverytracker.admin.dto.UserStatusRequest;
 import com.example.deliverytracker.admin.service.AdminUserService;
 import com.example.deliverytracker.order.dto.OwnerStatsResponseDto;
 import com.example.deliverytracker.order.service.OwnerStatsService;
-import com.example.deliverytracker.store.dto.StoreResponse;
-import com.example.deliverytracker.store.dto.StoreSearchCondition;
 import com.example.deliverytracker.store.dto.StoreStatusRequest;
 import com.example.deliverytracker.user.dto.UserResponse;
+import com.example.deliverytracker.user.entity.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -56,9 +56,9 @@ public class AdminUserController {
 
     @PreAuthorize("hasRole('ADMIN')")
     @PatchMapping("/users/{userId}/status")
-    public ResponseEntity<Void> updateUserStatus(@PathVariable Long userId, UserStatusRequest userStatusRequest) {
+    public ResponseEntity<Void> updateUserStatus(@AuthenticationPrincipal UserDetailsImpl userDetails, @PathVariable Long userId, UserStatusRequest userStatusRequest) {
 
-        adminUserService.updateUserStatus(userId,userStatusRequest.getStatus());
+        adminUserService.updateUserStatus(userDetails.getUser(),userId,userStatusRequest.getStatus());
 
         return ResponseEntity.ok().build();
     }
@@ -74,9 +74,9 @@ public class AdminUserController {
 
     @PreAuthorize("hasRole('ADMIN')")
     @PatchMapping("/stores/{storeId}/status")
-    public ResponseEntity<Void> updateStoreStatus(@PathVariable Long storeId, @RequestBody StoreStatusRequest request) {
+    public ResponseEntity<Void> updateStoreStatus(@AuthenticationPrincipal UserDetailsImpl userDetails, @PathVariable Long storeId, @RequestBody StoreStatusRequest request) {
 
-        adminUserService.updateStoreStatus(storeId, request);
+        adminUserService.updateStoreStatus(userDetails.getUser(),storeId, request);
 
         return ResponseEntity.noContent().build();
     }
