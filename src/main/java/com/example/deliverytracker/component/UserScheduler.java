@@ -34,7 +34,7 @@ public class UserScheduler {
                     user.getImageUrl()
             );
 
-            userRepository.delete(user);
+            user.purge();
 
         });
 
