@@ -88,7 +88,8 @@ public class User extends BaseEntity {
         ACTIVE,       // 정상 활성 상태
         INACTIVE,     // 이메일 미인증 또는 비활성화 계정
         SUSPENDED,    // 관리자에 의해 정지됨
-        WITHDRAWN     // 회원 탈퇴한 사용자
+        WITHDRAWN,     // 회원 탈퇴한 사용자
+        PURGED         //복구조차 불가능한 상태
     }
 
     public void changeInfo(String email, String nickname, String phone, String address,String imageUrl) {
@@ -115,5 +116,20 @@ public class User extends BaseEntity {
     public void restore() {
         this.status = Status.ACTIVE;
         this.withdrawnAt = null;
+    }
+
+    public void purge() {
+
+        this.status = Status.PURGED;
+
+        this.email = null;
+
+        this.phone = null;
+
+        this.address = null;
+
+        this.nickname = "탈퇴한 회원";
+
+        this.imageUrl = null;
     }
 }

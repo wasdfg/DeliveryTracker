@@ -159,13 +159,13 @@ public class OrderService {
                 .orderItems(orderItems)
                 .build();
 
-        OrderHistory history = OrderHistory.builder()
-                .order(order)
-                .previousStatus(Order.Status.PENDING)
-                .newStatus(Order.Status.ACCEPTED)
-                .changedBy("OWNER")
-                .reason(null)
-                .build();
+        Order.Status before = order.getStatus();
+
+        order.changeStatus(Order.Status.ACCEPTED);
+
+        Order.Status after = order.getStatus();
+
+        OrderHistory history = OrderHistory.create(order,before, after,"OWNER",null);
 
         for (OrderItem item : orderItems) {
             item.assignOrder(order);
@@ -261,15 +261,13 @@ public class OrderService {
             throw new IllegalStateException("이미 완료되었거나 취소된 주문은 취소할 수 없습니다.");
         }
 
+        Order.Status before = order.getStatus();
+
         order.cancel(Order.Status.CANCELED);
 
-        OrderHistory history = OrderHistory.builder()
-                .order(order)
-                .previousStatus(order.getStatus())
-                .newStatus(Order.Status.CANCELED)
-                .changedBy("OWNER")
-                .reason(reason)
-                .build();
+        Order.Status after = order.getStatus();
+
+        OrderHistory history = OrderHistory.create(order,before, after,"OWNER",reason);
 
         orderHistoryRepository.save(history);
     }
