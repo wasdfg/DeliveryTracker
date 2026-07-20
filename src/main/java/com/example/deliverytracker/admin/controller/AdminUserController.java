@@ -1,5 +1,6 @@
 package com.example.deliverytracker.admin.controller;
 
+import com.example.deliverytracker.admin.dto.AdminDashboardResponse;
 import com.example.deliverytracker.admin.dto.AdminStoreSearchCondition;
 import com.example.deliverytracker.admin.dto.StoreAdminResponse;
 import com.example.deliverytracker.admin.dto.UserSearchCondition;
@@ -61,24 +62,6 @@ public class AdminUserController {
         adminUserService.updateUserStatus(userDetails.getUser(),userId,userStatusRequest.getStatus());
 
         return ResponseEntity.ok().build();
-    }
-
-    @PreAuthorize("hasRole('ADMIN')")
-    @GetMapping("/stores")
-    public ResponseEntity<Page<StoreAdminResponse>> getStores(@ModelAttribute AdminStoreSearchCondition condition, Pageable pageable){
-
-        Page<StoreAdminResponse> stores = adminUserService.getStores(condition,pageable);
-
-        return ResponseEntity.ok(stores);
-    }
-
-    @PreAuthorize("hasRole('ADMIN')")
-    @PatchMapping("/stores/{storeId}/status")
-    public ResponseEntity<Void> updateStoreStatus(@AuthenticationPrincipal UserDetailsImpl userDetails, @PathVariable Long storeId, @RequestBody StoreStatusRequest request) {
-
-        adminUserService.updateStoreStatus(userDetails.getUser(),storeId, request);
-
-        return ResponseEntity.noContent().build();
     }
 
     @PreAuthorize("hasRole('ADMIN')")
