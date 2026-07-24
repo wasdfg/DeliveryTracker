@@ -36,4 +36,19 @@ public interface OrderRepository extends JpaRepository<Order,Long>, OrderReposit
     Page<Order> findAllByStoreIdOrderByRequestedAtDesc(Long storeId, Pageable pageable);
 
     List<Order> findByStatusAndCreatedAtBefore(Order.Status status, LocalDateTime time);
+
+    @Query("""
+            select count(o)
+            from Order o
+            where o.createdAt between :start and :end
+            """)
+    long countTodayOrders(LocalDateTime start, LocalDateTime end);
+
+    @Query("""
+           select sum(o.totalPrice)
+            from Order o
+            where o.createdAt between :start and :end
+            and o.status = com.example.deliverytracker.order.entity.Order.Status.COMPLETED
+            """)
+    Long sumTodaySales(LocalDateTime start, LocalDateTime end);
 }

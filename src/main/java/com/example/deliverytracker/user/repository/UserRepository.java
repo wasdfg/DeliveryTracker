@@ -23,4 +23,8 @@ public interface UserRepository extends JpaRepository<User,Long>, UserRepository
     List<User> findByStatusAndWithdrawnAtBefore(User.Status status, LocalDateTime withdrawnAt);
 
     Page<User> findByEmailContainingOrNicknameContaining(String email, String nickname, Pageable pageable);
+
+    long countByRole(User.Role role);
+
+    long countByStatus(User.Status status);
 }
