@@ -1,5 +1,6 @@
 package com.example.deliverytracker.admin.service;
 
+import com.example.deliverytracker.admin.dto.AdminLogResponse;
 import com.example.deliverytracker.admin.entity.AdminAction;
 import com.example.deliverytracker.admin.entity.AdminLog;
 import com.example.deliverytracker.admin.entity.TargetType;
@@ -8,7 +9,12 @@ import com.example.deliverytracker.user.entity.User;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Slf4j
 @Service
@@ -23,5 +29,17 @@ public class AdminLogService {
         AdminLog adminLog = new AdminLog();
 
         this.adminLogRepository.save(adminLog);
+    }
+
+    public Page<AdminLogResponse> getLogs(Pageable pageable) {
+
+        return adminLogRepository.findAllByOrderByCreatedAtDesc(pageable).map(AdminLogResponse::from);
+    }
+
+    public List<AdminLogResponse> getRecentLogs(int size) {
+
+        Pageable pageable = PageRequest.of(0, size);
+
+        return adminLogRepository.findAllByOrderByCreatedAtDesc(pageable).getContent().stream().map(AdminLogResponse::from).toList();
     }
 }
