@@ -3,11 +3,12 @@ package com.example.deliverytracker.user.repository;
 import com.example.deliverytracker.admin.dto.UserSearchCondition;
 import com.example.deliverytracker.user.entity.User;
 import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -32,21 +33,16 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
                         .limit(pageable.getPageSize())
                         .fetch();
 
-        Long total = queryFactory
-                        .select(user.count())
-                        .from(user)
-                        .where(
-                                keyword(condition),
-                                roleEq(condition.getRole()),
-                                statusEq(condition.getStatus())
-                        )
-                        .fetchOne();
+        JPAQuery<Long> countQuery = queryFactory
+                .select(user.count())
+                .from(user)
+                .where(
+                        keyword(condition),
+                        roleEq(condition.getRole()),
+                        statusEq(condition.getStatus())
+                );
 
-        return new PageImpl<>(
-                content,
-                pageable,
-                total == null ? 0 : total
-        );
+        return PageableExecutionUtils.getPage(content, pageable, countQuery::fetchOne);
     }
 
     private BooleanExpression keyword(UserSearchCondition condition){
