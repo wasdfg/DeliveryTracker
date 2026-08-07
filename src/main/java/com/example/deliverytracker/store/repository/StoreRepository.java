@@ -1,5 +1,6 @@
 package com.example.deliverytracker.store.repository;
 
+import com.example.deliverytracker.admin.dto.StoreAdminDetailResponse;
 import com.example.deliverytracker.store.entity.Store;
 import com.example.deliverytracker.store.entity.StoreCategory;
 import com.example.deliverytracker.user.entity.User;

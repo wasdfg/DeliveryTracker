@@ -1,9 +1,12 @@
 package com.example.deliverytracker.admin.service;
 
 import com.example.deliverytracker.admin.dto.AdminStoreSearchCondition;
+import com.example.deliverytracker.admin.dto.StoreAdminDetailResponse;
 import com.example.deliverytracker.admin.dto.StoreAdminResponse;
 import com.example.deliverytracker.admin.entity.AdminAction;
 import com.example.deliverytracker.admin.entity.TargetType;
+import com.example.deliverytracker.order.dto.StoreSummaryDto;
+import com.example.deliverytracker.order.repository.OrderRepository;
 import com.example.deliverytracker.store.dto.StoreStatusRequest;
 import com.example.deliverytracker.store.entity.Store;
 import com.example.deliverytracker.store.repository.StoreRepository;
@@ -24,6 +27,8 @@ public class AdminStoreService {
     private final StoreRepository storeRepository;
 
     private final AdminLogService adminLogService;
+
+    private final OrderRepository orderRepository;
 
     public Page<StoreAdminResponse> getStores(AdminStoreSearchCondition condition, Pageable pageable){
         Page<Store> stores = storeRepository.searchStoresForAdmin(condition,pageable);
@@ -66,7 +71,19 @@ public class AdminStoreService {
             );
         }
 
-        boolean afterActive = store.isActive();
+        //boolean afterActive = store.isActive();
 
+    }
+
+    public StoreAdminDetailResponse findAdminStore(Long storeId){
+
+        StoreAdminDetailResponse response = storeRepository.findAdminStore(storeId);
+
+        StoreSummaryDto summary = orderRepository.findStoreSummary(storeId);
+
+        response.updateSummary(summary.totalOrderCount(), summary.totalSales());
+
+
+        return response;
     }
 }

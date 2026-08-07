@@ -1,6 +1,7 @@
 package com.example.deliverytracker.store.repository;
 
 import com.example.deliverytracker.admin.dto.AdminStoreSearchCondition;
+import com.example.deliverytracker.admin.dto.StoreAdminDetailResponse;
 import com.example.deliverytracker.store.dto.StoreSearchCondition;
 import com.example.deliverytracker.store.entity.Store;
 import com.querydsl.core.types.Predicate;
@@ -8,6 +9,7 @@ import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.support.PageableExecutionUtils;
@@ -132,5 +134,22 @@ public class StoreRepositoryCustomImpl implements StoreRepositoryCustom {
                         ownerIdEq(condition.getOwnerId())
                 )
                 .fetchOne();
+    }
+
+    @Override
+    public StoreAdminDetailResponse findAdminStore(Long storeId){
+
+        Store findStore = queryFactory
+                .selectFrom(store)
+                .leftJoin(store.category, category).fetchJoin()
+                .leftJoin(store.owner, user).fetchJoin()
+                .where(store.id.eq(storeId))
+                .fetchOne();
+
+        if (findStore == null) {
+            throw new EntityNotFoundException("가게가 없습니다.");
+        }
+
+        return StoreAdminDetailResponse.from(findStore);
     }
 }

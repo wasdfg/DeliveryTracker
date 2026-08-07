@@ -1,8 +1,10 @@
 package com.example.deliverytracker.admin.controller;
 
 import com.example.deliverytracker.admin.dto.AdminStoreSearchCondition;
+import com.example.deliverytracker.admin.dto.StoreAdminDetailResponse;
 import com.example.deliverytracker.admin.dto.StoreAdminResponse;
 import com.example.deliverytracker.admin.service.AdminStoreService;
+import com.example.deliverytracker.store.dto.StoreDetailResponse;
 import com.example.deliverytracker.store.dto.StoreStatusRequest;
 import com.example.deliverytracker.user.entity.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
@@ -42,5 +44,14 @@ public class AdminStoreController {
         adminStoreService.updateStoreStatus(userDetails.getUser(),storeId, request);
 
         return ResponseEntity.noContent().build();
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/stores/{storeId}")
+    public ResponseEntity<StoreAdminDetailResponse> findAdminStore(@PathVariable Long storeId){
+
+        StoreAdminDetailResponse stores = adminStoreService.findAdminStore(storeId);
+
+        return ResponseEntity.ok(stores);
     }
 }
