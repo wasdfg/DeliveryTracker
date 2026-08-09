@@ -4,12 +4,14 @@ import com.example.deliverytracker.order.dto.DailySalesDto;
 import com.example.deliverytracker.order.dto.DayOfWeekStatsDto;
 import com.example.deliverytracker.order.dto.HourlyStatsDto;
 import com.example.deliverytracker.order.dto.MenuStatsDto;
+import com.example.deliverytracker.order.dto.StoreSummaryDto;
 import com.example.deliverytracker.order.entity.Order;
-import com.example.deliverytracker.order.entity.OrderRepositoryCustom;
 import com.querydsl.core.types.Projections;
+import com.querydsl.core.types.dsl.CaseBuilder;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -143,5 +145,34 @@ public class OrderRepositoryCustomImpl implements OrderRepositoryCustom {
                 .fetchCount();
 
         return (double) loyalCustomerCount / currentOrdererIds.size() * 100;
+    }
+
+    @Override
+    public StoreSummaryDto findStoreSummary(Long storeId){
+        return queryFactory.select(
+                Projections.constructor(
+                        StoreSummaryDto.class,
+                        order.id.count(),
+                        order.totalPrice.sum().coalesce(BigDecimal.valueOf(0L)),
+                        order.totalPrice.avg().longValue().coalesce(0L),
+                        new CaseBuilder()
+                                .when(order.status.eq(Order.Status.COMPLETED))
+                                .then(order.totalPrice)
+                                .otherwise(BigDecimal.valueOf(0L))
+                                .sum(),
+                        new CaseBuilder()
+                                .when(order.status.eq(Order.Status.COMPLETED))
+                                .then(order.totalPrice)
+                                .otherwise(BigDecimal.valueOf((Long) null))
+                                .avg()
+                )
+                )
+                .from(order)
+                .where(
+                        order.store.id.eq(storeId)
+                )
+                .fetchOne();
+
+
     }
 }

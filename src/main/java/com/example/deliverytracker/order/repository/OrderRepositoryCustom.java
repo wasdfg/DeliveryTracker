@@ -1,9 +1,10 @@
-package com.example.deliverytracker.order.entity;
+package com.example.deliverytracker.order.repository;
 
 import com.example.deliverytracker.order.dto.DailySalesDto;
 import com.example.deliverytracker.order.dto.DayOfWeekStatsDto;
 import com.example.deliverytracker.order.dto.HourlyStatsDto;
 import com.example.deliverytracker.order.dto.MenuStatsDto;
+import com.example.deliverytracker.order.dto.StoreSummaryDto;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -19,4 +20,6 @@ public interface OrderRepositoryCustom {
     long countCancelledOrders(Long storeId, LocalDateTime start, LocalDateTime end);
 
     double calculateRetentionRate(Long storeId, LocalDateTime start, LocalDateTime end);
+
+    StoreSummaryDto findStoreSummary(Long storeId);
 }

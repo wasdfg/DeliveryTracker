@@ -1,7 +1,6 @@
 package com.example.deliverytracker.order.repository;
 
 import com.example.deliverytracker.order.entity.Order;
-import com.example.deliverytracker.order.entity.OrderRepositoryCustom;
 import com.example.deliverytracker.store.entity.Store;
 import com.example.deliverytracker.user.entity.User;
 import io.lettuce.core.dynamic.annotation.Param;
@@ -51,4 +50,5 @@ public interface OrderRepository extends JpaRepository<Order,Long>, OrderReposit
             and o.status = com.example.deliverytracker.order.entity.Order.Status.COMPLETED
             """)
     Long sumTodaySales(LocalDateTime start, LocalDateTime end);
+
 }
