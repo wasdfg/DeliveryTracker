@@ -1,6 +1,6 @@
 package com.example.deliverytracker.admin.service;
 
-import com.example.deliverytracker.admin.dto.AdminDashboardResponse;
+import com.example.deliverytracker.admin.dto.AdminStatsResponse;
 import com.example.deliverytracker.order.repository.OrderRepository;
 import com.example.deliverytracker.store.repository.StoreRepository;
 import com.example.deliverytracker.user.entity.User;
@@ -17,7 +17,7 @@ import java.util.Optional;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class AdminDashboardService {
+public class AdminStatsService {
 
     private final UserRepository userRepository;
 
@@ -25,7 +25,7 @@ public class AdminDashboardService {
 
     private final OrderRepository orderRepository;
 
-    public AdminDashboardResponse getDashboard() {
+    public AdminStatsResponse getStats() {
 
         long totalUsers = userRepository.countByRole(User.Role.USER);
 
@@ -47,6 +47,6 @@ public class AdminDashboardService {
         double todayAverageOrderPrice =
                 todayOrders == 0 ? 0.0 : (double) todaySales / todayOrders;
 
-        return new AdminDashboardResponse(totalUsers, totalStores, totalRiders, withdrawnUsers, todayOrders, todaySales, todayAverageOrderPrice);
+        return new AdminStatsResponse(totalUsers, totalStores, totalRiders, withdrawnUsers, todayOrders, todaySales, todayAverageOrderPrice);
     }
 }

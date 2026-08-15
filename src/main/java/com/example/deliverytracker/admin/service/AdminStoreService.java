@@ -81,7 +81,7 @@ public class AdminStoreService {
 
         StoreSummaryDto summary = orderRepository.findStoreSummary(storeId);
 
-        response.updateSummary(summary.totalOrderCount(), summary.totalSales());
+        response.updateSummary(summary.totalOrderCount(), summary.totalSales(),summary.averageOrderPrice(), summary.canceledOrderCount(),summary.cancellationRate());
 
 
         return response;

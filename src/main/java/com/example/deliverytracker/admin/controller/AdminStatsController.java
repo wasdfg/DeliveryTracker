@@ -1,7 +1,7 @@
 package com.example.deliverytracker.admin.controller;
 
-import com.example.deliverytracker.admin.dto.AdminDashboardResponse;
-import com.example.deliverytracker.admin.service.AdminDashboardService;
+import com.example.deliverytracker.admin.dto.AdminStatsResponse;
+import com.example.deliverytracker.admin.service.AdminStatsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -12,14 +12,14 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 @RequestMapping("/api/admin")
 @RestController
-public class AdminDashboardController {
+public class AdminStatsController {
 
-    private final AdminDashboardService adminDashboardService;
+    private final AdminStatsService adminStatsService;
 
     @PreAuthorize("hasRole('ADMIN')")
-    @GetMapping("/dashboard")
-    public ResponseEntity<AdminDashboardResponse> getDashboard() {
+    @GetMapping("/stats")
+    public ResponseEntity<AdminStatsResponse> getStats() {
 
-        return ResponseEntity.ok(adminDashboardService.getDashboard());
+        return ResponseEntity.ok(adminStatsService.getStats());
     }
 }
