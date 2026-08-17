@@ -1,6 +1,7 @@
 package com.example.deliverytracker.admin.service;
 
 import com.example.deliverytracker.admin.dto.AdminLogResponse;
+import com.example.deliverytracker.admin.dto.AdminLogSearchCondition;
 import com.example.deliverytracker.admin.entity.AdminAction;
 import com.example.deliverytracker.admin.entity.AdminLog;
 import com.example.deliverytracker.admin.entity.TargetType;
@@ -26,14 +27,14 @@ public class AdminLogService {
     @Transactional
     public void saveLog(User admin, TargetType targetType, Long targetId, AdminAction action, String description, String beforeValue, String afterValue){
 
-        AdminLog adminLog = new AdminLog();
+        AdminLog adminLog = AdminLog.of(admin, targetType, targetId, action, description, beforeValue, afterValue);
 
         this.adminLogRepository.save(adminLog);
     }
 
-    public Page<AdminLogResponse> getLogs(Pageable pageable) {
+    public Page<AdminLogResponse> getLogs(AdminLogSearchCondition condition, Pageable pageable) {
 
-        return adminLogRepository.findAllByOrderByCreatedAtDesc(pageable).map(AdminLogResponse::from);
+        return adminLogRepository.searchLogs(condition, pageable).map(AdminLogResponse::from);
     }
 
     public List<AdminLogResponse> getRecentLogs(int size) {

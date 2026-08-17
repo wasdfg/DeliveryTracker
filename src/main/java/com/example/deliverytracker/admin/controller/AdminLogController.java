@@ -1,6 +1,7 @@
 package com.example.deliverytracker.admin.controller;
 
 import com.example.deliverytracker.admin.dto.AdminLogResponse;
+import com.example.deliverytracker.admin.dto.AdminLogSearchCondition;
 import com.example.deliverytracker.admin.service.AdminLogService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -23,9 +24,9 @@ public class AdminLogController {
 
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping
-    public ResponseEntity<Page<AdminLogResponse>> getLogs(Pageable pageable) {
+    public ResponseEntity<Page<AdminLogResponse>> getLogs(AdminLogSearchCondition condition, Pageable pageable) {
 
-        return ResponseEntity.ok(adminLogService.getLogs(pageable));
+        return ResponseEntity.ok(adminLogService.getLogs(condition, pageable));
     }
 
     @PreAuthorize("hasRole('ADMIN')")
