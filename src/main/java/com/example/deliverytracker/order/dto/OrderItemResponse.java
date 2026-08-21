@@ -4,6 +4,7 @@ import com.example.deliverytracker.order.entity.OrderItem;
 import lombok.Getter;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Getter
 public class OrderItemResponse {
@@ -23,5 +24,11 @@ public class OrderItemResponse {
                 item.getQuantity(),
                 item.getPrice()
         );
+    }
+
+    public static List<OrderItemResponse> from(List<OrderItem> orderItems) {
+        return orderItems.stream()
+                .map(OrderItemResponse::from)
+                .toList();
     }
 }

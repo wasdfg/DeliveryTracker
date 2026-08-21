@@ -4,6 +4,7 @@ import com.example.deliverytracker.order.dto.OrderItemResponse;
 import com.example.deliverytracker.order.entity.Order;
 import lombok.Getter;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -20,7 +21,7 @@ public class AdminOrderDetailResponse {
 
     private Order.Status status;
 
-    private Long totalPrice;
+    private BigDecimal totalPrice;
 
     private LocalDateTime createdAt;
 
@@ -29,7 +30,7 @@ public class AdminOrderDetailResponse {
     private List<OrderItemResponse> items;
 
     public AdminOrderDetailResponse(Long orderId, String userNickname, String userPhone, String storeName, Order.Status status,
-            Long totalPrice, LocalDateTime createdAt, String deliveryAddress, List<OrderItemResponse> items) {
+            BigDecimal totalPrice, LocalDateTime createdAt, String deliveryAddress, List<OrderItemResponse> items) {
         this.orderId = orderId;
         this.userNickname = userNickname;
         this.userPhone = userPhone;
@@ -40,4 +41,19 @@ public class AdminOrderDetailResponse {
         this.deliveryAddress = deliveryAddress;
         this.items = items;
     }
+
+    public static AdminOrderDetailResponse from(Order order) {
+        return new AdminOrderDetailResponse(
+                order.getId(),
+                order.getUser().getNickname(),
+                order.getUser().getPhone(),
+                order.getStore().getName(),
+                order.getStatus(),
+                order.getTotalPrice(),
+                order.getCreatedAt(),
+                order.getDeliveryAddress(),
+                OrderItemResponse.from(order.getOrderItems())
+        );
+    }
+
 }

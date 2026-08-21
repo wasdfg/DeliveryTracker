@@ -5,6 +5,7 @@ import com.example.deliverytracker.admin.dto.AdminOrderResponse;
 import com.example.deliverytracker.admin.dto.AdminOrderSearchCondition;
 import com.example.deliverytracker.admin.repository.AdminOrderRepository;
 import com.example.deliverytracker.order.entity.Order;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
