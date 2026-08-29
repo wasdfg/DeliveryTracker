@@ -1,9 +1,11 @@
 package com.example.deliverytracker.admin.dto;
 
 import com.example.deliverytracker.order.entity.Order;
+import lombok.Getter;
 
 import java.time.LocalDate;
 
+@Getter
 public class AdminOrderSearchCondition {
     private Long orderId;
 

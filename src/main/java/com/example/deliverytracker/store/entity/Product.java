@@ -109,5 +109,9 @@ public class Product extends BaseEntity {
     public void toggleAvailability() {
         this.isAvailable = !this.isAvailable;
     }
+
+    public void restore() {
+        this.isDelete = false;
+    }
 }
 

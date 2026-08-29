@@ -7,5 +7,8 @@ public enum AdminAction {
     UPDATE_ORDER_STATUS,
     CANCEL_ORDER,
     DELETE_ORDER,
-
+    STATUS_CHANGE,
+    RESTORE,
+    DELETE,
+    ;
 }

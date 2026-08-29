@@ -5,5 +5,7 @@ public enum TargetType {
 
     STORE,
 
-    ORDER
+    ORDER,
+
+    PRODUCT,
 }

@@ -2,6 +2,9 @@ package com.example.deliverytracker.admin.repository;
 
 import com.example.deliverytracker.admin.dto.AdminOrderSearchCondition;
 import com.example.deliverytracker.order.entity.Order;
+import com.example.deliverytracker.order.entity.QOrder;
+import com.example.deliverytracker.store.entity.QStore;
+import com.example.deliverytracker.user.entity.QUser;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +22,12 @@ import java.util.Optional;
 public class AdminOrderRepositoryImpl implements AdminOrderRepositoryCustom {
 
     private final JPAQueryFactory queryFactory;
+
+    private final QOrder order = QOrder.order;
+
+    private final QStore store = QStore.store;
+
+    private final QUser user = QUser.user;
 
     @Override
     public Page<Order> searchOrders(AdminOrderSearchCondition condition, Pageable pageable) {
