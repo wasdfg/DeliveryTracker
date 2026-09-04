@@ -8,4 +8,6 @@ public enum TargetType {
     ORDER,
 
     PRODUCT,
+
+    REPORT,
 }

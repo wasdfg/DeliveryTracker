@@ -1,8 +1,11 @@
 package com.example.deliverytracker.admin.repository;
 
 import com.example.deliverytracker.admin.dto.AdminLogSearchCondition;
+import com.example.deliverytracker.admin.entity.AdminAction;
 import com.example.deliverytracker.admin.entity.AdminLog;
+import com.example.deliverytracker.admin.entity.QAdminLog;
 import com.example.deliverytracker.admin.entity.TargetType;
+import com.example.deliverytracker.user.entity.QUser;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
@@ -11,6 +14,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Repository
@@ -18,6 +22,10 @@ import java.util.List;
 public class AdminLogRepositoryImpl implements AdminLogRepositoryCustom {
 
     private final JPAQueryFactory queryFactory;
+
+    private final QAdminLog adminLog = QAdminLog.adminLog;
+
+    private final QUser user = QUser.user;
 
     @Override
     public Page<AdminLog> searchLogs(AdminLogSearchCondition condition, Pageable pageable) {
@@ -27,7 +35,7 @@ public class AdminLogRepositoryImpl implements AdminLogRepositoryCustom {
                 .leftJoin(adminLog.admin, user)
                 .fetchJoin()
                 .where(
-                        adminKeyword(condition),
+                        adminKeyword(condition.getAdminKeyword()),
                         targetTypeEq(condition.getTargetType()),
                         actionEq(condition.getAction()),
                         targetIdEq(condition.getTargetId()),
@@ -44,7 +52,7 @@ public class AdminLogRepositoryImpl implements AdminLogRepositoryCustom {
                 .from(adminLog)
                 .leftJoin(adminLog.admin, user)
                 .where(
-                        adminKeyword(condition),
+                        adminKeyword(condition.getAdminKeyword()),
                         targetTypeEq(condition.getTargetType()),
                         actionEq(condition.getAction()),
                         targetIdEq(condition.getTargetId()),
@@ -85,4 +93,15 @@ public class AdminLogRepositoryImpl implements AdminLogRepositoryCustom {
                 ? null
                 : adminLog.targetId.eq(targetId);
     }
+
+    private BooleanExpression createdAtGoe(LocalDate date) {
+
+        return date == null ? null : adminLog.createdAt.goe(date.atStartOfDay());
+    }
+
+    private BooleanExpression createdAtLoe(LocalDate date) {
+
+        return date == null ? null : adminLog.createdAt.lt(date.plusDays(1).atStartOfDay());
+    }
+
 }

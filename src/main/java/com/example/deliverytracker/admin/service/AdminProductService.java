@@ -64,7 +64,7 @@ public class AdminProductService {
             throw new IllegalArgumentException("이미 삭제된 제품입니다.");
         }
 
-        boolean beforeValue = product.isDelete();
+        boolean beforeValue = true;
 
         product.delete();
 
@@ -81,7 +81,7 @@ public class AdminProductService {
             throw new IllegalArgumentException("이미 복구된 제품입니다.");
         }
 
-        boolean beforeValue = product.isDelete();
+        boolean beforeValue = false;
 
         product.restore();
 

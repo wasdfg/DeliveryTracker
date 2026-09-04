@@ -10,5 +10,8 @@ public enum AdminAction {
     STATUS_CHANGE,
     RESTORE,
     DELETE,
+    REPORT_PROCESS_STARTED,
+    REPORT_RESOLVED,
+    REPORT_REJECTED,
     ;
 }
