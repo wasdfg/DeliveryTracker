@@ -75,7 +75,7 @@ public class AdminProductService {
 
     @Transactional
     public void changeProductRestore(Long productId, String reason, User admin) {
-        Product product = this.productRepository.findById(productId).orElseThrow(() -> new EntityNotFoundException("제품을 찾을 수 없습니다."));;
+        Product product = this.productRepository.findById(productId).orElseThrow(() -> new EntityNotFoundException("제품을 찾을 수 없습니다."));
 
         if(product.isDelete()){
             throw new IllegalArgumentException("이미 복구된 제품입니다.");
