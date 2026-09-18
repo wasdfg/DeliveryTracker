@@ -56,7 +56,7 @@ public class ReportController {
     @PatchMapping("/{reportId}/resolve")
     public ResponseEntity<Void> resolveReport(@PathVariable Long reportId, @Valid @RequestBody ReportProcessRequest request, @AuthenticationPrincipal UserDetailsImpl userDetails) {
 
-        reportService.resolveReport(reportId, request.getComment(), userDetails.getUser());
+        reportService.resolveReport(reportId, request, userDetails.getUser());
 
         return ResponseEntity.ok().build();
     }

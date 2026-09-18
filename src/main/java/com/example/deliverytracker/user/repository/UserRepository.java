@@ -27,4 +27,7 @@ public interface UserRepository extends JpaRepository<User,Long>, UserRepository
     long countByRole(User.Role role);
 
     long countByStatus(User.Status status);
+
+
+    List<User> findByStatusAndSuspendedUntilBefore(User.Status status, LocalDateTime suspendedUntil);
 }

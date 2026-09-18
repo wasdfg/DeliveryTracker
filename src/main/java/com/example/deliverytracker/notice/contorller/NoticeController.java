@@ -50,7 +50,7 @@ public class NoticeController {
     }
 
     @PreAuthorize("hasRole('ADMIN')")
-    @DeleteMapping("/{noticeId}/delete")
+    @DeleteMapping("/{noticeId}")
     public ResponseEntity<?> deleteNotice(@PathVariable Long noticeId){
 
         this.noticeService.deleteNotice(noticeId);

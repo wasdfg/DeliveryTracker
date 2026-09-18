@@ -9,6 +9,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.List;
 
 @Component
@@ -23,16 +24,18 @@ public class UserScheduler {
     @Transactional
     public void purgeWithdrawUsers(){
 
-        LocalDateTime cutoff =
-                LocalDateTime.now()
-                        .minusDays(30);
+        LocalDateTime now = LocalDateTime.now(ZoneId.of("Asia/Seoul"));
+
+        List<User> suspendedUsers = userRepository.findByStatusAndSuspendedUntilBefore(User.Status.SUSPENDED, now);
+
+        suspendedUsers.forEach(User::restore);
+
+        LocalDateTime cutoff = LocalDateTime.now().minusDays(30);
 
         List<User> users = userRepository.findByStatusAndWithdrawnAtBefore(User.Status.WITHDRAWN, cutoff);
 
         users.forEach(user->{
-            imageService.delete(
-                    user.getImageUrl()
-            );
+            imageService.delete(user.getImageUrl());
 
             user.purge();
 

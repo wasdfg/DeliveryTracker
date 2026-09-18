@@ -76,6 +76,8 @@ public class User extends BaseEntity {
 
     private LocalDateTime withdrawnAt;
 
+    private LocalDateTime suspendedUntil;
+
     public void updateFcmToken(String fcmToken) {
         this.fcmToken = fcmToken;
     }
@@ -106,6 +108,10 @@ public class User extends BaseEntity {
 
     public void changeStatus(Status status) {
         this.status = status;
+
+        if (status != Status.SUSPENDED) {
+            this.suspendedUntil = null;
+        }
     }
 
     public void withdraw() {
@@ -116,6 +122,7 @@ public class User extends BaseEntity {
     public void restore() {
         this.status = Status.ACTIVE;
         this.withdrawnAt = null;
+        this.suspendedUntil = null;
     }
 
     public void purge() {
@@ -131,5 +138,15 @@ public class User extends BaseEntity {
         this.nickname = "탈퇴한 회원";
 
         this.imageUrl = null;
+    }
+
+    public void suspend(LocalDateTime suspendedUntil) {
+        this.status = Status.SUSPENDED;
+        this.suspendedUntil = suspendedUntil;
+    }
+
+    public void restoreSuspension() {
+        this.status = Status.ACTIVE;
+        this.suspendedUntil = null;
     }
 }

@@ -3,8 +3,10 @@ package com.example.deliverytracker.report.service;
 import com.example.deliverytracker.admin.entity.AdminAction;
 import com.example.deliverytracker.admin.entity.TargetType;
 import com.example.deliverytracker.admin.service.AdminLogService;
+import com.example.deliverytracker.admin.service.AdminUserService;
 import com.example.deliverytracker.report.dto.ReportCreateRequest;
 import com.example.deliverytracker.report.dto.ReportDetailResponse;
+import com.example.deliverytracker.report.dto.ReportProcessRequest;
 import com.example.deliverytracker.report.dto.ReportResponse;
 import com.example.deliverytracker.report.dto.ReportSearchCondition;
 import com.example.deliverytracker.report.entity.Report;
@@ -27,6 +29,8 @@ public class ReportService {
     private final ReportRepository reportRepository;
 
     private final AdminLogService adminLogService;
+
+    private final AdminUserService adminUserService;
 
     public Page<ReportResponse> getReports(ReportSearchCondition condition, Pageable pageable){
 
@@ -58,17 +62,26 @@ public class ReportService {
 
 
     @Transactional
-    public void resolveReport(Long reportId, String adminComment, User admin){
+    public void resolveReport(Long reportId, ReportProcessRequest request, User admin){
 
         Report report = reportRepository.findReport(reportId).orElseThrow(() -> new EntityNotFoundException("신고를 찾을 수 없습니다."));
 
         ReportStatus beforeValue = report.getStatus();
 
-        report.resolve(adminComment);
+        if (request.isSuspendUser()) {
+
+            if (report.getTargetType() != com.example.deliverytracker.report.entity.TargetType.USER) {
+                throw new IllegalArgumentException("회원 신고만 회원 정지 처리를 할 수 있습니다.");
+            }
+
+            adminUserService.suspendUser(admin, report.getTargetId(), request.getSuspensionDays());
+        }
+
+        report.resolve(request.getComment());
 
         ReportStatus afterValue = report.getStatus();
 
-        adminLogService.saveLog(admin, TargetType.REPORT, reportId, AdminAction.REPORT_RESOLVED, adminComment, beforeValue.name(), afterValue.name());
+        adminLogService.saveLog(admin, TargetType.REPORT, reportId, AdminAction.REPORT_RESOLVED, request.getComment(), beforeValue.name(), afterValue.name());
     }
 
 
