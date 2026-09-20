@@ -1,5 +1,6 @@
 package com.example.deliverytracker.admin.controller;
 
+import com.example.deliverytracker.admin.dto.AdminUserResponse;
 import com.example.deliverytracker.admin.dto.UserSearchCondition;
 import com.example.deliverytracker.admin.dto.UserStatusRequest;
 import com.example.deliverytracker.admin.service.AdminUserService;
@@ -42,9 +43,9 @@ public class AdminUserController {
 
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/users/{userId}")
-    public ResponseEntity<UserResponse> getUserInfo(@PathVariable Long userId) {
+    public ResponseEntity<AdminUserResponse> getUserInfo(@PathVariable Long userId) {
 
-        UserResponse response = adminUserService.getUserInfo(userId);
+        AdminUserResponse response = adminUserService.getUserInfo(userId);
 
         return ResponseEntity.ok(response);
     }

@@ -1,5 +1,6 @@
 package com.example.deliverytracker.admin.service;
 
+import com.example.deliverytracker.admin.dto.AdminUserResponse;
 import com.example.deliverytracker.admin.dto.UserSearchCondition;
 import com.example.deliverytracker.admin.entity.AdminAction;
 import com.example.deliverytracker.admin.entity.TargetType;
@@ -33,10 +34,10 @@ public class AdminUserService {
         return page.map(UserResponse::new);
     }
 
-    public UserResponse getUserInfo(Long userId){
+    public AdminUserResponse getUserInfo(Long userId){
         User user = userRepository.getReferenceById(userId);
 
-        return new UserResponse(user);
+        return new AdminUserResponse(user);
     }
 
     @Transactional
