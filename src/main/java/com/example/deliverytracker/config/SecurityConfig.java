@@ -2,6 +2,7 @@ package com.example.deliverytracker.config;
 
 import com.example.deliverytracker.global.jwt.JwtAuthenticationFilter;
 import com.example.deliverytracker.global.jwt.JwtProvider;
+import com.example.deliverytracker.user.repository.UserRepository;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -23,6 +24,8 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig {
 
     private final JwtProvider jwtProvider;
+
+    private final UserRepository userRepository;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -61,7 +64,7 @@ public class SecurityConfig {
 
     @Bean
     public JwtAuthenticationFilter jwtAuthenticationFilter() {
-        return new JwtAuthenticationFilter(jwtProvider);
+        return new JwtAuthenticationFilter(jwtProvider, userRepository);
     }
 }
 
