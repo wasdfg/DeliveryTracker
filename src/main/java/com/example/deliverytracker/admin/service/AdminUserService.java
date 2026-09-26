@@ -69,7 +69,12 @@ public class AdminUserService {
         LocalDateTime suspendedUntil = null;
 
         if (suspensionDays != null) {
-            suspendedUntil = LocalDateTime.now(ZoneId.of("Asia/Seoul")).plusDays(suspensionDays);
+            suspendedUntil = LocalDateTime.now(ZoneId.of("Asia/Seoul"))
+                    .plusDays(suspensionDays)
+                    .withHour(3)
+                    .withMinute(0)
+                    .withSecond(0)
+                    .withNano(0);
         }
 
         user.suspend(suspendedUntil);

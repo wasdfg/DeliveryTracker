@@ -129,7 +129,7 @@ public class UserService {
         User user = userRepository.findByIdForLogin(request.getIdForLogin())
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 계정입니다."));
 
-        if(user == null || !passwordEncoder.matches(request.getPassword(), user.getPassword())){
+        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
             throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
         }
 
