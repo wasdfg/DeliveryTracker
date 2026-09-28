@@ -45,6 +45,10 @@ public class Rider extends BaseEntity {
 
     private LocalDateTime updatedAt;
 
+    private Double latitude;
+
+    private Double longitude;
+
     @OneToOne
     @MapsId
     @JoinColumn(name = "id")
@@ -69,5 +73,10 @@ public class Rider extends BaseEntity {
 
     public void changeStatus(Status status) {
         this.status = status;
+    }
+
+    public void updateLocation(Double latitude, Double longitude) {
+        this.latitude = latitude;
+        this.longitude = longitude;
     }
 }

@@ -65,4 +65,39 @@ public class ProximityService {
             redisTemplate.opsForValue().set(redisKey, "true", 1, TimeUnit.HOURS);
         }
     }
+
+    public void checkProximity(Long orderId, Double latitude, Double longitude) {
+
+        String redisKey = "arrival-notified:" + orderId;
+
+        Boolean alreadyNotified = redisTemplate.opsForValue().get(redisKey) != null;
+
+        if (alreadyNotified) {
+            return;
+        }
+
+        Order order = orderRepository.findById(orderId).orElse(null);
+
+        if (order == null || order.getDeliveryLatitude() == null) {
+            return;
+        }
+
+        double distance = LocationUtil.calculateDistanceInMeters(latitude, longitude, order.getDeliveryLatitude(), order.getDeliveryLongitude());
+
+        if (distance <= ARRIVAL_THRESHOLD_METERS) {
+
+            RiderArrivingEvent event = new RiderArrivingEvent(order.getId(), order.getUser().getId());
+
+            redisPublisher.publish("order-channel", event);
+
+            notificationService.createNotification(order.getUser().getId(), NotificationType.RIDER_ARRIVING, "라이더가 곧 도착중입니다. 배달번호: "
+                            + order.getDelivery().getId(),
+                    "/orders/" + order.getId(),
+                    order.getId(),
+                    order.getDelivery().getRider().getId()
+            );
+
+            redisTemplate.opsForValue().set(redisKey, "true", 1, TimeUnit.HOURS);
+        }
+    }
 }

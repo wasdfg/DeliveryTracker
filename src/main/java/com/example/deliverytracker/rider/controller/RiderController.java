@@ -1,10 +1,12 @@
 package com.example.deliverytracker.rider.controller;
 
 import com.example.deliverytracker.global.jwt.JwtProvider;
+import com.example.deliverytracker.rider.dto.RiderLocationUpdateRequest;
 import com.example.deliverytracker.rider.dto.RiderProfileResponse;
 import com.example.deliverytracker.rider.dto.RiderStatusRequest;
 import com.example.deliverytracker.rider.service.RiderService;
 import com.example.deliverytracker.user.entity.UserDetailsImpl;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -38,4 +40,12 @@ public class RiderController {
         return ResponseEntity.ok().build();
     }
 
+    @PreAuthorize("hasRole('RIDER')")
+    @PostMapping("/location")
+    public ResponseEntity<Void> updateLocation(@Valid @RequestBody RiderLocationUpdateRequest request, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+
+        riderService.updateLocation(userDetails.getUser(), request);
+
+        return ResponseEntity.ok().build();
+    }
 }
