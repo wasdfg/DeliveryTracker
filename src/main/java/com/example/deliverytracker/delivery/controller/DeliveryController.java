@@ -4,6 +4,7 @@ import com.example.deliverytracker.delivery.dto.DeliveryRequest;
 import com.example.deliverytracker.delivery.dto.DeliveryResponse;
 import com.example.deliverytracker.delivery.entity.DeliveryStatus;
 import com.example.deliverytracker.delivery.service.DeliveryService;
+import com.example.deliverytracker.rider.dto.RiderLocationResponse;
 import com.example.deliverytracker.rider.entity.Rider;
 import com.example.deliverytracker.rider.repository.RiderRepository;
 import com.example.deliverytracker.rider.service.RiderService;
@@ -35,8 +36,6 @@ public class DeliveryController {
 
     private final DeliveryService deliveryService;
 
-    private final RiderService riderService;
-
     private final RiderRepository riderRepository;
 
     @PostMapping("/orders/{orderId}/deliveries")
@@ -49,9 +48,7 @@ public class DeliveryController {
 
         deliveryService.requestDelivery(orderId, request, userDetails.getUser());
 
-        return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .body("주문이 완료되었습니다.");
+        return ResponseEntity.status(HttpStatus.CREATED).body("주문이 완료되었습니다.");
     }
 
     @GetMapping("/delivery/available")
@@ -134,6 +131,14 @@ public class DeliveryController {
                 .orElseThrow(() -> new EntityNotFoundException("라이더를 찾을 수 없습니다."));
 
         DeliveryResponse response = deliveryService.changeStatus(id,rider,status);
+
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/delivery/{id}/location")
+    public ResponseEntity<RiderLocationResponse> getRiderLocation(@PathVariable Long id, @AuthenticationPrincipal UserDetailsImpl userDetails){
+
+        RiderLocationResponse response = deliveryService.getRiderLocation(id,userDetails.getUser());
 
         return ResponseEntity.ok(response);
     }

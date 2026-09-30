@@ -23,4 +23,6 @@ public interface DeliveryRepository extends JpaRepository<Delivery,Long> {
     Page<Delivery> findByStatusAndRiderIsNull(Pageable pageable);
 
     Page<Delivery> findByRiderId(Long riderId,Pageable pageable);
+
+    Optional<Delivery> findByOrder_IdAndRider_Id(Long orderId, Long riderId);
 }

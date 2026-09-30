@@ -12,6 +12,7 @@ import com.example.deliverytracker.order.repository.OrderRepository;
 import com.example.deliverytracker.order.service.OrderService;
 import com.example.deliverytracker.redis.RedisPublisher;
 import com.example.deliverytracker.redis.dto.DeliveryStartedEvent;
+import com.example.deliverytracker.rider.dto.RiderLocationResponse;
 import com.example.deliverytracker.rider.entity.Rider;
 import com.example.deliverytracker.user.entity.User;
 import jakarta.persistence.EntityNotFoundException;
@@ -24,6 +25,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.security.access.AccessDeniedException;
 
 import java.util.EnumSet;
+import java.util.Objects;
 import java.util.Optional;
 
 @Slf4j //로그용
@@ -161,5 +163,26 @@ public class DeliveryService {
         public AlreadyAssignedException(String message) {
             super(message);
         }
+    }
+
+    public RiderLocationResponse getRiderLocation(Long deliveryId, User user){
+        Delivery delivery = deliveryRepository.findById(deliveryId)
+                .orElseThrow(() -> new EntityNotFoundException("배송을 찾을 수 없습니다."));
+
+        if(!DeliveryStatus.DELIVERING.equals(delivery.getStatus())){
+            throw new IllegalArgumentException("해당 상태에서는 확인하실 수 없습니다.");
+        }
+
+        if(!Objects.equals(user.getId(), delivery.getOrder().getUser().getId())){
+            throw new AccessDeniedException("주문자만 위치정보를 확인하실 수 있습니다.");
+        }
+
+        Rider rider = delivery.getRider();
+
+        if (rider == null) {
+            throw new EntityNotFoundException("배정된 라이더가 없습니다.");
+        }
+
+        return new RiderLocationResponse(rider.getLatitude(), rider.getLongitude());
     }
 }
