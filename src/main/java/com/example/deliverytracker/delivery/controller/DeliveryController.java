@@ -1,5 +1,6 @@
 package com.example.deliverytracker.delivery.controller;
 
+import com.example.deliverytracker.delivery.dto.DeliveryFailRequest;
 import com.example.deliverytracker.delivery.dto.DeliveryRequest;
 import com.example.deliverytracker.delivery.dto.DeliveryResponse;
 import com.example.deliverytracker.delivery.entity.DeliveryStatus;
@@ -141,5 +142,14 @@ public class DeliveryController {
         RiderLocationResponse response = deliveryService.getRiderLocation(id,userDetails.getUser());
 
         return ResponseEntity.ok(response);
+    }
+
+
+    @PatchMapping("/deliveries/{deliveryId}/fail")
+    public ResponseEntity<Void> failDelivery(@PathVariable Long deliveryId, @Valid @RequestBody DeliveryFailRequest request, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+
+        deliveryService.failDelivery(deliveryId, request, userDetails.getUser());
+
+        return ResponseEntity.ok().build();
     }
 }

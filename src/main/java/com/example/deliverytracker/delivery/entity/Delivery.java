@@ -4,6 +4,7 @@ import com.example.deliverytracker.common.BaseEntity;
 import com.example.deliverytracker.order.entity.Order;
 import com.example.deliverytracker.rider.entity.Rider;
 import com.example.deliverytracker.user.entity.User;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -20,6 +21,9 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 
 @Entity
 @Getter
@@ -55,6 +59,12 @@ public class Delivery extends BaseEntity {
     @JoinColumn(name = "order_id", nullable = false)
     private Order order;
 
+    @Enumerated(EnumType.STRING)
+    @Column
+    private DeliveryFailureReason failedReason;
+
+    private LocalDateTime failedAt;
+
 
     public void updateStatus(DeliveryStatus status) {
         this.status = status;
@@ -64,5 +74,11 @@ public class Delivery extends BaseEntity {
         this.rider = rider;
         this.rider.changeStatus(Rider.Status.BUSY);
         this.status = DeliveryStatus.ASSIGNED;
+    }
+
+    public void fail(DeliveryFailureReason reason) {
+        this.status = DeliveryStatus.FAILED;
+        this.failedReason = reason;
+        this.failedAt = LocalDateTime.now(ZoneId.of("Asia/Seoul"));
     }
 }

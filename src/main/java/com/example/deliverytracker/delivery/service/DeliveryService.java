@@ -1,5 +1,6 @@
 package com.example.deliverytracker.delivery.service;
 
+import com.example.deliverytracker.delivery.dto.DeliveryFailRequest;
 import com.example.deliverytracker.delivery.dto.DeliveryRequest;
 import com.example.deliverytracker.delivery.dto.DeliveryResponse;
 import com.example.deliverytracker.delivery.entity.Delivery;
@@ -184,5 +185,22 @@ public class DeliveryService {
         }
 
         return new RiderLocationResponse(rider.getLatitude(), rider.getLongitude());
+    }
+
+    @Transactional
+    public void failDelivery(Long deliveryId, DeliveryFailRequest request, User user) {
+        Delivery delivery = deliveryRepository.findById(deliveryId).orElseThrow(() ->
+                        new EntityNotFoundException("배송을 찾을 수 없습니다.")
+                );
+
+        if (delivery.getRider() == null || !delivery.getRider().getUser().getId().equals(user.getId())) {
+            throw new AccessDeniedException("본인에게 배정된 배송만 실패 처리할 수 있습니다.");
+        }
+
+        if (!DeliveryStatus.PICKED_UP.equals(delivery.getStatus()) && !DeliveryStatus.DELIVERING.equals(delivery.getStatus())) {
+            throw new IllegalStateException("현재 상태에서는 배송 실패 처리를 할 수 없습니다.");
+        }
+
+        delivery.fail(request.getReason());
     }
 }
