@@ -18,8 +18,8 @@ public class OrderCreateRequest {
     @NotBlank
     private String pickupAddress;
 
-    @NotBlank
-    private String deliveryAddress;
+    @NotNull
+    private Long deliveryAddressId;
 
     @NotNull
     private Long storeId;

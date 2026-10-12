@@ -1,7 +1,9 @@
 package com.example.deliverytracker.user.entity;
 
 import com.example.deliverytracker.common.BaseEntity;
+import com.example.deliverytracker.delivery.entity.DeliveryAddress;
 import com.example.deliverytracker.review.entity.Review;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -77,6 +79,10 @@ public class User extends BaseEntity {
     private LocalDateTime withdrawnAt;
 
     private LocalDateTime suspendedUntil;
+
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<DeliveryAddress> deliveryAddresses = new ArrayList<>();
 
     public void updateFcmToken(String fcmToken) {
         this.fcmToken = fcmToken;

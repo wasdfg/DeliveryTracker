@@ -1,6 +1,8 @@
 package com.example.deliverytracker.order.service;
 
 import com.example.deliverytracker.coupon.service.CouponService;
+import com.example.deliverytracker.delivery.entity.DeliveryAddress;
+import com.example.deliverytracker.delivery.repository.DeliveryAddressRepository;
 import com.example.deliverytracker.notification.entity.NotificationType;
 import com.example.deliverytracker.notification.service.NotificationService;
 import com.example.deliverytracker.order.dto.OrderCreateRequest;
@@ -65,6 +67,8 @@ public class OrderService {
     private final NotificationService notificationService;
 
     private final OrderHistoryRepository orderHistoryRepository;
+
+    private final DeliveryAddressRepository deliveryAddressRepository;
 
     @Transactional
     public void createOrder(OrderCreateRequest request, User user, Long userCouponId){
@@ -139,7 +143,14 @@ public class OrderService {
 
         BigDecimal finalPrice = totalPrice.subtract(BigDecimal.valueOf(discountAmount));
 
-        Coordinates coords = geocodingService.getCoordinates(request.getDeliveryAddress());
+        DeliveryAddress selectedAddress = deliveryAddressRepository.findByIdAndUserId(request.getDeliveryAddressId(), user.getId())
+                .orElseThrow(() -> new EntityNotFoundException("배송지 정보를 찾을 수 없습니다."));
+
+        String fullAddress = selectedAddress.getAddress();
+
+        if (selectedAddress.getDetailAddress() != null && !selectedAddress.getDetailAddress().isBlank()) {
+            fullAddress += " " + selectedAddress.getDetailAddress();
+        }
 
         if (store.getCurrentDeliveryTime() == null) {
             throw new IllegalStateException("가게에서 배달 시간을 설정하지 않아 주문할 수 없습니다.");
@@ -148,10 +159,10 @@ public class OrderService {
         Order order = Order.builder()
                 .user(user)
                 .store(store)
-                .deliveryAddress(request.getDeliveryAddress())
+                .deliveryAddress(fullAddress)
                 .pickupAddress(request.getPickupAddress())
-                .deliveryLatitude(coords.getLatitude())   // 변환된 위도 저장
-                .deliveryLongitude(coords.getLongitude()) // 변환된 경도 저장
+                .deliveryLatitude(selectedAddress.getLatitude()) // 변환된 위도 저장
+                .deliveryLongitude(selectedAddress.getLongitude()) // 변환된 경도 저장
                 .requestedAt(LocalDateTime.now())
                 .estimatedDeliveryTime(store.getCurrentDeliveryTime().getDescription())
                 .status(Order.Status.PENDING)

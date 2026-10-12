@@ -48,4 +48,31 @@ public class DeliveryAddress extends BaseEntity {
 
     @Column(nullable = false)
     private boolean defaultAddress;
+
+    public void setDefaultAddress(boolean defaultAddress) {
+        this.defaultAddress = defaultAddress;
+    }
+
+    public void update(String name, String receiverName, String receiverPhone, String address, String detailAddress, Double latitude, Double longitude, boolean defaultAddress) {
+        this.name = name;
+        this.receiverName = receiverName;
+        this.receiverPhone = receiverPhone;
+        this.address = address;
+        this.detailAddress = detailAddress;
+        this.latitude = latitude;
+        this.longitude = longitude;
+        this.defaultAddress = defaultAddress;
+    }
+
+    public DeliveryAddress(User user, String name, String receiverName, String receiverPhone, String address, String detailAddress, Double latitude, Double longitude, boolean defaultAddress) {
+        this.user = user;
+        this.name = name;
+        this.receiverName = receiverName;
+        this.receiverPhone = receiverPhone;
+        this.address = address;
+        this.detailAddress = detailAddress;
+        this.latitude = latitude;
+        this.longitude = longitude;
+        this.defaultAddress = defaultAddress;
+    }
 }
