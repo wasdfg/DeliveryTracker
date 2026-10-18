@@ -146,6 +146,10 @@ public class OrderService {
         DeliveryAddress selectedAddress = deliveryAddressRepository.findByIdAndUserId(request.getDeliveryAddressId(), user.getId())
                 .orElseThrow(() -> new EntityNotFoundException("배송지 정보를 찾을 수 없습니다."));
 
+        if (selectedAddress.getLatitude() == null || selectedAddress.getLongitude() == null) {
+            throw new IllegalStateException("배송지 좌표가 없습니다. 배송지를 수정 후 다시 시도해주세요.");
+        }
+
         String fullAddress = selectedAddress.getAddress();
 
         if (selectedAddress.getDetailAddress() != null && !selectedAddress.getDetailAddress().isBlank()) {

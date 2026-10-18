@@ -53,14 +53,12 @@ public class DeliveryAddress extends BaseEntity {
         this.defaultAddress = defaultAddress;
     }
 
-    public void update(String name, String receiverName, String receiverPhone, String address, String detailAddress, Double latitude, Double longitude, boolean defaultAddress) {
+    public void update(String name, String receiverName, String receiverPhone, String address, String detailAddress, boolean defaultAddress) {
         this.name = name;
         this.receiverName = receiverName;
         this.receiverPhone = receiverPhone;
         this.address = address;
         this.detailAddress = detailAddress;
-        this.latitude = latitude;
-        this.longitude = longitude;
         this.defaultAddress = defaultAddress;
     }
 
@@ -74,5 +72,10 @@ public class DeliveryAddress extends BaseEntity {
         this.latitude = latitude;
         this.longitude = longitude;
         this.defaultAddress = defaultAddress;
+    }
+
+    public void updateCoordinates(Double latitude, Double longitude) {
+        this.latitude = latitude;
+        this.longitude = longitude;
     }
 }
