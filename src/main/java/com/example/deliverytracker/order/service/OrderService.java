@@ -25,7 +25,6 @@ import com.example.deliverytracker.store.repository.StoreRepository;
 import com.example.deliverytracker.store.service.BlacklistService;
 import com.example.deliverytracker.store.service.ProductService;
 import com.example.deliverytracker.user.entity.User;
-import com.example.deliverytracker.util.geocoding.Coordinates;
 import com.example.deliverytracker.util.geocoding.GeocodingService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -39,7 +38,10 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -53,8 +55,6 @@ public class OrderService {
     private final ProductRepository productRepository;
 
     private final RedisPublisher redisPublisher;
-
-    private final GeocodingService geocodingService;
 
     private final CouponService couponService;
 
@@ -89,7 +89,7 @@ public class OrderService {
 
         BigDecimal totalPrice = BigDecimal.valueOf(0);
 
-        int discountAmount = 0;
+        BigDecimal discountAmount = BigDecimal.valueOf(0);
 
 
 
@@ -136,12 +136,15 @@ public class OrderService {
 
             orderItems.add(orderItem);
         }
-
+        
+        //주문이 생성되고 쿠폰은 결제가 될때 적용되어야함
+        
+        
         if (userCouponId != null) {
             discountAmount = couponService.useCoupon(user.getId(), userCouponId);
         }
 
-        BigDecimal finalPrice = totalPrice.subtract(BigDecimal.valueOf(discountAmount));
+        BigDecimal finalPrice = totalPrice.subtract(discountAmount);
 
         DeliveryAddress selectedAddress = deliveryAddressRepository.findByIdAndUserId(request.getDeliveryAddressId(), user.getId())
                 .orElseThrow(() -> new EntityNotFoundException("배송지 정보를 찾을 수 없습니다."));
@@ -173,6 +176,8 @@ public class OrderService {
                 .totalPrice(finalPrice)
                 .orderItems(orderItems)
                 .build();
+
+        //결제되면 실행
 
         Order.Status before = order.getStatus();
 
@@ -346,5 +351,142 @@ public class OrderService {
         }
 
         log.info("배달 중 장기 체류 주문 자동 완료 처리: {}건", deliveringOrders.size());
+    }
+
+    @Transactional
+    public Order createPendingOrder(OrderCreateRequest request, User user, Long userCouponId) {
+
+        if (user.getRole() != User.Role.USER) {
+            throw new EntityNotFoundException("일반 사용자만 주문할 수 있습니다.");
+        }
+
+        Store store = storeRepository.findByIdAndActiveTrue(request.getStoreId())
+                .orElseThrow(() -> new EntityNotFoundException("가게 정보가 없습니다."));
+
+        blacklistService.validateNotBlacklisted(request.getStoreId(), user.getId());
+
+        if (!store.isCurrentlyOrderable()) {
+            throw new IllegalStateException("현재 주문 가능한 시간이 아닙니다.");
+        }
+
+        if (request.getItems() == null || request.getItems().isEmpty()) {
+            throw new IllegalArgumentException("주문 상품이 존재하지 않습니다.");
+        }
+
+        List<OrderItem> orderItems = new ArrayList<>();
+
+        BigDecimal totalPrice = BigDecimal.ZERO;
+
+        BigDecimal discountAmount = BigDecimal.ZERO;
+
+
+        for (OrderCreateRequest.Item item : request.getItems()) {
+
+            if (item.getQuantity() == null || item.getQuantity() <= 0) {
+                throw new IllegalArgumentException("상품 수량은 1개 이상이어야 합니다.");
+            }
+
+            productService.validateProductAvailability(item.getProductId());
+
+            Product product = productRepository.findByIdAndStoreId(item.getProductId(), store.getId())
+                    .orElseThrow(() -> new EntityNotFoundException("상품 정보를 찾을 수 없습니다."));
+
+            OrderItem orderItem = OrderItem.builder()
+                    .product(product)
+                    .name(product.getName())
+                    .price(product.getPrice())
+                    .quantity(item.getQuantity())
+                    .imageUrl(product.getImageUrl())
+                    .build();
+
+            BigDecimal itemOptionsTotalPrice = BigDecimal.ZERO;
+
+            if (item.getOptionIds() != null
+                    && !item.getOptionIds().isEmpty()) {
+
+                List<Option> selectedOptions =
+                        optionRepository.findAllByIdIn(item.getOptionIds());
+
+                Set<Long> requestedOptionIds = new HashSet<>(item.getOptionIds());
+
+                Set<Long> foundOptionIds = selectedOptions.stream()
+                        .map(Option::getId)
+                        .collect(Collectors.toSet());
+
+                if (!foundOptionIds.equals(requestedOptionIds)) {
+                    throw new EntityNotFoundException("일부 옵션 정보를 찾을 수 없습니다.");
+                }
+
+                for (Option opt : selectedOptions) {
+
+                    if (opt.getOptionGroup().getProduct() == null || !opt.getOptionGroup().getProduct().getId().equals(product.getId())) {
+                        throw new IllegalArgumentException("해당 상품에 속하지 않는 옵션입니다.");
+                    }
+
+                    OrderOption orderOption = OrderOption.builder()
+                            .name(opt.getName())
+                            .price(opt.getAdditionalPrice())
+                            .orderItem(orderItem)
+                            .build();
+
+                    orderItem.getOrderOptions().add(orderOption);
+
+                    itemOptionsTotalPrice = itemOptionsTotalPrice.add(opt.getAdditionalPrice());
+                }
+            }
+
+            BigDecimal itemFinalPrice = product.getPrice()
+                    .add(itemOptionsTotalPrice)
+                    .multiply(BigDecimal.valueOf(item.getQuantity()));
+
+            totalPrice = totalPrice.add(itemFinalPrice);
+
+            orderItems.add(orderItem);
+        }
+
+        if (userCouponId != null) {
+            discountAmount = couponService.calculateDiscount(user.getId(), userCouponId);
+        }
+
+        if (discountAmount.signum() < 0) {
+            throw new IllegalStateException("할인 금액이 올바르지 않습니다.");
+        }
+
+        BigDecimal finalPrice = totalPrice.subtract(discountAmount);
+
+        if (finalPrice.signum() < 0) {
+            throw new IllegalStateException("할인 금액이 주문 금액을 초과했습니다.");
+        }
+
+        DeliveryAddress deliveryAddress = deliveryAddressRepository.findByIdAndUserId(request.getDeliveryAddressId(), user.getId())
+                .orElseThrow(() -> new EntityNotFoundException("배송지 정보를 찾을 수 없습니다."));
+
+        if (deliveryAddress.getLatitude() == null || deliveryAddress.getLongitude() == null) {
+            throw new IllegalStateException("배송지 좌표 정보가 없습니다.");
+        }
+
+        String fullAddress = deliveryAddress.getAddress();
+
+        if (deliveryAddress.getDetailAddress() != null && !deliveryAddress.getDetailAddress().isBlank()) {
+            fullAddress += " " + deliveryAddress.getDetailAddress();
+        }
+
+        Order order = Order.builder()
+                .user(user)
+                .store(store)
+                .pickupAddress(store.getAddress())
+                .deliveryAddress(fullAddress)
+                .deliveryLatitude(deliveryAddress.getLatitude())
+                .deliveryLongitude(deliveryAddress.getLongitude())
+                .totalPrice(finalPrice)
+                .status(Order.Status.PENDING)
+                .build();
+
+        for (OrderItem orderItem : orderItems) {
+            orderItem.assignOrder(order);
+            order.getOrderItems().add(orderItem);
+        }
+
+        return orderRepository.save(order);
     }
 }

@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -63,7 +64,7 @@ public class CouponService {
     }
 
     @Transactional
-    public int useCoupon(Long userId, Long userCouponId) {
+    public BigDecimal useCoupon(Long userId, Long userCouponId) {
         UserCoupon userCoupon = userCouponRepository.findById(userCouponId)
                 .orElseThrow(() -> new EntityNotFoundException("보유하지 않은 쿠폰입니다."));
 
@@ -76,6 +77,25 @@ public class CouponService {
 
         userCoupon.use();
 
-        return userCoupon.getCoupon().getDiscountAmount();
+        return BigDecimal.valueOf(userCoupon.getCoupon().getDiscountAmount());
+    }
+
+    @Transactional(readOnly = true)
+    public BigDecimal calculateDiscount(Long userId, Long userCouponId) {
+        UserCoupon userCoupon = userCouponRepository.findById(userCouponId)
+                .orElseThrow(() ->
+                        new EntityNotFoundException("보유하지 않은 쿠폰입니다."));
+
+        if (!userCoupon.getUser().getId().equals(userId)) {
+            throw new IllegalArgumentException("본인의 쿠폰만 사용할 수 있습니다.");
+        }
+
+        if (userCoupon.isUsed()) {
+            throw new IllegalStateException("이미 사용된 쿠폰입니다.");
+        }
+
+        return BigDecimal.valueOf(
+                userCoupon.getCoupon().getDiscountAmount()
+        );
     }
 }

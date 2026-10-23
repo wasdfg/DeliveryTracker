@@ -30,10 +30,13 @@ public class OrderCreateRequest {
 
     private List<Item> orderItems;
 
+    public String paymentMethod;
+
+
     @Getter
     public static class Item {
         private Long productId;
-        private int quantity;
+        private Integer quantity;
         private List<Long> optionIds;
     }
 }
