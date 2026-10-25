@@ -1,6 +1,7 @@
 package com.example.deliverytracker.order.entity;
 
 import com.example.deliverytracker.common.BaseEntity;
+import com.example.deliverytracker.coupon.entity.UserCoupon;
 import com.example.deliverytracker.delivery.entity.Delivery;
 import com.example.deliverytracker.review.entity.Review;
 import com.example.deliverytracker.store.entity.Store;
@@ -57,7 +58,7 @@ public class Order extends BaseEntity {
     @BatchSize(size = 100)
     private Store store;
 
-    @OneToOne(mappedBy = "order", fetch = FetchType.LAZY)
+    @OneToOne(mappedBy = "order")
     private Review review;
 
     @Enumerated(EnumType.STRING)
@@ -90,6 +91,13 @@ public class Order extends BaseEntity {
     @BatchSize(size = 100)
     @Builder.Default
     private List<OrderItem> orderItems = new ArrayList<>();
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_coupon_id")
+    private UserCoupon userCoupon;
+
+    @Column(nullable = false, precision = 12, scale = 2)
+    private BigDecimal discountAmount = BigDecimal.ZERO;
 
     public enum Status {
         PENDING,            // 신규 주문

@@ -10,6 +10,7 @@ import com.example.deliverytracker.user.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
@@ -75,7 +76,7 @@ public class CouponService {
             throw new IllegalStateException("이미 사용된 쿠폰입니다.");
         }
 
-        userCoupon.use();
+        userCoupon.use();//주문id가 들어가야함
 
         return BigDecimal.valueOf(userCoupon.getCoupon().getDiscountAmount());
     }
@@ -94,8 +95,30 @@ public class CouponService {
             throw new IllegalStateException("이미 사용된 쿠폰입니다.");
         }
 
-        return BigDecimal.valueOf(
-                userCoupon.getCoupon().getDiscountAmount()
-        );
+        return BigDecimal.valueOf(userCoupon.getCoupon().getDiscountAmount());
+    }
+
+    @Transactional(propagation = Propagation.MANDATORY)
+    public UserCoupon findAvailableCouponForUpdate(Long userId, Long userCouponId) {
+        UserCoupon userCoupon = userCouponRepository.findByIdAndUserIdForUpdate(userCouponId, userId)
+                .orElseThrow(() -> new EntityNotFoundException("보유하지 않은 쿠폰입니다."));
+
+        if (userCoupon.isUsed()) {
+            throw new IllegalStateException("이미 사용된 쿠폰입니다.");
+        }
+
+        if (userCoupon.getReservedOrderId() != null) {
+            throw new IllegalStateException("다른 주문에서 예약한 쿠폰입니다.");
+        }
+
+        return userCoupon;
+    }
+
+    @Transactional(propagation = Propagation.MANDATORY)
+    public void releaseCouponReservation(Long userId, Long userCouponId, Long orderId) {
+        UserCoupon userCoupon = userCouponRepository.findByIdAndUserIdForUpdate(userCouponId, userId)
+                .orElseThrow(() -> new EntityNotFoundException("보유하지 않은 쿠폰입니다."));
+
+        userCoupon.releaseReservation(orderId);
     }
 }

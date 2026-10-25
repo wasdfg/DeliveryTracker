@@ -4,7 +4,9 @@ import com.example.deliverytracker.coupon.entity.Coupon;
 import com.example.deliverytracker.coupon.entity.UserCoupon;
 import com.example.deliverytracker.user.entity.User;
 import io.lettuce.core.dynamic.annotation.Param;
+import jakarta.persistence.LockModeType;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
@@ -20,4 +22,15 @@ public interface UserCouponRepository extends JpaRepository<UserCoupon, Long> {
     Optional<UserCoupon> findByIdWithCouponAndUser(@Param("userCouponId") Long userCouponId);
 
     boolean existsByUserAndCoupon(User user, Coupon coupon);
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("""
+            SELECT uc
+            FROM UserCoupon uc
+            WHERE uc.id = :userCouponId
+              AND uc.user.id = :userId
+            """)
+    Optional<UserCoupon> findByIdAndUserIdForUpdate(@Param("userCouponId") Long userCouponId, @Param("userId") Long userId);
+
+
 }

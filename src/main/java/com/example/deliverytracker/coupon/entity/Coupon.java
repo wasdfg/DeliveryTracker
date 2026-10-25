@@ -27,6 +27,7 @@ public class Coupon {
     private String code;
 
     private int totalQuantity;
+
     private int issuedQuantity;
 
     public void issue() {

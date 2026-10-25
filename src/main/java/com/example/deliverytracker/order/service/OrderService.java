@@ -1,5 +1,6 @@
 package com.example.deliverytracker.order.service;
 
+import com.example.deliverytracker.coupon.entity.UserCoupon;
 import com.example.deliverytracker.coupon.service.CouponService;
 import com.example.deliverytracker.delivery.entity.DeliveryAddress;
 import com.example.deliverytracker.delivery.repository.DeliveryAddressRepository;
@@ -444,8 +445,12 @@ public class OrderService {
             orderItems.add(orderItem);
         }
 
+        UserCoupon selectedCoupon = null;
+
         if (userCouponId != null) {
-            discountAmount = couponService.calculateDiscount(user.getId(), userCouponId);
+            selectedCoupon = couponService.findAvailableCouponForUpdate(user.getId(), userCouponId);
+
+            discountAmount = BigDecimal.valueOf(selectedCoupon.getCoupon().getDiscountAmount());
         }
 
         if (discountAmount.signum() < 0) {
@@ -478,6 +483,8 @@ public class OrderService {
                 .deliveryAddress(fullAddress)
                 .deliveryLatitude(deliveryAddress.getLatitude())
                 .deliveryLongitude(deliveryAddress.getLongitude())
+                .userCoupon(selectedCoupon)
+                .discountAmount(discountAmount)
                 .totalPrice(finalPrice)
                 .status(Order.Status.PENDING)
                 .build();
@@ -487,6 +494,20 @@ public class OrderService {
             order.getOrderItems().add(orderItem);
         }
 
-        return orderRepository.save(order);
+        Order savedOrder = orderRepository.save(order);
+
+        if (selectedCoupon != null) {
+            selectedCoupon.reserve(savedOrder.getId());
+        }
+
+        return savedOrder;
+    }
+
+    @Transactional
+    public Order acceptPaidOrder(Long orderId, User user){
+
+        Order order = null;
+
+        return order;
     }
 }
