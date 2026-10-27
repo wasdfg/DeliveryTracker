@@ -506,7 +506,26 @@ public class OrderService {
     @Transactional
     public Order acceptPaidOrder(Long orderId, User user){
 
-        Order order = null;
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new EntityNotFoundException("주문을 찾을 수 없습니다."));
+
+        if (!order.getUser().getId().equals(user.getId())) {
+            throw new IllegalArgumentException("본인의 주문만 접수 처리할 수 있습니다.");
+        }
+
+        if (order.getStatus() != Order.Status.PENDING) {
+            throw new IllegalStateException("결제 대기 상태의 주문만 접수할 수 있습니다.");
+        }
+
+        Order.Status before = order.getStatus();
+
+        order.changeStatus(Order.Status.ACCEPTED);
+
+        Order.Status after = order.getStatus();
+
+        OrderHistory history = OrderHistory.create(order,before, after,"SYSTEM","결제로 인한 상태값 변경");
+
+        orderHistoryRepository.save(history);
 
         return order;
     }

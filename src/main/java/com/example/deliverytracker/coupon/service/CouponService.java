@@ -121,4 +121,13 @@ public class CouponService {
 
         userCoupon.releaseReservation(orderId);
     }
+
+    @Transactional(propagation = Propagation.MANDATORY)
+    public void confirmCouponUsage(Long userId, Long userCouponId, Long orderId) {
+
+        UserCoupon userCoupon = userCouponRepository.findByIdAndUserIdForUpdate(userCouponId, userId)
+                .orElseThrow(() -> new EntityNotFoundException("보유하지 않은 쿠폰입니다."));
+
+        userCoupon.use(orderId);
+    }
 }
