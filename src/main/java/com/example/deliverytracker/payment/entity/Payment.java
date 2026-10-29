@@ -21,6 +21,7 @@ import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Entity
 @Table(
@@ -53,6 +54,9 @@ public class Payment {
 
     @Column(nullable = false, length = 30)
     private String method;
+
+    @Column(name = "gateway_order_id", nullable = false, unique = true, length = 64, updatable = false)
+    private String gatewayOrderId;
 
     @Column(length = 500)
     private String failureReason;
@@ -88,6 +92,7 @@ public class Payment {
         payment.amount = amount;
         payment.method = method;
         payment.status = PaymentStatus.READY;
+        payment.gatewayOrderId = "DT-" + UUID.randomUUID();
 
         return payment;
     }
