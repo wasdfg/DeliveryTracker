@@ -30,4 +30,6 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
           AND p.order.user.id = :userId
         """)
     Optional<Payment> findByIdAndUserIdForUpdate(@Param("paymentId") Long paymentId, @Param("userId") Long userId);
+
+    Optional<Payment> findFirstByOrder_IdOrderByCreatedAtDescIdDesc(Long orderId);
 }
