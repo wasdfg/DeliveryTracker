@@ -1,6 +1,7 @@
 package com.example.deliverytracker.payment.service;
 
 import com.example.deliverytracker.payment.dto.PaymentApprovalResult;
+import com.example.deliverytracker.payment.dto.PaymentRefundResult;
 import com.example.deliverytracker.payment.entity.Payment;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -12,6 +13,7 @@ import org.springframework.web.client.RestClientResponseException;
 
 import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 
 @Component
 @ConditionalOnProperty(
@@ -83,5 +85,53 @@ public class TossPaymentGateway implements PaymentGateway {
     }
 
     private record TossConfirmResponse(String paymentKey, String orderId, Long totalAmount, String status, String method) {
+    }
+
+    @Override
+    public PaymentRefundResult refund(Payment payment, String refundReason) {
+        if (secretKey == null || secretKey.isBlank()) {
+            throw new IllegalStateException("토스페이먼츠 Secret Key가 설정되지 않았습니다.");
+        }
+
+        if (payment.getPaymentKey() == null || payment.getPaymentKey().isBlank()) {
+            throw new IllegalStateException("환불할 결제 키가 없습니다.");
+        }
+
+        if (refundReason == null || refundReason.isBlank() || refundReason.length() > 200) {
+            throw new IllegalArgumentException("환불 사유는 1~200자로 입력해야 합니다.");
+        }
+
+        TossCancelRequest request = new TossCancelRequest(refundReason);
+
+        TossCancelResponse response = restClient.post()
+                .uri("/payments/{paymentKey}/cancel", payment.getPaymentKey())
+                .headers(headers -> headers.setBasicAuth(secretKey, "", StandardCharsets.UTF_8))
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(request)
+                .retrieve()
+                .body(TossCancelResponse.class);
+
+        if (response == null || !"CANCELED".equals(response.status()) || !payment.getPaymentKey().equals(response.paymentKey())) {
+            throw new IllegalStateException("PG 환불 결과를 확인할 수 없습니다.");
+        }
+
+        BigDecimal refundedAmount = response.cancels().stream()
+                .map(cancel -> BigDecimal.valueOf(cancel.cancelAmount()))
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        return PaymentRefundResult.refunded(response.paymentKey(), refundedAmount
+        );
+    }
+
+    private record TossCancelRequest(String cancelReason) {
+
+    }
+
+    private record TossCancelResponse(String paymentKey, String status, List<TossCancel> cancels) {
+
+    }
+
+    private record TossCancel(Long cancelAmount) {
+
     }
 }

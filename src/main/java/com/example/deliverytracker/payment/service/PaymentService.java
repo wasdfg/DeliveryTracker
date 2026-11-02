@@ -8,6 +8,7 @@ import com.example.deliverytracker.order.repository.OrderRepository;
 import com.example.deliverytracker.order.service.OrderService;
 import com.example.deliverytracker.payment.dto.PaymentApprovalRequest;
 import com.example.deliverytracker.payment.dto.PaymentApprovalResult;
+import com.example.deliverytracker.payment.dto.PaymentRefundResult;
 import com.example.deliverytracker.payment.entity.Payment;
 import com.example.deliverytracker.payment.entity.PaymentStatus;
 import com.example.deliverytracker.payment.repository.PaymentRepository;
@@ -176,7 +177,31 @@ public class PaymentService {
 
     // 승인된 결제 환불 처리
     @Transactional
-    public Payment refundPayment(Long paymentId, User user) {
-        return null; // TODO
+    public Payment refundPayment(Long paymentId, String refundReason, User user) {
+
+        Payment payment = paymentRepository.findByIdAndUserIdForUpdate(paymentId, user.getId())
+                .orElseThrow(() -> new EntityNotFoundException("결제 내용을 찾을 수 없습니다."));
+
+        if (payment.getStatus() != PaymentStatus.APPROVED) {
+            throw new IllegalStateException("승인된 결제만 환불할 수 있습니다.");
+        }
+
+        if (refundReason == null || refundReason.isBlank()) {
+            throw new IllegalArgumentException("환불 사유를 입력해야 합니다.");
+        }
+
+        PaymentRefundResult result = paymentGateway.refund(payment, refundReason);
+
+        if (!result.success()) {
+            throw new IllegalStateException("환불에 실패했습니다: " + result.failureReason());
+        }
+
+        if (result.refundedAmount() == null || result.refundedAmount().compareTo(payment.getAmount()) != 0) {
+            throw new IllegalStateException("환불 금액이 결제 금액과 일치하지 않습니다.");
+        }
+
+        payment.refund();
+
+        return payment;
     }
 }
