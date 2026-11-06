@@ -4,9 +4,11 @@ import com.example.deliverytracker.order.entity.Order;
 import com.example.deliverytracker.store.entity.Store;
 import com.example.deliverytracker.user.entity.User;
 import io.lettuce.core.dynamic.annotation.Param;
+import jakarta.persistence.LockModeType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 
 import java.time.LocalDateTime;
@@ -50,5 +52,14 @@ public interface OrderRepository extends JpaRepository<Order,Long>, OrderReposit
             and o.status = com.example.deliverytracker.order.entity.Order.Status.COMPLETED
             """)
     Long sumTodaySales(LocalDateTime start, LocalDateTime end);
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("""
+    SELECT o
+    FROM Order o
+    WHERE o.id = :orderId
+      AND o.user.id = :userId
+    """)
+    Optional<Order> findByIdAndUserIdForUpdate(@Param("orderId") Long orderId, @Param("userId") Long userId);
 
 }

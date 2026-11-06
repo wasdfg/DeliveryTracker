@@ -529,4 +529,28 @@ public class OrderService {
 
         return order;
     }
+
+    @Transactional
+    public Order cancelOrderAfterPayment(Long orderId, User user) {
+
+        Order order = orderRepository.findById(orderId).orElseThrow(() -> new EntityNotFoundException("주문을 찾을 수 없습니다."));
+
+        if (!order.getUser().getId().equals(user.getId())) {
+            throw new IllegalArgumentException("본인의 주문만 취소할 수 있습니다.");
+        }
+
+        if (order.getStatus() != Order.Status.PENDING && order.getStatus() != Order.Status.ACCEPTED) {
+            throw new IllegalStateException("현재 주문 상태에서는 취소할 수 없습니다.");
+        }
+
+        Order.Status before = order.getStatus();
+
+        order.changeStatus(Order.Status.CANCELED);
+
+        OrderHistory history = OrderHistory.create(order, before, order.getStatus(), "USER", null);
+
+        orderHistoryRepository.save(history);
+
+        return order;
+    }
 }
