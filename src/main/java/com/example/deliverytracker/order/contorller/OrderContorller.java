@@ -6,6 +6,7 @@ import com.example.deliverytracker.order.dto.OrderCreateRequest;
 import com.example.deliverytracker.order.dto.OrderHistoryDto;
 import com.example.deliverytracker.order.dto.OrderResponse;
 import com.example.deliverytracker.order.dto.OrderStatusUpdateRequest;
+import com.example.deliverytracker.order.service.OrderCancellationService;
 import com.example.deliverytracker.order.service.OrderService;
 import com.example.deliverytracker.user.entity.UserDetailsImpl;
 import jakarta.validation.Valid;
@@ -31,6 +32,8 @@ import org.springframework.web.bind.annotation.RestController;
 public class OrderContorller {
 
     private final OrderService orderService;
+
+    private final OrderCancellationService orderCancellationService;
 
     @PostMapping
     public ResponseEntity<?> createOrder(@RequestBody @Valid OrderCreateRequest request,@AuthenticationPrincipal UserDetailsImpl userDetails) {
@@ -65,7 +68,7 @@ public class OrderContorller {
     @PatchMapping("/{orderId}/cancel")
     public ResponseEntity<?> cancelOrder(@PathVariable Long orderId,@AuthenticationPrincipal UserDetailsImpl userDetails,@RequestBody CancelOrderRequest request) {
 
-        orderService.cancelOrder(orderId,userDetails.getUser(),request.getReason());
+        orderCancellationService.cancelOrder(orderId, request.getReason(), userDetails.getUser());
 
         return ResponseEntity.ok().build();
     }

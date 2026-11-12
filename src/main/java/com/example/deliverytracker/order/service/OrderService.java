@@ -13,6 +13,8 @@ import com.example.deliverytracker.order.entity.Order;
 import com.example.deliverytracker.order.entity.OrderHistory;
 import com.example.deliverytracker.order.entity.OrderOption;
 import com.example.deliverytracker.order.repository.OrderHistoryRepository;
+import com.example.deliverytracker.payment.entity.Payment;
+import com.example.deliverytracker.payment.repository.PaymentRepository;
 import com.example.deliverytracker.redis.dto.OrderCreatedEvent;
 import com.example.deliverytracker.order.entity.OrderItem;
 import com.example.deliverytracker.order.repository.OrderRepository;
@@ -70,6 +72,8 @@ public class OrderService {
     private final OrderHistoryRepository orderHistoryRepository;
 
     private final DeliveryAddressRepository deliveryAddressRepository;
+
+    private final PaymentRepository paymentRepository;
 
     @Transactional
     public void createOrder(OrderCreateRequest request, User user, Long userCouponId){
@@ -225,16 +229,24 @@ public class OrderService {
         if (statusStr != null && !statusStr.isBlank()) {
             try {
                 Order.Status status = Order.Status.valueOf(statusStr.toUpperCase());
+
                 orderPage = orderRepository.findAllByUserAndStatusOrderByRequestedAtDesc(user, status, pageable);
+
             } catch (IllegalArgumentException e) {
                 throw new IllegalArgumentException("유효하지 않은 주문 상태입니다: " + statusStr);
             }
-        } else {
 
+        } else {
             orderPage = orderRepository.findAllByUserOrderByRequestedAtDesc(user, pageable);
         }
 
-        return orderPage.map(OrderHistoryDto::new);
+        return orderPage.map(order -> {
+            Payment latestPayment = paymentRepository
+                    .findFirstByOrder_IdOrderByCreatedAtDescIdDesc(order.getId())
+                    .orElse(null);
+
+            return new OrderHistoryDto(order, latestPayment);
+        });
 
     }
 
@@ -308,8 +320,7 @@ public class OrderService {
     }
 
     public Page<OrderHistoryDto> findStoreOrders(Long storeId, Pageable pageable, User user) {
-        Store store = storeRepository.findById(storeId)
-                .orElseThrow(() -> new EntityNotFoundException("가게를 찾을 수 없습니다."));
+        Store store = storeRepository.findById(storeId).orElseThrow(() -> new EntityNotFoundException("가게를 찾을 수 없습니다."));
 
         if (!store.getOwner().getId().equals(user.getId())) {
             throw new AccessDeniedException("본인 가게의 주문만 조회할 수 있습니다.");
@@ -317,7 +328,11 @@ public class OrderService {
 
         Page<Order> storeOrders = orderRepository.findAllByStoreIdOrderByRequestedAtDesc(storeId, pageable);
 
-        return storeOrders.map(OrderHistoryDto::new);
+        return storeOrders.map(order -> {
+            Payment latestPayment = paymentRepository.findFirstByOrder_IdOrderByCreatedAtDescIdDesc(order.getId()).orElse(null);
+
+            return new OrderHistoryDto(order, latestPayment);
+        });
     }
 
     public void autoCancelUnacceptedOrders() {
