@@ -9,6 +9,7 @@ import com.example.deliverytracker.payment.service.PaymentService;
 import com.example.deliverytracker.user.entity.User;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,8 +30,16 @@ public class OrderCancellationService {
     @Transactional
     public Order cancelOrder(Long orderId, String cancelReason, User user) {
 
-        Order order = orderRepository.findByIdAndUserIdForUpdate(orderId, user.getId())
+        Order order = orderRepository.findByIdForUpdate(orderId)
                 .orElseThrow(() -> new EntityNotFoundException("주문 정보를 찾을 수 없습니다."));
+
+        boolean isCustomer = user.getRole() == User.Role.USER && order.getUser().getId().equals(user.getId());
+
+        boolean isStoreOwner = user.getRole() == User.Role.STORE_OWNER && order.getStore().getOwner().getId().equals(user.getId());
+
+        if (!isCustomer && !isStoreOwner) {
+            throw new AccessDeniedException("해당 주문을 취소할 권한이 없습니다.");
+        }
 
         if (order.getStatus() != Order.Status.PENDING && order.getStatus() != Order.Status.ACCEPTED) {
             throw new IllegalStateException("현재 주문 상태에서는 취소할 수 없습니다.");
@@ -41,10 +50,10 @@ public class OrderCancellationService {
         if (payment != null) {
             switch (payment.getStatus()) {
                 case READY ->
-                        paymentService.cancelPayment(payment.getId(), user);
+                        paymentService.cancelPaymentForOrder(payment.getId(), orderId);
 
                 case APPROVED ->
-                        paymentService.refundPayment(payment.getId(), cancelReason, user);
+                        paymentService.refundPaymentForOrder(payment.getId(), orderId, cancelReason);
 
                 case FAILED, CANCELED, REFUNDED -> {
                 }

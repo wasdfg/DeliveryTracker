@@ -558,11 +558,23 @@ public class OrderService {
             throw new IllegalStateException("현재 주문 상태에서는 취소할 수 없습니다.");
         }
 
+        String actor;
+
+        if (user.getRole() == User.Role.USER) {
+            actor = "USER";
+        } else if (user.getRole() == User.Role.STORE_OWNER) {
+            actor = "OWNER";
+        } else {
+            throw new AccessDeniedException(
+                    "주문 취소 권한이 없습니다."
+            );
+        }
+
         Order.Status before = order.getStatus();
 
         order.changeStatus(Order.Status.CANCELED);
 
-        OrderHistory history = OrderHistory.create(order, before, order.getStatus(), "USER", null);
+        OrderHistory history = OrderHistory.create(order, before, order.getStatus(), actor, null);
 
         orderHistoryRepository.save(history);
 

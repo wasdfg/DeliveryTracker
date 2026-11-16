@@ -16,6 +16,7 @@ import com.example.deliverytracker.user.entity.User;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Objects;
@@ -194,6 +195,58 @@ public class PaymentService {
 
         if (!result.success()) {
             throw new IllegalStateException("환불에 실패했습니다: " + result.failureReason());
+        }
+
+        if (result.refundedAmount() == null || result.refundedAmount().compareTo(payment.getAmount()) != 0) {
+            throw new IllegalStateException("환불 금액이 결제 금액과 일치하지 않습니다.");
+        }
+
+        payment.refund();
+
+        return payment;
+    }
+
+    //주문 취소에 따른 결제 시도 취소
+    @Transactional(propagation = Propagation.MANDATORY)
+    public Payment cancelPaymentForOrder(Long paymentId, Long orderId) {
+
+        Payment payment = paymentRepository
+                .findByIdAndOrderIdForUpdate(paymentId, orderId)
+                .orElseThrow(() -> new EntityNotFoundException("주문에 연결된 결제 정보를 찾을 수 없습니다.")
+                );
+
+        if (payment.getStatus() != PaymentStatus.READY) {
+            throw new IllegalStateException("결제 대기 상태에서만 취소할 수 있습니다.");
+        }
+
+        payment.cancel();
+
+        return payment;
+    }
+
+     //주문 취소에 따른 결제 환불
+    @Transactional(propagation = Propagation.MANDATORY)
+    public Payment refundPaymentForOrder(Long paymentId, Long orderId, String refundReason) {
+        Payment payment = paymentRepository
+                .findByIdAndOrderIdForUpdate(paymentId, orderId)
+                .orElseThrow(() -> new EntityNotFoundException("주문에 연결된 결제 정보를 찾을 수 없습니다."));
+
+        if (payment.getStatus() != PaymentStatus.APPROVED) {
+            throw new IllegalStateException("승인된 결제만 환불할 수 있습니다.");
+        }
+
+        if (refundReason == null || refundReason.isBlank()) {
+            throw new IllegalArgumentException("환불 사유를 입력해야 합니다.");
+        }
+
+        PaymentRefundResult result = paymentGateway.refund(payment, refundReason);
+
+        if (!result.success()) {
+            throw new IllegalStateException("환불에 실패했습니다: " + result.failureReason());
+        }
+
+        if (!payment.getPaymentKey().equals(result.paymentKey())) {
+            throw new IllegalStateException("환불 대상 결제 키가 일치하지 않습니다.");
         }
 
         if (result.refundedAmount() == null || result.refundedAmount().compareTo(payment.getAmount()) != 0) {

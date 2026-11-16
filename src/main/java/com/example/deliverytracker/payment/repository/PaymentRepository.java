@@ -32,4 +32,13 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
     Optional<Payment> findByIdAndUserIdForUpdate(@Param("paymentId") Long paymentId, @Param("userId") Long userId);
 
     Optional<Payment> findFirstByOrder_IdOrderByCreatedAtDescIdDesc(Long orderId);
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("""
+    SELECT p
+    FROM Payment p
+    WHERE p.id = :paymentId
+      AND p.order.id = :orderId
+    """)
+    Optional<Payment> findByIdAndOrderIdForUpdate(@Param("paymentId") Long paymentId, @Param("orderId") Long orderId);
 }
