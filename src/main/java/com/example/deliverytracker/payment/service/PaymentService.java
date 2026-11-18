@@ -53,6 +53,9 @@ public class PaymentService {
     @Transactional
     public Payment approvePayment(Long paymentId, PaymentApprovalRequest request, User user) {
 
+        Order order = orderRepository.findByPaymentIdAndUserIdForUpdate(paymentId, user.getId())
+                .orElseThrow(() -> new EntityNotFoundException("결제 중인 주문을 찾을 수 없습니다."));
+
         Payment payment = paymentRepository.findByIdAndUserIdForUpdate(paymentId, user.getId())
                 .orElseThrow(() -> new EntityNotFoundException("결제 내용을 찾을 수 없습니다."));
 
@@ -60,7 +63,7 @@ public class PaymentService {
             throw new IllegalStateException("결제 대기 상태에서만 승인할 수 있습니다.");
         }
 
-        Order order = payment.getOrder();
+        //Order order = payment.getOrder();
 
         if (order.getStatus() != Order.Status.PENDING) {
             throw new IllegalStateException("결제 대기 상태의 주문만 접수할 수 있습니다.");
@@ -137,7 +140,7 @@ public class PaymentService {
             throw new EntityNotFoundException("일반 사용자만 재결제할 수 있습니다.");
         }
 
-        Order order = orderRepository.findById(orderId)
+        Order order = orderRepository.findByIdForUpdate(orderId)
                 .orElseThrow(() -> new EntityNotFoundException("주문 정보를 찾을 수 없습니다."));
 
         if(!order.getUser().equals(user)){
