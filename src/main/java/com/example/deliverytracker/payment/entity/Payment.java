@@ -61,6 +61,9 @@ public class Payment {
     @Column(length = 500)
     private String failureReason;
 
+    @Column(name = "last_error", length = 500)
+    private String lastError;
+
     private LocalDateTime approvedAt;
 
     private LocalDateTime canceledAt;
@@ -98,23 +101,29 @@ public class Payment {
     }
 
     public void approve(String paymentKey) {
-        validateStatus(PaymentStatus.READY);
 
-        if (paymentKey == null || paymentKey.isBlank()) {
-            throw new IllegalArgumentException("결제 키는 필수입니다.");
+        validateStatus(PaymentStatus.APPROVING, PaymentStatus.APPROVAL_UNKNOWN);
+
+        validatePaymentKey(paymentKey);
+
+        if (!this.paymentKey.equals(paymentKey)) {
+            throw new IllegalArgumentException("PG 결제 키가 일치하지 않습니다.");
         }
 
-        this.paymentKey = paymentKey;
         this.status = PaymentStatus.APPROVED;
         this.approvedAt = LocalDateTime.now();
+
         this.failureReason = null;
+        this.lastError = null;
     }
 
     public void fail(String failureReason) {
-        validateStatus(PaymentStatus.READY);
+
+        validateStatus(PaymentStatus.APPROVING, PaymentStatus.APPROVAL_UNKNOWN);
 
         this.status = PaymentStatus.FAILED;
-        this.failureReason = failureReason;
+        this.failureReason = normalizeReason(failureReason);
+        this.lastError = null;
     }
 
     public void cancel() {
@@ -125,16 +134,87 @@ public class Payment {
     }
 
     public void refund() {
-        validateStatus(PaymentStatus.APPROVED);
+
+        validateStatus(PaymentStatus.REFUNDING, PaymentStatus.REFUND_UNKNOWN);
 
         this.status = PaymentStatus.REFUNDED;
         this.refundedAt = LocalDateTime.now();
+
+        this.lastError = null;
     }
 
-    private void validateStatus(PaymentStatus expectedStatus) {
-        if (this.status != expectedStatus) {
-            throw new IllegalStateException("현재 결제 상태에서는 해당 작업을 수행할 수 없습니다. " + "현재 상태: " + this.status);
+    public void startApproval(String paymentKey) {
+
+        validateStatus(PaymentStatus.READY);
+        validatePaymentKey(paymentKey);
+
+        this.paymentKey = paymentKey;
+        this.status = PaymentStatus.APPROVING;
+
+        this.failureReason = null;
+        this.lastError = null;
+    }
+
+    public void markApprovalUnknown(String reason) {
+
+        validateStatus(PaymentStatus.APPROVING);
+
+        this.status = PaymentStatus.APPROVAL_UNKNOWN;
+        this.lastError = normalizeReason(reason);
+    }
+
+    public void startRefund() {
+
+        validateStatus(PaymentStatus.APPROVED);
+
+        this.status = PaymentStatus.REFUNDING;
+        this.lastError = null;
+    }
+
+    public void markRefundUnknown(String reason) {
+
+        validateStatus(PaymentStatus.REFUNDING);
+
+        this.status = PaymentStatus.REFUND_UNKNOWN;
+        this.lastError = normalizeReason(reason);
+    }
+
+    public void failRefund(String reason) {
+
+        validateStatus(PaymentStatus.REFUNDING, PaymentStatus.REFUND_UNKNOWN);
+
+        this.status = PaymentStatus.APPROVED;
+        this.lastError = normalizeReason(reason);
+    }
+
+
+
+    private void validateStatus(PaymentStatus... expectedStatuses) {
+
+        for (PaymentStatus expectedStatus : expectedStatuses) {
+
+            if (this.status == expectedStatus) {
+                return;
+            }
         }
+
+        throw new IllegalStateException("현재 결제 상태에서는 해당 작업을 수행할 수 없습니다. " + "현재 상태: " + this.status);
+    }
+
+    private void validatePaymentKey(String paymentKey) {
+
+        if (paymentKey == null || paymentKey.isBlank()) {
+            throw new IllegalArgumentException("결제 키는 필수입니다.");
+        }
+    }
+
+    private String normalizeReason(String reason) {
+
+        if (reason == null || reason.isBlank()) {
+            return "상세 오류 사유를 확인할 수 없습니다.";
+        }
+
+        return reason.length() > 500 ? reason.substring(0, 500) : reason;
     }
 
     @PrePersist
@@ -149,4 +229,5 @@ public class Payment {
     protected void onUpdate() {
         this.updatedAt = LocalDateTime.now();
     }
+
 }
