@@ -14,12 +14,12 @@ import com.example.deliverytracker.report.entity.ReportStatus;
 import com.example.deliverytracker.report.repository.ReportRepository;
 import com.example.deliverytracker.user.entity.User;
 import jakarta.persistence.EntityNotFoundException;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Service

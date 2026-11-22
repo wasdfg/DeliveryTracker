@@ -10,7 +10,7 @@ import com.example.deliverytracker.user.entity.User;
 import com.example.deliverytracker.util.geocoding.Coordinates;
 import com.example.deliverytracker.util.geocoding.GeocodingService;
 import jakarta.persistence.EntityNotFoundException;
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

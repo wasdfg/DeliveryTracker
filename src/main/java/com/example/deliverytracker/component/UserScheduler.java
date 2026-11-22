@@ -3,7 +3,7 @@ package com.example.deliverytracker.component;
 import com.example.deliverytracker.image.service.ImageService;
 import com.example.deliverytracker.user.entity.User;
 import com.example.deliverytracker.user.repository.UserRepository;
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;

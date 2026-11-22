@@ -7,7 +7,7 @@ import com.example.deliverytracker.notice.dto.NoticeUpdateRequest;
 import com.example.deliverytracker.notice.entity.Notice;
 import com.example.deliverytracker.notice.repository.NoticeRepository;
 import jakarta.persistence.EntityNotFoundException;
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;

@@ -36,6 +36,8 @@ public class PaymentService {
 
     private final OrderRepository orderRepository;
 
+    private final PaymentTransactionService paymentTransactionService;
+
     @Transactional
     public Payment createCheckout(OrderCreateRequest request, User user, Long userCouponId) {
 
@@ -50,54 +52,35 @@ public class PaymentService {
         return paymentRepository.save(payment);
     }
 
-    @Transactional
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
     public Payment approvePayment(Long paymentId, PaymentApprovalRequest request, User user) {
 
-        Order order = orderRepository.findByPaymentIdAndUserIdForUpdate(paymentId, user.getId())
-                .orElseThrow(() -> new EntityNotFoundException("결제 중인 주문을 찾을 수 없습니다."));
+        Payment payment = paymentTransactionService.startApproval(paymentId, request, user);
 
-        Payment payment = paymentRepository.findByIdAndUserIdForUpdate(paymentId, user.getId())
-                .orElseThrow(() -> new EntityNotFoundException("결제 내용을 찾을 수 없습니다."));
+        PaymentApprovalResult result;
 
-        if (payment.getStatus() != PaymentStatus.READY) {
-            throw new IllegalStateException("결제 대기 상태에서만 승인할 수 있습니다.");
+        try {
+            result = paymentGateway.approve(payment, request.paymentKey());
+
+        } catch (org.springframework.web.client.ResourceAccessException e) {
+
+            paymentTransactionService.markApprovalUnknown(paymentId, e.getMessage(), user);
+
+            throw new IllegalStateException("결제 승인 결과를 확인할 수 없습니다. 잠시 후 결제 상태를 확인해 주세요.", e);
         }
 
-        //Order order = payment.getOrder();
+        if (result == null) {
 
-        if (order.getStatus() != Order.Status.PENDING) {
-            throw new IllegalStateException("결제 대기 상태의 주문만 접수할 수 있습니다.");
+            paymentTransactionService.markApprovalUnknown(paymentId, "PG 승인 결과가 존재하지 않습니다.", user);
+
+            throw new IllegalStateException("PG 승인 결과를 확인할 수 없습니다.");
         }
-
-        if (!payment.getGatewayOrderId().equals(request.orderId())) {
-            throw new IllegalArgumentException("결제 주문번호가 일치하지 않습니다.");
-        }
-
-        if (request.amount() == null || request.amount().compareTo(payment.getAmount()) != 0) {
-            throw new IllegalArgumentException("요청 결제 금액이 주문 금액과 일치하지 않습니다.");
-        }
-
-        PaymentApprovalResult result = paymentGateway.approve(payment, request.paymentKey());
 
         if (!result.success()) {
-            payment.fail(result.failureReason());
-
-            return payment;
+            return paymentTransactionService.failApproval(paymentId, result.failureReason(), user);
         }
 
-        if (!payment.getGatewayOrderId().equals(result.orderId()) || result.approvedAmount().compareTo(payment.getAmount()) != 0) {
-            throw new IllegalStateException("PG 승인 결과가 주문 정보와 일치하지 않습니다.");
-        }
-
-        payment.approve(result.paymentKey());
-
-        if (order.getUserCoupon() != null) {
-            couponService.confirmCouponUsage(user.getId(), order.getUserCoupon().getId(), order.getId());
-        }
-
-        orderService.acceptPaidOrder(order.getId(), user);
-
-        return payment;
+        return paymentTransactionService.completeApproval(paymentId, result, user);
     }
 
     //결제 실패 처리
@@ -180,33 +163,39 @@ public class PaymentService {
     }
 
     // 승인된 결제 환불 처리
-    @Transactional
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
     public Payment refundPayment(Long paymentId, String refundReason, User user) {
-
-        Payment payment = paymentRepository.findByIdAndUserIdForUpdate(paymentId, user.getId())
-                .orElseThrow(() -> new EntityNotFoundException("결제 내용을 찾을 수 없습니다."));
-
-        if (payment.getStatus() != PaymentStatus.APPROVED) {
-            throw new IllegalStateException("승인된 결제만 환불할 수 있습니다.");
-        }
 
         if (refundReason == null || refundReason.isBlank()) {
             throw new IllegalArgumentException("환불 사유를 입력해야 합니다.");
         }
 
-        PaymentRefundResult result = paymentGateway.refund(payment, refundReason);
+        Payment payment = paymentTransactionService.startRefund(paymentId, user);
+
+        PaymentRefundResult result;
+
+        try{
+            result = paymentGateway.refund(payment,refundReason);
+        }catch (org.springframework.web.client.ResourceAccessException e){
+            paymentTransactionService.markRefundUnknown(paymentId, e.getMessage(), user);
+
+            throw new IllegalStateException("환불 결과를 확인할 수 없습니다. 잠시 후 환불 상태를 확인해 주세요.", e);
+        }
+
+        if (result == null) {
+
+            paymentTransactionService.markRefundUnknown(paymentId, "PG 환불 결과가 존재하지 않습니다.", user);
+
+            throw new IllegalStateException("PG 환불 결과를 확인할 수 없습니다.");
+        }
 
         if (!result.success()) {
+            paymentTransactionService.failRefund(paymentId, result.failureReason(), user);
+
             throw new IllegalStateException("환불에 실패했습니다: " + result.failureReason());
         }
 
-        if (result.refundedAmount() == null || result.refundedAmount().compareTo(payment.getAmount()) != 0) {
-            throw new IllegalStateException("환불 금액이 결제 금액과 일치하지 않습니다.");
-        }
-
-        payment.refund();
-
-        return payment;
+        return paymentTransactionService.completeRefund(paymentId, result, user);
     }
 
     //주문 취소에 따른 결제 시도 취소
@@ -230,6 +219,7 @@ public class PaymentService {
      //주문 취소에 따른 결제 환불
     @Transactional(propagation = Propagation.MANDATORY)
     public Payment refundPaymentForOrder(Long paymentId, Long orderId, String refundReason) {
+
         Payment payment = paymentRepository
                 .findByIdAndOrderIdForUpdate(paymentId, orderId)
                 .orElseThrow(() -> new EntityNotFoundException("주문에 연결된 결제 정보를 찾을 수 없습니다."));

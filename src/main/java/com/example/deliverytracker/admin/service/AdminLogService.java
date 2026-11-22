@@ -7,7 +7,7 @@ import com.example.deliverytracker.admin.entity.AdminLog;
 import com.example.deliverytracker.admin.entity.TargetType;
 import com.example.deliverytracker.admin.repository.AdminLogRepository;
 import com.example.deliverytracker.user.entity.User;
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
