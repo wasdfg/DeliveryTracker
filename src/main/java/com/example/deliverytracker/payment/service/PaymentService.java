@@ -83,36 +83,11 @@ public class PaymentService {
         return paymentTransactionService.completeApproval(paymentId, result, user);
     }
 
-    //결제 실패 처리
-    @Transactional
-    public Payment failPayment(Long paymentId, String failureReason, User user) {
-
-        Payment payment = paymentRepository.findByIdAndUserIdForUpdate(paymentId, user.getId())
-                .orElseThrow(() -> new EntityNotFoundException("결제 내용을 찾을 수 없습니다."));
-
-        if (payment.getStatus() != PaymentStatus.READY) {
-            throw new IllegalStateException("결제 대기 상태에서만 승인할 수 있습니다.");
-        }
-
-        payment.fail(failureReason);
-
-        return payment;
-    }
-
     // 결제 승인 전 취소 처리
     @Transactional
     public Payment cancelPayment(Long paymentId, User user) {
 
-        Payment payment = paymentRepository.findByIdAndUserIdForUpdate(paymentId, user.getId())
-                .orElseThrow(() -> new EntityNotFoundException("결제 내용을 찾을 수 없습니다."));
-
-        if (payment.getStatus() != PaymentStatus.READY) {
-            throw new IllegalStateException("결제 대기 상태에서만 취소할 수 있습니다.");
-        }
-
-        payment.cancel();
-
-        return payment;
+        return paymentTransactionService.cancelPayment(paymentId, user);
     }
 
     //기존 주문의 결제 재시도
@@ -202,8 +177,7 @@ public class PaymentService {
     @Transactional(propagation = Propagation.MANDATORY)
     public Payment cancelPaymentForOrder(Long paymentId, Long orderId) {
 
-        Payment payment = paymentRepository
-                .findByIdAndOrderIdForUpdate(paymentId, orderId)
+        Payment payment = paymentRepository.findByIdAndOrderIdForUpdate(paymentId, orderId)
                 .orElseThrow(() -> new EntityNotFoundException("주문에 연결된 결제 정보를 찾을 수 없습니다.")
                 );
 
@@ -220,8 +194,7 @@ public class PaymentService {
     @Transactional(propagation = Propagation.MANDATORY)
     public Payment refundPaymentForOrder(Long paymentId, Long orderId, String refundReason) {
 
-        Payment payment = paymentRepository
-                .findByIdAndOrderIdForUpdate(paymentId, orderId)
+        Payment payment = paymentRepository.findByIdAndOrderIdForUpdate(paymentId, orderId)
                 .orElseThrow(() -> new EntityNotFoundException("주문에 연결된 결제 정보를 찾을 수 없습니다."));
 
         if (payment.getStatus() != PaymentStatus.APPROVED) {
