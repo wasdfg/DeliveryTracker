@@ -109,12 +109,20 @@ public class PaymentService {
             throw new IllegalStateException("결제 대기 상태의 주문만 재결제할 수 있습니다.");
         }
 
-        if (paymentRepository.existsByOrder_IdAndStatus(orderId, PaymentStatus.APPROVED)) {
-            throw new IllegalStateException("이미 결제가 완료된 주문입니다.");
-        }
+        boolean hasActivePayment = paymentRepository.existsByOrder_IdAndStatusIn(
+                orderId,
+                java.util.List.of(PaymentStatus.READY,
+                        PaymentStatus.APPROVING,
+                        PaymentStatus.APPROVAL_UNKNOWN,
+                        PaymentStatus.APPROVED,
+                        PaymentStatus.REFUNDING,
+                        PaymentStatus.REFUND_UNKNOWN,
+                        PaymentStatus.REFUNDED
+                )
+        );
 
-        if (paymentRepository.existsByOrder_IdAndStatus(orderId, PaymentStatus.READY)) {
-            throw new IllegalStateException("이미 진행 중인 결제가 있습니다.");
+        if (hasActivePayment) {
+            throw new IllegalStateException("진행 중이거나 이미 처리된 결제가 있습니다.");
         }
 
         Payment previousPayment = paymentRepository.findFirstByOrder_IdOrderByCreatedAtDescIdDesc(orderId)
